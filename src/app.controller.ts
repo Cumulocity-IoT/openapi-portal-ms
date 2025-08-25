@@ -40,4 +40,21 @@ export class AppController {
     const customEvents = await this.api.getCustomEvents({ filter: 'accountId~t2700*', sort: '-date', pageSize: 100 });
     return customEvents;
   }
+
+  @Get('/widgetEvents')
+  async getWidgetEvents() {
+    // @ts-ignore
+    const customEvents = await this.api.getCustomEvents({ filter: 'eventName==loadWidget;accountId~t2700*', sort: '-date', pageSize: 1000 });
+    const transformed = customEvents.customEvents
+      .filter((event) => event.globalContext['projectName'].includes('devicemanagement'))
+      .map((event) => {
+        return {
+          date: event.date,
+          eventName: event.eventName,
+          widgetName: event.attributes?.widgetName,
+          sessionId: event.sessionId,
+        };
+      });
+    return transformed;
+  }
 }

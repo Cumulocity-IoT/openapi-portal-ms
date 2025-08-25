@@ -1,6 +1,6 @@
 export type CustomEvent = {
   eventName: string;
-  attributes: object;
+  attributes: Record<string, any>;
   url: string;
   referrer: string;
   remoteHost: string;
@@ -12,7 +12,7 @@ export type CustomEvent = {
   sessionId: string;
   userType: string;
   accountId: string;
-  globalContext: object;
+  globalContext: Record<string, any>;
 };
 
 export type CustomEventsResponse = {
