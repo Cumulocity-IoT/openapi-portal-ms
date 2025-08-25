@@ -126,6 +126,7 @@ export class GainsightPxService {
       if (user.firstName) user.firstName = createHash('sha256').update(user.firstName).digest().toString('hex');
       if (user.lastName) user.lastName = createHash('sha256').update(user.lastName).digest().toString('hex');
       if (user.email) user.email = createHash('sha256').update(user.email).digest().toString('hex');
+      return user;
     });
   }
 
