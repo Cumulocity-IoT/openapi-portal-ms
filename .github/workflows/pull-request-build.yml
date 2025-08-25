@@ -1,0 +1,45 @@
+name: Pull Request Build Check
+
+on:
+  pull_request:
+    branches:
+      - main  # This can be adjusted to any branch you want the PR to target
+
+jobs:
+  check-build:
+    runs-on: ubuntu-latest  # Runs on the latest version of Ubuntu
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      # Step 2: Set up Node.js (Adjust the version based on your NestJS app's Node version)
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'  # Use the version that your project uses (e.g., '14', '16', etc.)
+
+      # Step 3: Install dependencies
+      - name: Install Dependencies
+        run: |
+          npm install
+
+      # Step 4: Run the build script (you can replace `build` with the appropriate script name if different)
+      - name: Run Build
+        run: |
+          npm run build
+
+      # Step 5: Run test
+      - name: Run Tests
+        run: |
+          npm run test:ci
+
+      # Step 6: Check for errors (Optional, this is more for debugging)
+      - name: Check for Build Errors
+        run: |
+          if [ $? -ne 0 ]; then
+            echo "Build failed. Please fix the errors above."
+            exit 1
+          fi
+

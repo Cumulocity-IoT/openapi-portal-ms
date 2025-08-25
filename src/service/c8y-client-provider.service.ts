@@ -65,7 +65,7 @@ export class C8yClientProviderService {
       (users) => {
         if (!users.length) {
           return Promise.reject(
-            'Microservice koc-sync-db-ms is not subscribed!',
+            'Microservice gainsight-sync-ms is not subscribed!',
           );
         }
         const [user] = users;
