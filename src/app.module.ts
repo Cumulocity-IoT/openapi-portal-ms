@@ -1,17 +1,13 @@
 import { Module } from '@nestjs/common';
-import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
-import { SchedulerService } from './service/scheduler.service';
 import { C8yClientProviderService } from './service/c8y-client-provider.service';
 import { SettingsService } from './service/settings.service';
 import { GainsightPxService } from './service/gainsight-px.service';
+import { BootstrapModule } from './bootstrap.module';
 
 @Module({
-  imports: [ScheduleModule.forRoot()],
+  imports: [BootstrapModule],
   providers: [
-    SchedulerService,
-    C8yClientProviderService,
-    GainsightPxService,
     {
       provide: GainsightPxService,
       useFactory: async (c8yClientProvider: C8yClientProviderService) => {
@@ -24,6 +20,7 @@ import { GainsightPxService } from './service/gainsight-px.service';
         const service = new GainsightPxService(data.value!);
         return service;
       },
+      inject: [C8yClientProviderService],
     },
   ],
   controllers: [AppController],
