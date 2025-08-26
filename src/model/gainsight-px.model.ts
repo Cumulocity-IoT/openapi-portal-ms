@@ -83,6 +83,14 @@ export type User = {
   role: string;
   accountId: string;
   customAttributes: Record<string, string>;
+  lastVisitedUserAgentData?: {
+    propertyKey: string;
+    userAgent: {
+      device: string;
+      platformType: string;
+      browserType: string;
+    };
+  }[];
   lastInferredLocation: {
     countryName: string;
     countryCode: string;

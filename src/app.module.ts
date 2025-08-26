@@ -4,10 +4,12 @@ import { C8yClientProviderService } from './service/c8y-client-provider.service'
 import { SettingsService } from './service/settings.service';
 import { GainsightPxService } from './service/gainsight-px.service';
 import { BootstrapModule } from './bootstrap.module';
+import { UserUtilityService } from './service/user-utility.service';
 
 @Module({
   imports: [BootstrapModule],
   providers: [
+    UserUtilityService,
     {
       provide: GainsightPxService,
       useFactory: async (c8yClientProvider: C8yClientProviderService) => {
