@@ -5,6 +5,9 @@ import { SettingsService } from './service/settings.service';
 import { GainsightPxService } from './service/gainsight-px.service';
 import { BootstrapModule } from './bootstrap.module';
 import { UserUtilityService } from './service/user-utility.service';
+import { ActiveUserController } from './active-users.controller';
+import { EventsController } from './events.controller';
+import { SessionEventsController } from './session-events.controller';
 
 @Module({
   imports: [BootstrapModule],
@@ -25,6 +28,6 @@ import { UserUtilityService } from './service/user-utility.service';
       inject: [C8yClientProviderService],
     },
   ],
-  controllers: [AppController],
+  controllers: [AppController, ActiveUserController, EventsController, SessionEventsController],
 })
 export class AppModule {}
