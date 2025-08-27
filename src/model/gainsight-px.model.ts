@@ -19,6 +19,40 @@ export type CustomEventsResponse = {
   customEvents: CustomEvent[];
 } & Pagination;
 
+export type SessionEvent = {
+  eventId: string;
+  identifyId: string;
+  propertyKey: string;
+  date: number;
+  eventType: string;
+  sessionId: 'LEAD' | 'USER' | 'VISITOR' | 'EMPTY_USER_TYPE';
+  accountId: string;
+  globalContext: object[];
+  remoteHost: string;
+  inferredLocation: PXLocation;
+};
+
+export type SessionEventsResponse = {
+  sessionInitializedEvents: SessionEvent[];
+} & Pagination;
+
+export type PXLocation = {
+  countryName: string;
+  countryCode: string;
+  stateName: string;
+  stateCode: string;
+  city: string;
+  street: string;
+  postalCode: string;
+  continent: string;
+  regionName: string;
+  timeZone: string;
+  coordinates: {
+    latitude: number;
+    longitude: number;
+  };
+};
+
 export type PageView = {
   scheme: string;
   host: string;
@@ -91,22 +125,7 @@ export type User = {
       browserType: string;
     };
   }[];
-  lastInferredLocation: {
-    countryName: string;
-    countryCode: string;
-    stateName: string;
-    stateCode: string;
-    city: string;
-    street: string;
-    postalCode: string;
-    continent: string;
-    regionName: string;
-    timeZone: string;
-    coordinates: {
-      latitude: number;
-      longitude: number;
-    };
-  };
+  lastInferredLocation: PXLocation;
 };
 
 export type UsersResponse = {
@@ -121,6 +140,9 @@ export type Operator = '==' | '!=' | '>' | '<' | '>=' | '<=' | '~' | '!~';
 
 export type CustomEventFilter = `identifyId${Operator}${string}` | `eventName${Operator}${string}` | `date${Operator}${string}`;
 export type CustomEventSort = 'accountId' | '-accountId' | 'date' | '-date';
+
+export type SessionEventFilter = `identifyId${Operator}${string}` | `accountId${Operator}${string}` | `date${Operator}${string}`;
+export type SessionEventSort = 'accountId' | '-accountId' | 'date' | '-date';
 
 export type PageViewFilter =
   | `identifyId${Operator}${string}`

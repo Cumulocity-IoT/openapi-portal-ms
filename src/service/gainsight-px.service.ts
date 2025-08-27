@@ -20,7 +20,9 @@ import {
   IdentifyEventFilter,
   IdentifyEventSort,
   UsersResponse,
-  User,
+  SessionEventFilter,
+  SessionEventSort,
+  SessionEventsResponse,
 } from '../model/gainsight-px.model';
 import { createHash } from 'crypto';
 
@@ -38,6 +40,16 @@ export class GainsightPxService {
         Accept: 'application/json',
       },
     });
+  }
+
+  async getSessionEvents(parameters?: PXParams<SessionEventFilter, SessionEventSort>): Promise<SessionEventsResponse> {
+    try {
+      const params = this.applyParams(parameters);
+      const response = await this.apiClient.get('/events/session', { params });
+      return response.data;
+    } catch (error) {
+      throw new Error(`Error fetching session events: ${error.message}`);
+    }
   }
 
   async getCustomEvents(parameters?: PXParams<CustomEventFilter, CustomEventSort>): Promise<CustomEventsResponse> {
@@ -119,15 +131,6 @@ export class GainsightPxService {
     } catch (error) {
       throw new Error(`Error fetching custom events: ${error.message}`);
     }
-  }
-
-  removePrivacyData(users: User[]) {
-    return users.map((user) => {
-      if (user.firstName) user.firstName = createHash('sha256').update(user.firstName).digest().toString('hex');
-      if (user.lastName) user.lastName = createHash('sha256').update(user.lastName).digest().toString('hex');
-      if (user.email) user.email = createHash('sha256').update(user.email).digest().toString('hex');
-      return user;
-    });
   }
 
   async getFeatureByKey(key: string): Promise<FeatureJSON> {
@@ -224,19 +227,6 @@ export class GainsightPxService {
     return num.toString(36).slice(0, length); // Base36 for shorter output
   }
 
-  private abbreviateParentName(name: string) {
-    const trimmed = name.trim();
-    if (trimmed.length <= 2) return trimmed;
-    return `${trimmed[0]}${trimmed.length - 2}${trimmed[trimmed.length - 1]}`;
-  }
-
-  private normalizeName(name: string) {
-    return name
-      .split(' ')
-      .map((word) => word.replace(/[^a-zA-Z0-9]/g, '').replace(/^./, (c) => c.toUpperCase()))
-      .join('');
-  }
-
   async getFeatureById(id: string) {
     const response = await this.apiClient.get(`/feature/${id}`);
     return response.data;
@@ -266,6 +256,45 @@ export class GainsightPxService {
       console.log('Found match:', match);
     } else {
       console.log('No match found');
+    }
+  }
+
+  
+  /**
+   * Recursively fetches paginated data using a provided fetch function, applies a filtering rule,
+   * and accumulates the results.
+   *
+   * @template T The type of items being fetched.
+   * @param fetchPage - A function that fetches a page of items. It accepts an optional scrollId and returns a promise
+   *   resolving to an object containing the items, an optional scrollId for the next page, and an optional pageSize.
+   * @param sum - An array to accumulate the filtered items across pages.
+   * @param rule - A predicate function to filter items.
+   * @param scrollId - (Optional) The scroll identifier for pagination.
+   * @returns A promise that resolves to an array of filtered items accumulated from all pages.
+   */
+  async getWithPagination<T>(
+    fetchPage: (scrollId?: string) => Promise<{ items: T[]; scrollId?: string; pageSize?: number }>,
+    sum: T[],
+    rule: (item: T) => boolean,
+    scrollId?: string
+  ): Promise<T[]> {
+    const res = await fetchPage(scrollId);
+    const pageSize = res.pageSize ?? 100;
+
+    if (res.items.length <= pageSize) {
+      const filtered = res.items.filter(rule);
+      sum.push(...filtered);
+      return sum;
+    }
+
+    const lastItem = res.items[res.items.length - 1];
+    if (!rule(lastItem)) {
+      const filtered = res.items.filter(rule);
+      sum.push(...filtered);
+      return sum;
+    } else {
+      sum.push(...res.items);
+      return this.getWithPagination(fetchPage, sum, rule, res.scrollId);
     }
   }
 }

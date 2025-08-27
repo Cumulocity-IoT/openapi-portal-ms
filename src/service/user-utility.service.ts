@@ -53,6 +53,7 @@ export class UserUtilityService {
 
   topUserRoles(users: User[]) {
     const counts: Record<string, number> = {};
+    let allRolesCount = 0;
     users.forEach((user) => {
       const roleString = user.customAttributes?.userRoles || 'unknown';
       const roles = roleString.split(',').map((r) => r.trim());
@@ -61,14 +62,15 @@ export class UserUtilityService {
           counts[role] = 0;
         }
         counts[role]++;
+        allRolesCount++;
       });
     });
-    const total = users.length;
+
     const roleCounts = Object.entries(counts)
       .map(([language, count]) => ({
         language,
         count,
-        percentage: (count / total) * 100,
+        percentage: (count / allRolesCount) * 100,
       }))
       .sort((a, b) => b.count - a.count);
     return { roleCounts };
