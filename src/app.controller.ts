@@ -1,7 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { GainsightPxService } from './service/gainsight-px.service';
 import { subDays } from 'date-fns';
-import { CustomEvent, User } from './model/gainsight-px.model';
+import { CustomEvent, SessionEvent, User } from './model/gainsight-px.model';
 import { UserUtilityService } from './service/user-utility.service';
 
 @Controller()
@@ -34,13 +34,19 @@ export class AppController {
       return [];
     }
 
-    if (users.users.length === 100) {
-    }
-
     const startDate = new Date();
     startDate.setHours(0, 0, 0, 0);
     const thirtyDaysAgo = subDays(startDate, 30);
+
     const filter = (user: User) => new Date(user.lastSeenDate) >= thirtyDaysAgo;
+    if (users.users.length === 100) {
+      const lastUser = users.users[users.users.length - 1];
+      if (filter(lastUser) === false) {
+        const filtered = users.users.filter((u) => filter(u));
+        return filtered;
+      }
+    }
+
     const allUsers = await this.getUsersWithPagination(users.scrollId, users.users, filter);
     return allUsers;
   }
@@ -51,7 +57,6 @@ export class AppController {
     return {
       ...this.userUtil.numberOfUsers(users),
       ...this.userUtil.numberOfNewSignups(users),
-      ...this.userUtil.top50Users(users),
       ...this.userUtil.topLanguages(users),
       ...this.userUtil.topUserRoles(users),
       ...this.userUtil.topCountries(users),
@@ -125,5 +130,113 @@ export class AppController {
       counts[widgetName]++;
     });
     return Object.entries(counts).map(([name, count]) => ({ name, count }));
+  }
+
+  @Get('/sessionEvents')
+  async getSessionEvents() {
+    const res = await this.api.getSessionEvents({ filter: 'accountId~t2700*', sort: '-date', pageSize: 100 });
+    const events = res.sessionInitializedEvents;
+    if (!events || events.length === 0) {
+      return [];
+    }
+
+    const startDate = new Date();
+    startDate.setHours(0, 0, 0, 0);
+    const thirtyDaysAgo = subDays(startDate, 30);
+
+    const filter = (session: SessionEvent) => new Date(session.date) >= thirtyDaysAgo;
+    if (events.length === 100) {
+      const lastEvent = events[events.length - 1];
+      if (filter(lastEvent) === false) {
+        const filtered = events.filter((u) => filter(u));
+        return this.aggregateByDay(filtered);
+      }
+    }
+
+    const allEvents = await this.getSessionEventsWithPagination(res.scrollId, events, filter);
+    return this.aggregateByDay(allEvents);
+  }
+
+  private aggregateByDay(events: SessionEvent[]) {
+    const counts: Record<string, number> = {};
+    events.forEach((event) => {
+      const date = new Date(event.date);
+      date.setHours(0, 0, 0, 0);
+      const key = date.toISOString();
+      if (!counts[key]) {
+        counts[key] = 0;
+      }
+      counts[key]++;
+    });
+
+    return Object.entries(counts)
+      .map(([date, count]) => ({ date, count }))
+      .sort((a, b) => (a.date < b.date ? -1 : 1));
+  }
+
+  private async getSessionEventsWithPagination(scrollId: string, sum: SessionEvent[], rule: (session: SessionEvent) => boolean): Promise<SessionEvent[]> {
+    const res = await this.api.getSessionEvents({
+      filter: 'accountId~t2700*',
+      sort: '-date',
+      pageSize: 100,
+      scrollId,
+    });
+
+    const events = res.sessionInitializedEvents;
+
+    if (events.length <= 100) {
+      const filtered = events.filter(rule);
+      sum.push(...filtered);
+      return sum;
+    }
+
+    const lastEvent = events[events.length - 1];
+    if (rule(lastEvent) === false) {
+      const filtered = events.filter((u) => rule(u));
+      sum.push(...filtered);
+      return sum;
+    } else {
+      sum.push(...events);
+      return this.getSessionEventsWithPagination(res.scrollId, sum, rule);
+    }
+  }
+  @Get('/sessionEventsToday')
+  async getSessionEventsToday() {
+    const res = await this.api.getSessionEvents({ filter: 'accountId~t2700*', sort: '-date', pageSize: 100 });
+    const events = res.sessionInitializedEvents;
+    if (!events || events.length === 0) {
+      return [];
+    }
+
+    const filter = (session: SessionEvent) => new Date(session.date) >= twentyFourHoursAgo;
+    if (events.length === 100) {
+      const lastEvent = events[events.length - 1];
+      if (filter(lastEvent) === false) {
+        const filtered = events.filter((u) => filter(u));
+        return this.aggregateByMinute(filtered);
+      }
+    }
+
+    const startDate = new Date();
+    startDate.setHours(0, 0, 0, 0);
+    const twentyFourHoursAgo = subDays(startDate, 1);
+    const allEvents = await this.getSessionEventsWithPagination(res.scrollId, events, filter);
+    return this.aggregateByMinute(allEvents);
+  }
+
+  private aggregateByMinute(events: SessionEvent[]) {
+    const counts: Record<string, number> = {};
+    events.forEach((event) => {
+      const date = new Date(event.date);
+      date.setSeconds(0, 0);
+      const key = date.toISOString();
+      if (!counts[key]) {
+        counts[key] = 0;
+      }
+      counts[key]++;
+    });
+    return Object.entries(counts)
+      .map(([date, count]) => ({ date, count }))
+      .sort((a, b) => (a.date < b.date ? -1 : 1));
   }
 }
