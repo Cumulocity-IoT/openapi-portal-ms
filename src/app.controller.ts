@@ -37,17 +37,13 @@ export class AppController {
     const startDate = new Date();
     startDate.setHours(0, 0, 0, 0);
     const thirtyDaysAgo = subDays(startDate, 30);
-
-    const filter = (user: User) => new Date(user.lastSeenDate) >= thirtyDaysAgo;
-    if (users.users.length === 100) {
-      const lastUser = users.users[users.users.length - 1];
-      if (filter(lastUser) === false) {
-        const filtered = users.users.filter((u) => filter(u));
-        return filtered;
-      }
+    const rule = (user: User) => new Date(user.lastSeenDate) >= thirtyDaysAgo;
+    if (users.users.length < 100) {
+      const filtered = users.users.filter((u) => rule(u));
+      return filtered;
     }
 
-    const allUsers = await this.getUsersWithPagination(users.scrollId, users.users, filter);
+    const allUsers = await this.getUsersWithPagination(users.scrollId, users.users, rule);
     return allUsers;
   }
 
@@ -74,7 +70,7 @@ export class AppController {
       scrollId,
     });
 
-    if (res.users.length <= 100) {
+    if (res.users.length < 100) {
       const filtered = res.users.filter(rule);
       sum.push(...filtered);
       return sum;
@@ -134,6 +130,11 @@ export class AppController {
 
   @Get('/sessionEvents')
   async getSessionEvents() {
+    return this.api.getSessionEvents({ filter: 'accountId~t2700*', sort: '-date', pageSize: 1000 });
+  }
+
+  @Get('/sessionEventsDay')
+  async getSessionEventsDay() {
     const res = await this.api.getSessionEvents({ filter: 'accountId~t2700*', sort: '-date', pageSize: 100 });
     const events = res.sessionInitializedEvents;
     if (!events || events.length === 0) {
@@ -145,7 +146,7 @@ export class AppController {
     const thirtyDaysAgo = subDays(startDate, 30);
 
     const filter = (session: SessionEvent) => new Date(session.date) >= thirtyDaysAgo;
-    if (events.length === 100) {
+    if (events.length < 100) {
       const lastEvent = events[events.length - 1];
       if (filter(lastEvent) === false) {
         const filtered = events.filter((u) => filter(u));
@@ -184,7 +185,7 @@ export class AppController {
 
     const events = res.sessionInitializedEvents;
 
-    if (events.length <= 100) {
+    if (events.length < 100) {
       const filtered = events.filter(rule);
       sum.push(...filtered);
       return sum;
@@ -209,7 +210,7 @@ export class AppController {
     }
 
     const filter = (session: SessionEvent) => new Date(session.date) >= twentyFourHoursAgo;
-    if (events.length === 100) {
+    if (events.length < 100) {
       const lastEvent = events[events.length - 1];
       if (filter(lastEvent) === false) {
         const filtered = events.filter((u) => filter(u));
