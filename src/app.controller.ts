@@ -1,7 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { GainsightPxService } from './service/gainsight-px.service';
 import { subDays } from 'date-fns';
-import { CustomEvent, SessionEvent, User } from './model/gainsight-px.model';
+import { CustomEvent, SessionEvent, SessionEventFilter, User } from './model/gainsight-px.model';
 import { UserUtilityService } from './service/user-utility.service';
 
 @Controller()
@@ -130,28 +130,24 @@ export class AppController {
 
   @Get('/sessionEvents')
   async getSessionEvents() {
-    return this.api.getSessionEvents({ filter: 'accountId~t2700*', sort: '-date', pageSize: 1000 });
+    return this.api.getSessionEvents({ filter: 'accountId~t2700*', sort: 'date', pageSize: 1000 });
   }
 
-  @Get('/sessionEventsDay')
+  @Get('/sessionEventsLastMonth')
   async getSessionEventsDay() {
-    const res = await this.api.getSessionEvents({ filter: 'accountId~t2700*', sort: '-date', pageSize: 100 });
+    const startDate = new Date();
+    startDate.setHours(0, 0, 0, 0);
+    const thirtyDaysAgo = subDays(startDate, 30);
+    const filter = `accountId~t2700*;date>${thirtyDaysAgo.getTime()}` as SessionEventFilter;
+
+    const res = await this.api.getSessionEvents({ filter, sort: 'date', pageSize: 1000 });
     const events = res.sessionInitializedEvents;
     if (!events || events.length === 0) {
       return [];
     }
 
-    const startDate = new Date();
-    startDate.setHours(0, 0, 0, 0);
-    const thirtyDaysAgo = subDays(startDate, 30);
-
-    const filter = (session: SessionEvent) => new Date(session.date) >= thirtyDaysAgo;
-    if (events.length < 100) {
-      const lastEvent = events[events.length - 1];
-      if (filter(lastEvent) === false) {
-        const filtered = events.filter((u) => filter(u));
-        return this.aggregateByDay(filtered);
-      }
+    if (events.length < 1000) {
+      return this.aggregateByDay(events);
     }
 
     const allEvents = await this.getSessionEventsWithPagination(res.scrollId, events, filter);
@@ -175,52 +171,39 @@ export class AppController {
       .sort((a, b) => (a.date < b.date ? -1 : 1));
   }
 
-  private async getSessionEventsWithPagination(scrollId: string, sum: SessionEvent[], rule: (session: SessionEvent) => boolean): Promise<SessionEvent[]> {
+  private async getSessionEventsWithPagination(scrollId: string, sum: SessionEvent[], filter: SessionEventFilter) {
     const res = await this.api.getSessionEvents({
-      filter: 'accountId~t2700*',
-      sort: '-date',
-      pageSize: 100,
+      filter,
+      sort: 'date',
+      pageSize: 1000,
       scrollId,
     });
 
     const events = res.sessionInitializedEvents;
-
-    if (events.length < 100) {
-      const filtered = events.filter(rule);
-      sum.push(...filtered);
-      return sum;
-    }
-
-    const lastEvent = events[events.length - 1];
-    if (rule(lastEvent) === false) {
-      const filtered = events.filter((u) => rule(u));
-      sum.push(...filtered);
+    sum.push(...events);
+    if (events.length < 1000) {
       return sum;
     } else {
-      sum.push(...events);
-      return this.getSessionEventsWithPagination(res.scrollId, sum, rule);
+      return this.getSessionEventsWithPagination(res.scrollId, sum, filter);
     }
   }
-  @Get('/sessionEventsToday')
+  @Get('/sessionEventsLastDay')
   async getSessionEventsToday() {
-    const res = await this.api.getSessionEvents({ filter: 'accountId~t2700*', sort: '-date', pageSize: 100 });
+    const startDate = new Date();
+    const twentyFourHoursAgo = subDays(startDate, 1);
+    const dateStamp = twentyFourHoursAgo.getTime();
+
+    const filter = `accountId~t2700*;date>${dateStamp}` as SessionEventFilter;
+    const res = await this.api.getSessionEvents({ filter: filter, sort: 'date', pageSize: 1000 });
     const events = res.sessionInitializedEvents;
     if (!events || events.length === 0) {
       return [];
     }
 
-    const filter = (session: SessionEvent) => new Date(session.date) >= twentyFourHoursAgo;
-    if (events.length < 100) {
-      const lastEvent = events[events.length - 1];
-      if (filter(lastEvent) === false) {
-        const filtered = events.filter((u) => filter(u));
-        return this.aggregateByMinute(filtered);
-      }
+    if (events.length < 1000) {
+      return this.aggregateByMinute(events);
     }
 
-    const startDate = new Date();
-    startDate.setHours(0, 0, 0, 0);
-    const twentyFourHoursAgo = subDays(startDate, 1);
     const allEvents = await this.getSessionEventsWithPagination(res.scrollId, events, filter);
     return this.aggregateByMinute(allEvents);
   }
