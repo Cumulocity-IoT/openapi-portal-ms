@@ -13,7 +13,7 @@ export class EventsController {
   async getCustomEventsToday() {
     // @ts-ignore
     // always returns latest date first, only returns for today
-    const filter = 'accountId~t2700*;globalContext.projectName==devicemanagement' as CustomEventFilter;
+    const filter = 'accountId~t2700*' as CustomEventFilter;
     this.logger.log(`Fetching custom events for today: ${filter}`);
     const customEvents = await this.api.getCustomEvents({ filter, sort: 'date', pageSize: 1000 });
     this.logger.log(`Fetched ${customEvents.customEvents.length} custom events.`);
@@ -28,7 +28,7 @@ export class EventsController {
     date.setHours(0, 0, 0, 0);
     const last30Days = subDays(date, 30);
 
-    const filter = `accountId~t2700*;date>${last30Days.getTime()};globalContext.projectName==devicemanagement` as CustomEventFilter;
+    const filter = `accountId~t2700*;date>${last30Days.getTime()}` as CustomEventFilter;
     this.logger.log(`Fetching custom events for today: ${filter} (date: ${last30Days.toISOString()})`);
     const customEvents = await this.api.getCustomEvents({ filter, sort: 'date', pageSize: 1000 });
 
