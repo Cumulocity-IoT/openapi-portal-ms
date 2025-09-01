@@ -38,55 +38,55 @@ export class ActiveUserController {
   @Get('/activeUserMetrics/numberOfUsers')
   async numberOfUsers() {
     const users = await this.getActiveUsers();
-    this.userUtil.numberOfUsers(users);
+    return this.userUtil.numberOfUsers(users);
   }
 
   @Get('/activeUserMetrics/newSignups')
   async numberOfNewSignups() {
     const users = await this.getActiveUsers();
-    this.userUtil.numberOfNewSignups(users);
+    return this.userUtil.numberOfNewSignups(users);
   }
 
   @Get('/activeUserMetrics/topLanguages')
   async topLanguages() {
     const users = await this.getActiveUsers();
-    this.userUtil.topLanguages(users);
+    return this.userUtil.topLanguages(users);
   }
 
   @Get('/activeUserMetrics/topUserRoles')
   async topUserRoles() {
     const users = await this.getActiveUsers();
-    this.userUtil.topUserRoles(users);
+    return this.userUtil.topUserRoles(users);
   }
 
   @Get('/activeUserMetrics/topCountries')
   async topCountries() {
     const users = await this.getActiveUsers();
-    this.userUtil.topCountries(users);
+    return this.userUtil.topCountries(users);
   }
 
   @Get('/activeUserMetrics/topPlatforms')
   async topPlatforms() {
     const users = await this.getActiveUsers();
-    this.userUtil.topPlatforms(users);
+    return this.userUtil.topPlatforms(users);
   }
 
   @Get('/activeUserMetrics/topBrowsers')
   async topBrowsers() {
     const users = await this.getActiveUsers();
-    this.userUtil.topBrowsers(users);
+    return this.userUtil.topBrowsers(users);
   }
 
   @Get('/activeUserMetrics/topDeviceTypes')
   async topDeviceTypes() {
     const users = await this.getActiveUsers();
-    this.userUtil.topDeviceTypes(users);
+    return this.userUtil.topDeviceTypes(users);
   }
 
   @Get('/activeUserMetrics/mailDomainNames')
   async mailDomainNames() {
     const users = await this.getActiveUsers();
-    this.userUtil.mailDomainNames(users);
+    return this.userUtil.mailDomainNames(users);
   }
 
   async getUsersWithPagination(scrollId: string, sum: User[], rule: (user: User) => boolean): Promise<User[]> {
