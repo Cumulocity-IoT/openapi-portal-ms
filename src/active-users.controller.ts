@@ -35,20 +35,58 @@ export class ActiveUserController {
     return allUsers;
   }
 
-  @Get('/activeUserMetrics')
-  async getActiveUserMetrics() {
+  @Get('/activeUserMetrics/numberOfUsers')
+  async numberOfUsers() {
     const users = await this.getActiveUsers();
-    return {
-      ...this.userUtil.numberOfUsers(users),
-      ...this.userUtil.numberOfNewSignups(users),
-      ...this.userUtil.topLanguages(users),
-      ...this.userUtil.topUserRoles(users),
-      ...this.userUtil.topCountries(users),
-      ...this.userUtil.topPlatforms(users),
-      ...this.userUtil.topBrowsers(users),
-      ...this.userUtil.topDeviceTypes(users),
-      ...this.userUtil.mailDomainNames(users),
-    };
+    this.userUtil.numberOfUsers(users);
+  }
+
+  @Get('/activeUserMetrics/newSignups')
+  async numberOfNewSignups() {
+    const users = await this.getActiveUsers();
+    this.userUtil.numberOfNewSignups(users);
+  }
+
+  @Get('/activeUserMetrics/topLanguages')
+  async topLanguages() {
+    const users = await this.getActiveUsers();
+    this.userUtil.topLanguages(users);
+  }
+
+  @Get('/activeUserMetrics/topUserRoles')
+  async topUserRoles() {
+    const users = await this.getActiveUsers();
+    this.userUtil.topUserRoles(users);
+  }
+
+  @Get('/activeUserMetrics/topCountries')
+  async topCountries() {
+    const users = await this.getActiveUsers();
+    this.userUtil.topCountries(users);
+  }
+
+  @Get('/activeUserMetrics/topPlatforms')
+  async topPlatforms() {
+    const users = await this.getActiveUsers();
+    this.userUtil.topPlatforms(users);
+  }
+
+  @Get('/activeUserMetrics/topBrowsers')
+  async topBrowsers() {
+    const users = await this.getActiveUsers();
+    this.userUtil.topBrowsers(users);
+  }
+
+  @Get('/activeUserMetrics/topDeviceTypes')
+  async topDeviceTypes() {
+    const users = await this.getActiveUsers();
+    this.userUtil.topDeviceTypes(users);
+  }
+
+  @Get('/activeUserMetrics/mailDomainNames')
+  async mailDomainNames() {
+    const users = await this.getActiveUsers();
+    this.userUtil.mailDomainNames(users);
   }
 
   async getUsersWithPagination(scrollId: string, sum: User[], rule: (user: User) => boolean): Promise<User[]> {
