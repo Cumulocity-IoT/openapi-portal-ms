@@ -67,8 +67,8 @@ export class UserUtilityService {
     });
 
     const roleCounts = Object.entries(counts)
-      .map(([language, count]) => ({
-        language,
+      .map(([role, count]) => ({
+        role,
         count,
         percentage: (count / allRolesCount) * 100,
       }))
@@ -87,8 +87,8 @@ export class UserUtilityService {
     });
     const total = users.length;
     const countryCounts = Object.entries(counts)
-      .map(([language, count]) => ({
-        language,
+      .map(([country, count]) => ({
+        country,
         count,
         percentage: (count / total) * 100,
       }))
@@ -113,8 +113,8 @@ export class UserUtilityService {
     }
     const total = users.length;
     const platformCounts = Object.entries(counts)
-      .map(([language, count]) => ({
-        language,
+      .map(([platform, count]) => ({
+        platform,
         count,
         percentage: (count / total) * 100,
       }))
@@ -139,8 +139,8 @@ export class UserUtilityService {
     }
     const total = users.length;
     const browserCounts = Object.entries(counts)
-      .map(([language, count]) => ({
-        language,
+      .map(([browser, count]) => ({
+        browser,
         count,
         percentage: (count / total) * 100,
       }))
@@ -165,12 +165,33 @@ export class UserUtilityService {
     }
     const total = users.length;
     const deviceCounts = Object.entries(counts)
-      .map(([language, count]) => ({
-        language,
+      .map(([device, count]) => ({
+        device,
         count,
         percentage: (count / total) * 100,
       }))
       .sort((a, b) => b.count - a.count);
     return { deviceCounts };
+  }
+
+  mailDomainNames(users: User[]) {
+    const counts: Record<string, number> = {};
+    const usersWithDomain = users.filter((u) => u.email?.includes('@'));
+    for (const user of usersWithDomain) {
+      const domain = user.email.split('@')[1];
+      if (!counts[domain]) {
+        counts[domain] = 0;
+      }
+      counts[domain]++;
+    }
+    const total = usersWithDomain.length;
+    const mailCounts = Object.entries(counts)
+      .map(([domain, count]) => ({
+        domain,
+        count,
+        percentage: (count / total) * 100,
+      }))
+      .sort((a, b) => b.count - a.count);
+    return { mailCounts };
   }
 }
