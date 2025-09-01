@@ -49,7 +49,7 @@ export class SessionEventsController {
     return this.aggregateByMinute(allEvents);
   }
 
-  private async getSessionEventsWithPagination(filter: SessionEventFilter, sum: SessionEvent[], scrollId?: string) {
+  private async getSessionEventsWithPagination(filter: SessionEventFilter, sum: SessionEvent[], scrollId?: string): Promise<SessionEvent[]> {
     const res = await this.api.getSessionEvents({
       filter,
       sort: 'date',
@@ -96,6 +96,12 @@ export class SessionEventsController {
       }
   
       const allEvents = await this.getSessionEventsWithPagination(filter, []);
-      return allEvents;
+      return allEvents.map(e => ({
+        time: new Date(e.date).toISOString(),
+        eventId: e.eventId,
+        identifyId: e.identifyId,
+        inferredLocation: e.inferredLocation,
+        userType: e.userType
+      }));
     }
 }
