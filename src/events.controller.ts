@@ -41,8 +41,33 @@ export class EventsController {
     }
   }
 
+  @Get('/eventCounts')
+  async getEventCounts(@Query('start') start?: string, @Query('end') end?: string) {
+    let filter = `accountId~t2700*;` as CustomEventFilter;
+    if (start) {
+      const date = new Date(start);
+      filter += `date>${date.getTime()};`;
+    }
+    if (end) {
+      const date = new Date(end);
+      filter += `date<${date.getTime()};`;
+    }
+    const allEvents = await this.getEventWithPagination(filter, []);
+    const filtered = allEvents.filter((event) => !event.globalContext['projectName'] || event.globalContext['projectName'].includes('devicemanagement'));
+
+    const counts: Record<string, number> = {};
+    filtered.forEach((event) => {
+      const name = event.eventName || 'unknown';
+      if (!counts[name]) {
+        counts[name] = 0;
+      }
+      counts[name]++;
+    });
+    return Object.entries(counts).map(([value, count]) => ({ value, count }));
+  }
+
   @Get('/eventCountsByName')
-  async getWidgetEvents(@Query('eventName') eventName: string, @Query('start') start?: string, @Query('end') end?: string) {
+  async getEventCountsByName(@Query('eventName') eventName: string, @Query('start') start?: string, @Query('end') end?: string) {
     let filter = `accountId~t2700*;eventName==${eventName};` as CustomEventFilter;
     if (start) {
       const date = new Date(start);
@@ -71,7 +96,7 @@ export class EventsController {
       .filter((event) => !event.globalContext['projectName'] || event.globalContext['projectName'].includes(application))
       .map((event) => {
         return {
-          date: event.date,
+          date: new Date(event.date).toISOString(),
           widgetName: event.attributes?.widgetName,
           sessionId: event.sessionId,
         };
