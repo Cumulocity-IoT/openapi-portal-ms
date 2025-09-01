@@ -24,11 +24,11 @@ export class UserUtilityService {
     startDate.setHours(0, 0, 0, 0);
     const thirtyDaysAgo = subDays(startDate, 30);
     const newSignups = users.filter((user) => new Date(user.signUpDate) >= thirtyDaysAgo);
-    return { newSignups: newSignups.length };
+    return { count: newSignups.length };
   }
 
   numberOfUsers(users: User[]) {
-    return { totalUsers: users.length };
+    return { count: users.length };
   }
 
   topLanguages(users: User[]) {
@@ -42,13 +42,13 @@ export class UserUtilityService {
     });
     const total = users.length;
     const languageCounts = Object.entries(counts)
-      .map(([language, count]) => ({
-        language,
+      .map(([value, count]) => ({
+        value,
         count,
         percentage: (count / total) * 100,
       }))
       .sort((a, b) => b.count - a.count);
-    return { languageCounts };
+    return languageCounts;
   }
 
   topUserRoles(users: User[]) {
@@ -67,13 +67,13 @@ export class UserUtilityService {
     });
 
     const roleCounts = Object.entries(counts)
-      .map(([role, count]) => ({
-        role,
+      .map(([value, count]) => ({
+        value,
         count,
         percentage: (count / allRolesCount) * 100,
       }))
       .sort((a, b) => b.count - a.count);
-    return { roleCounts };
+    return roleCounts;
   }
 
   topCountries(users: User[]) {
@@ -87,13 +87,13 @@ export class UserUtilityService {
     });
     const total = users.length;
     const countryCounts = Object.entries(counts)
-      .map(([country, count]) => ({
-        country,
+      .map(([value, count]) => ({
+        value,
         count,
         percentage: (count / total) * 100,
       }))
       .sort((a, b) => b.count - a.count);
-    return { countryCounts };
+    return countryCounts;
   }
 
   topPlatforms(users: User[]) {
@@ -113,13 +113,13 @@ export class UserUtilityService {
     }
     const total = users.length;
     const platformCounts = Object.entries(counts)
-      .map(([platform, count]) => ({
-        platform,
+      .map(([value, count]) => ({
+        value,
         count,
         percentage: (count / total) * 100,
       }))
       .sort((a, b) => b.count - a.count);
-    return { platformCounts };
+    return platformCounts;
   }
 
   topBrowsers(users: User[]) {
@@ -139,13 +139,13 @@ export class UserUtilityService {
     }
     const total = users.length;
     const browserCounts = Object.entries(counts)
-      .map(([browser, count]) => ({
-        browser,
+      .map(([value, count]) => ({
+        value,
         count,
         percentage: (count / total) * 100,
       }))
       .sort((a, b) => b.count - a.count);
-    return { browserCounts };
+    return browserCounts;
   }
 
   topDeviceTypes(users: User[]) {
@@ -165,13 +165,13 @@ export class UserUtilityService {
     }
     const total = users.length;
     const deviceCounts = Object.entries(counts)
-      .map(([device, count]) => ({
-        device,
+      .map(([value, count]) => ({
+        value,
         count,
         percentage: (count / total) * 100,
       }))
       .sort((a, b) => b.count - a.count);
-    return { deviceCounts };
+    return deviceCounts;
   }
 
   mailDomainNames(users: User[]) {
@@ -186,12 +186,12 @@ export class UserUtilityService {
     }
     const total = usersWithDomain.length;
     const mailCounts = Object.entries(counts)
-      .map(([domain, count]) => ({
-        domain,
+      .map(([value, count]) => ({
+        value,
         count,
         percentage: (count / total) * 100,
       }))
       .sort((a, b) => b.count - a.count);
-    return { mailCounts };
+    return mailCounts;
   }
 }
