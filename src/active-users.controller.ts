@@ -11,11 +11,12 @@ export class ActiveUserController {
     private userUtil: UserUtilityService
   ) {}
 
+  @Get('/activeUsers')
   async getActiveUsers() {
     const users = await this.api.getUsers({
       filter: 'customAttributes.domainName==main.dm-zz-q.ioee10-cloud.com',
       sort: '-lastSeenDate',
-      pageSize: 100,
+      pageSize: 1000,
     });
 
     if (!users.users || users.users.length === 0) {
@@ -26,7 +27,7 @@ export class ActiveUserController {
     startDate.setHours(0, 0, 0, 0);
     const thirtyDaysAgo = subDays(startDate, 30);
     const rule = (user: User) => new Date(user.lastSeenDate) >= thirtyDaysAgo;
-    if (users.users.length < 100) {
+    if (users.users.length < 1000) {
       const filtered = users.users.filter((u) => rule(u));
       return filtered;
     }
@@ -47,6 +48,7 @@ export class ActiveUserController {
       ...this.userUtil.topPlatforms(users),
       ...this.userUtil.topBrowsers(users),
       ...this.userUtil.topDeviceTypes(users),
+      ...this.userUtil.mailDomainNames(users),
     };
   }
 
@@ -54,11 +56,11 @@ export class ActiveUserController {
     const res = await this.api.getUsers({
       filter: 'customAttributes.domainName==main.dm-zz-q.ioee10-cloud.com',
       sort: '-lastSeenDate',
-      pageSize: 100,
+      pageSize: 1000,
       scrollId,
     });
 
-    if (res.users.length < 100) {
+    if (res.users.length < 1000) {
       const filtered = res.users.filter(rule);
       sum.push(...filtered);
       return sum;
