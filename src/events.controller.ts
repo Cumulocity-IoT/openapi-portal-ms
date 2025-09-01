@@ -12,10 +12,12 @@ export class EventsController {
   async getCustomEvents(@Query('start') start?: string, @Query('end') end?: string) {
     let filter = `accountId~t2700*;` as CustomEventFilter;
     if (start) {
-      filter += `date>${start};`;
+      const date = new Date(start);
+      filter += `date>${date.getTime()};`;
     }
     if (end) {
-      filter += `date<${end};`;
+      const date = new Date(end);
+      filter += `date<${date.getTime()};`;
     }
 
     const allEvents = await this.getEventWithPagination(filter, []);
@@ -43,10 +45,12 @@ export class EventsController {
   async getWidgetEvents(@Query('eventName') eventName: string, @Query('start') start?: string, @Query('end') end?: string) {
     let filter = `accountId~t2700*;eventName==${eventName};` as CustomEventFilter;
     if (start) {
-      filter += `date>${start};`;
+      const date = new Date(start);
+      filter += `date>${date.getTime()};`;
     }
     if (end) {
-      filter += `date<${end};`;
+      const date = new Date(end);
+      filter += `date<${date.getTime()};`;
     }
     const allEvents = await this.getEventWithPagination(filter, []);
     const filtered = allEvents.filter((event) => !event.globalContext['projectName'] || event.globalContext['projectName'].includes('devicemanagement'));

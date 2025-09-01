@@ -116,7 +116,7 @@ export type User = {
   phone: string;
   role: string;
   accountId: string;
-  customAttributes: Record<string, string>;
+  customAttributes: CustomUserAttributes;
   lastVisitedUserAgentData?: {
     propertyKey: string;
     userAgent: {
@@ -126,6 +126,20 @@ export type User = {
     };
   }[];
   lastInferredLocation: PXLocation;
+};
+
+export type CustomUserAttributes = {
+  userRoles: string;
+  instanceId: string;
+  domainName: string;
+  tenantID: string;
+  engagements: boolean;
+  fullTracking: boolean;
+  customBranding: boolean;
+  userName: string;
+  isUserCreatedAfterAnonymizationWasActivated: boolean;
+  userLanguage: string;
+  [key: string]: any;
 };
 
 export type UsersResponse = {
