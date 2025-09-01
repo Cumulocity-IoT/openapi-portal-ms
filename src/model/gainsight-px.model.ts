@@ -25,11 +25,12 @@ export type SessionEvent = {
   propertyKey: string;
   date: number;
   eventType: string;
-  sessionId: 'LEAD' | 'USER' | 'VISITOR' | 'EMPTY_USER_TYPE';
+  sessionId: string;
   accountId: string;
   globalContext: object[];
   remoteHost: string;
   inferredLocation: PXLocation;
+  userType: 'LEAD' | 'USER' | 'VISITOR' | 'EMPTY_USER_TYPE';
 };
 
 export type SessionEventsResponse = {
