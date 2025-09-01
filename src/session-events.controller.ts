@@ -87,10 +87,12 @@ export class SessionEventsController {
     async getCustomEvents(@Query('start') start?: string, @Query('end') end?: string) {
       let filter = `accountId~t2700*;` as SessionEventFilter;
       if (start) {
-        filter += `date>${start};`;
+        const date = new Date(start);
+        filter += `date>${date.getTime()};`;
       }
       if (end) {
-        filter += `date<${end};`;
+        const date = new Date(end);
+        filter += `date<${date.getTime()};`;
       }
   
       const allEvents = await this.getSessionEventsWithPagination(filter, []);

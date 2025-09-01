@@ -11,7 +11,6 @@ export class ActiveUserController {
     private userUtil: UserUtilityService
   ) {}
 
-  @Get('/activeUsers')
   async getActiveUsers() {
     const users = await this.api.getUsers({
       filter: 'customAttributes.domainName==main.dm-zz-q.ioee10-cloud.com',
