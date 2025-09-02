@@ -29,7 +29,7 @@ export class SessionEventsController {
     events.forEach((event) => {
       const date = new Date(event.date);
       date.setHours(0, 0, 0, 0);
-      const key = date.toISOString();
+      const key = date.getTime();
       if (!counts[key]) {
         counts[key] = 0;
       }
@@ -73,7 +73,7 @@ export class SessionEventsController {
     events.forEach((event) => {
       const date = new Date(event.date);
       date.setSeconds(0, 0);
-      const key = date.toISOString();
+      const key = date.getTime();
       if (!counts[key]) {
         counts[key] = 0;
       }
