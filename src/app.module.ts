@@ -8,6 +8,7 @@ import { UserUtilityService } from './service/user-utility.service';
 import { ActiveUserController } from './active-users.controller';
 import { EventsController } from './events.controller';
 import { SessionEventsController } from './session-events.controller';
+import { PageViewController } from './page-view.controller';
 
 @Module({
   imports: [BootstrapModule],
@@ -28,6 +29,6 @@ import { SessionEventsController } from './session-events.controller';
       inject: [C8yClientProviderService],
     },
   ],
-  controllers: [AppController, ActiveUserController, EventsController, SessionEventsController],
+  controllers: [AppController, ActiveUserController, EventsController, SessionEventsController, PageViewController],
 })
 export class AppModule {}

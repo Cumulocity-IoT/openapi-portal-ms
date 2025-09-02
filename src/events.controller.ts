@@ -21,6 +21,9 @@ export class EventsController {
     }
 
     const allEvents = await this.getEventWithPagination(filter, []);
+    if (allEvents.length) {
+      this.logger.log(`Custom events - first on ${new Date(allEvents[0].date).toISOString()}, last on ${new Date(allEvents[allEvents.length - 1].date).toISOString()}`);
+    }
     return this.filterByApplication(allEvents, 'devicemanagement');
   }
 
