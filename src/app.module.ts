@@ -9,9 +9,17 @@ import { ActiveUserController } from './active-users.controller';
 import { EventsController } from './events.controller';
 import { SessionEventsController } from './session-events.controller';
 import { PageViewController } from './page-view.controller';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
 
 @Module({
-  imports: [BootstrapModule],
+  imports: [
+    BootstrapModule,
+    CacheModule.register({
+      ttl: 60, // cache time-to-live in seconds
+      max: 100, // max number of items in cache
+    }),
+  ],
   providers: [
     UserUtilityService,
     {
@@ -27,6 +35,10 @@ import { PageViewController } from './page-view.controller';
         return service;
       },
       inject: [C8yClientProviderService],
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: CacheInterceptor, // Applies caching globally
     },
   ],
   controllers: [AppController, ActiveUserController, EventsController, SessionEventsController, PageViewController],
