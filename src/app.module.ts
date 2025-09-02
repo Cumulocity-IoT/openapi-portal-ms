@@ -35,11 +35,7 @@ import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
         return service;
       },
       inject: [C8yClientProviderService],
-    },
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: CacheInterceptor, // Applies caching globally
-    },
+    }
   ],
   controllers: [AppController, ActiveUserController, EventsController, SessionEventsController, PageViewController],
 })

@@ -1,8 +1,9 @@
-import { Controller, Get, Logger } from '@nestjs/common';
+import { Controller, Get, Logger, UseInterceptors } from '@nestjs/common';
 import { GainsightPxService } from './service/gainsight-px.service';
 import { UserUtilityService } from './service/user-utility.service';
 import { subDays } from 'date-fns';
 import { User } from './model/gainsight-px.model';
+import { CacheInterceptor } from '@nestjs/cache-manager';
 
 @Controller()
 export class ActiveUserController {
@@ -13,13 +14,9 @@ export class ActiveUserController {
     private userUtil: UserUtilityService
   ) {}
 
+  @Get('/activeUserMetrics')
+  @UseInterceptors(CacheInterceptor)
   async getActiveUsers() {
-    const users = await this.api.getUsers({
-      filter: 'customAttributes.domainName==main.dm-zz-q.ioee10-cloud.com',
-      sort: '-lastSeenDate',
-      pageSize: 1000,
-    });
-
     const startDate = new Date();
     startDate.setHours(0, 0, 0, 0);
     const thirtyDaysAgo = subDays(startDate, 30);
@@ -34,54 +31,63 @@ export class ActiveUserController {
   }
 
   @Get('/activeUserMetrics/numberOfUsers')
+  @UseInterceptors(CacheInterceptor)
   async numberOfUsers() {
     const users = await this.getActiveUsers();
     return this.userUtil.numberOfUsers(users);
   }
 
   @Get('/activeUserMetrics/newSignups')
+  @UseInterceptors(CacheInterceptor)
   async numberOfNewSignups() {
     const users = await this.getActiveUsers();
     return this.userUtil.numberOfNewSignups(users);
   }
 
   @Get('/activeUserMetrics/topLanguages')
+  @UseInterceptors(CacheInterceptor)
   async topLanguages() {
     const users = await this.getActiveUsers();
     return this.userUtil.topLanguages(users);
   }
 
   @Get('/activeUserMetrics/topUserRoles')
+  @UseInterceptors(CacheInterceptor)
   async topUserRoles() {
     const users = await this.getActiveUsers();
     return this.userUtil.topUserRoles(users);
   }
 
   @Get('/activeUserMetrics/topCountries')
+  @UseInterceptors(CacheInterceptor)
   async topCountries() {
     const users = await this.getActiveUsers();
     return this.userUtil.topCountries(users);
   }
 
   @Get('/activeUserMetrics/topPlatforms')
+  @UseInterceptors(CacheInterceptor)
   async topPlatforms() {
     const users = await this.getActiveUsers();
     return this.userUtil.topPlatforms(users);
   }
 
   @Get('/activeUserMetrics/topBrowsers')
+  @UseInterceptors(CacheInterceptor)
   async topBrowsers() {
     const users = await this.getActiveUsers();
     return this.userUtil.topBrowsers(users);
   }
 
   @Get('/activeUserMetrics/topDeviceTypes')
+  @UseInterceptors(CacheInterceptor)
   async topDeviceTypes() {
     const users = await this.getActiveUsers();
     return this.userUtil.topDeviceTypes(users);
   }
 
   @Get('/activeUserMetrics/mailDomainNames')
+  @UseInterceptors(CacheInterceptor)
   async mailDomainNames() {
     const users = await this.getActiveUsers();
     return this.userUtil.mailDomainNames(users);
@@ -91,11 +97,11 @@ export class ActiveUserController {
     const res = await this.api.getUsers({
       filter: 'customAttributes.domainName==main.dm-zz-q.ioee10-cloud.com',
       sort: '-lastSeenDate',
-      pageSize: 1000,
+      pageSize: 100,
       scrollId,
     });
 
-    if (res.users.length < 1000) {
+    if (res.users.length < 100) {
       const filtered = res.users.filter(rule);
       sum.push(...filtered);
       return sum;
