@@ -45,7 +45,8 @@ export class PageViewController {
       counts[widgetName]++;
     }
 
-    return Object.entries(counts).map(([value, count]) => ({ value, count }));
+    const mapped = Object.entries(counts).map(([value, count]) => ({ value, count }));
+    return mapped.sort((a, b) => b.value.localeCompare(a.value));
   }
 
   private async getPageViewEventsWithPagination(filter: PageViewFilter, sum: PageView[], scrollId?: string): Promise<PageView[]> {
@@ -55,7 +56,7 @@ export class PageViewController {
       pageSize: 1000,
       scrollId,
     } as PXParams<PageViewFilter, PageViewSort>;
-    this.logger.log(`Page views request ${params}`);
+    this.logger.log(`Page views request ${JSON.stringify(params)}`);
     const res = await this.api.getPageViews(params);
 
     const events = res.results;
