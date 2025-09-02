@@ -31,7 +31,7 @@ export class EventsController {
 
   private async getEventWithPagination(filter: CustomEventFilter, sum: CustomEvent[], scrollId?: string): Promise<CustomEvent[]> {
     const params = { filter, sort: 'date', pageSize: 1000, scrollId } as PXParams<CustomEventFilter, CustomEventSort>;
-    this.logger.log(`Custom events request ${params}`);
+    this.logger.log(`Custom events request ${JSON.stringify(params)}`);
     const res = await this.api.getCustomEvents({
       filter,
       sort: 'date',

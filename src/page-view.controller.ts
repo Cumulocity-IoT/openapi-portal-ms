@@ -1,7 +1,7 @@
 import { Controller, Get, Logger, Query, UseInterceptors } from '@nestjs/common';
 import { GainsightPxService } from './service/gainsight-px.service';
 import { PageView, PageViewFilter, PageViewSort, PXParams } from './model/gainsight-px.model';
-import { CacheInterceptor } from '@nestjs/cache-manager';
+import { NormalizedDateCacheInterceptor } from './service/normalized-date-cache-interceptor.service';
 
 @Controller()
 export class PageViewController {
@@ -9,7 +9,7 @@ export class PageViewController {
 
   constructor(private api: GainsightPxService) {}
   @Get('/pageViews')
-  @UseInterceptors(CacheInterceptor)
+  @UseInterceptors(NormalizedDateCacheInterceptor)
   async getPageViews(@Query('start') start?: string, @Query('end') end?: string) {
     let filter = `host==main.dm-zz-q.ioee10-cloud.com;` as PageViewFilter;
 
@@ -27,6 +27,25 @@ export class PageViewController {
       this.logger.log(`Page views - first on ${new Date(allPageViews[0].date).toISOString()}, last on ${new Date(allPageViews[allPageViews.length - 1].date).toISOString()}`);
     }
     return allPageViews;
+  }
+
+  @Get('/pageViewCounts')
+  @UseInterceptors(NormalizedDateCacheInterceptor)
+  async getPageViewCounts(@Query('start') start?: string, @Query('end') end?: string) {
+    const pageViews = await this.getPageViews(start, end);
+    const counts: Record<string, number> = {};
+    for (const view of pageViews) {
+      const widgetName = view.hash;
+      if (!widgetName) {
+        continue;
+      }
+      if (!counts[widgetName]) {
+        counts[widgetName] = 0;
+      }
+      counts[widgetName]++;
+    }
+
+    return Object.entries(counts).map(([value, count]) => ({ value, count }));
   }
 
   private async getPageViewEventsWithPagination(filter: PageViewFilter, sum: PageView[], scrollId?: string): Promise<PageView[]> {

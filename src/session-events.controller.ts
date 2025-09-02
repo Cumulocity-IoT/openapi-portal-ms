@@ -19,7 +19,7 @@ export class SessionEventsController {
     const thirtyDaysAgo = subDays(startDate, 30);
     const filter = `accountId~t2700*;date>${thirtyDaysAgo.getTime()}` as SessionEventFilter;
 
-    this.logger.log(`Fetching session events with filter: ${filter} (${thirtyDaysAgo.toISOString()})`);
+    this.logger.log(`Fetching session events with filter: ${JSON.stringify(filter)} (${thirtyDaysAgo.toISOString()})`);
     const allEvents = await this.getSessionEventsWithPagination(filter, []);
     return this.aggregateByDay(allEvents);
   }
@@ -55,7 +55,7 @@ export class SessionEventsController {
 
   private async getSessionEventsWithPagination(filter: SessionEventFilter, sum: SessionEvent[], scrollId?: string): Promise<SessionEvent[]> {
     const params = { filter, sort: 'date', pageSize: 1000, scrollId } as PXParams<SessionEventFilter, SessionEventSort>;
-    this.logger.log(`Session events request ${params}`);
+    this.logger.log(`Session events request ${JSON.stringify(params)}`);
     const res = await this.api.getSessionEvents(params);
 
     const events = res.sessionInitializedEvents;

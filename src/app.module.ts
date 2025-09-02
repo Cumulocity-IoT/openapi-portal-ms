@@ -9,8 +9,7 @@ import { ActiveUserController } from './active-users.controller';
 import { EventsController } from './events.controller';
 import { SessionEventsController } from './session-events.controller';
 import { PageViewController } from './page-view.controller';
-import { APP_INTERCEPTOR } from '@nestjs/core';
-import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
