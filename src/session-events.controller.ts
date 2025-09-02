@@ -37,8 +37,8 @@ export class SessionEventsController {
     });
 
     return Object.entries(counts)
-      .map(([date, count]) => ({ date, count }))
-      .sort((a, b) => (a.date < b.date ? -1 : 1));
+      .map(([time, count]) => ({ time, count }))
+      .sort((a, b) => (a.time < b.time ? -1 : 1));
   }
 
   @Get('/sessionEventsLastDay')
@@ -80,8 +80,8 @@ export class SessionEventsController {
       counts[key]++;
     });
     return Object.entries(counts)
-      .map(([date, count]) => ({ date, count }))
-      .sort((a, b) => (a.date < b.date ? -1 : 1));
+      .map(([time, count]) => ({ time, count }))
+      .sort((a, b) => (a.time < b.time ? -1 : 1));
   }
 
   @Get('/sessionEvents')
