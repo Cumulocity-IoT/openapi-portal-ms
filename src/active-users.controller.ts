@@ -1,4 +1,4 @@
-import { Controller, Get, Logger, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Logger, Query, UseInterceptors } from '@nestjs/common';
 import { GainsightPxService } from './service/gainsight-px.service';
 import { UserUtilityService } from './service/user-utility.service';
 import { subDays } from 'date-fns';
@@ -8,6 +8,8 @@ import { CacheInterceptor } from '@nestjs/cache-manager';
 @Controller()
 export class ActiveUserController {
   readonly logger = new Logger(ActiveUserController.name);
+  cachedRequest: Promise<User[]>;
+  cacheExpiry: number;
 
   constructor(
     private api: GainsightPxService,
@@ -16,7 +18,7 @@ export class ActiveUserController {
 
   @Get('/activeUserMetrics')
   @UseInterceptors(CacheInterceptor)
-  async getActiveUsers() {
+  async getActiveUserMetrics() {
     const startDate = new Date();
     startDate.setHours(0, 0, 0, 0);
     const thirtyDaysAgo = subDays(startDate, 30);
@@ -30,6 +32,14 @@ export class ActiveUserController {
     return allUsers;
   }
 
+  private getActiveUsers() {
+    if (!this.cachedRequest || !this.cacheExpiry || Date.now() > this.cacheExpiry) {
+      this.cachedRequest = this.getActiveUserMetrics();
+      this.cacheExpiry = Date.now() + 5 * 60 * 1000; // 5 minutes
+    }
+    return this.cachedRequest;
+  }
+
   @Get('/activeUserMetrics/numberOfUsers')
   @UseInterceptors(CacheInterceptor)
   async numberOfUsers() {
@@ -39,7 +49,8 @@ export class ActiveUserController {
 
   @Get('/activeUserMetrics/newSignups')
   @UseInterceptors(CacheInterceptor)
-  async numberOfNewSignups() {
+  async numberOfNewSignups(@Query() query: Record<string, string>) {
+    this.logger.log(JSON.stringify(query));
     const users = await this.getActiveUsers();
     return this.userUtil.numberOfNewSignups(users);
   }
