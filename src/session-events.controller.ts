@@ -84,24 +84,28 @@ export class SessionEventsController {
   }
 
   @Get('/sessionEvents')
-    async getCustomEvents(@Query('start') start?: string, @Query('end') end?: string) {
-      let filter = `accountId~t2700*;` as SessionEventFilter;
-      if (start) {
-        const date = new Date(start);
-        filter += `date>${date.getTime()};`;
-      }
-      if (end) {
-        const date = new Date(end);
-        filter += `date<${date.getTime()};`;
-      }
-  
-      const allEvents = await this.getSessionEventsWithPagination(filter, []);
-      return allEvents.map(e => ({
-        time: new Date(e.date).toISOString(),
-        eventId: e.eventId,
-        identifyId: e.identifyId,
-        inferredLocation: e.inferredLocation,
-        userType: e.userType
-      }));
+  async getCustomEvents(@Query('start') start?: string, @Query('end') end?: string) {
+    let filter = `accountId~t2700*;` as SessionEventFilter;
+    if (start) {
+      const date = new Date(start);
+      filter += `date>${date.getTime()};`;
     }
+    if (end) {
+      const date = new Date(end);
+      filter += `date<${date.getTime()};`;
+    }
+
+    const allEvents = await this.getSessionEventsWithPagination(filter, []);
+    if (allEvents.length) {
+      this.logger.log(`Session events - first on ${new Date(allEvents[0].date).toISOString()}, last on ${new Date(allEvents[allEvents.length - 1].date).toISOString()}`);
+    }
+
+    return allEvents.map((e) => ({
+      time: new Date(e.date).toISOString(),
+      eventId: e.eventId,
+      identifyId: e.identifyId,
+      inferredLocation: e.inferredLocation,
+      userType: e.userType,
+    }));
+  }
 }

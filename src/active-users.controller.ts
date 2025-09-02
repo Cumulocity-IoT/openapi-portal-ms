@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Logger } from '@nestjs/common';
 import { GainsightPxService } from './service/gainsight-px.service';
 import { UserUtilityService } from './service/user-utility.service';
 import { subDays } from 'date-fns';
@@ -6,6 +6,8 @@ import { User } from './model/gainsight-px.model';
 
 @Controller()
 export class ActiveUserController {
+  readonly logger = new Logger(ActiveUserController.name);
+
   constructor(
     private api: GainsightPxService,
     private userUtil: UserUtilityService
@@ -18,20 +20,16 @@ export class ActiveUserController {
       pageSize: 1000,
     });
 
-    if (!users.users || users.users.length === 0) {
-      return [];
-    }
-
     const startDate = new Date();
     startDate.setHours(0, 0, 0, 0);
     const thirtyDaysAgo = subDays(startDate, 30);
     const rule = (user: User) => new Date(user.lastSeenDate) >= thirtyDaysAgo;
-    if (users.users.length < 1000) {
-      const filtered = users.users.filter((u) => rule(u));
-      return filtered;
+
+    const allUsers = await this.getUsersWithPagination(rule, []);
+    if (allUsers.length) {
+      this.logger.log(`Active Users - first on ${new Date(allUsers[0].lastSeenDate).toISOString()}, last on ${new Date(allUsers[allUsers.length - 1].lastSeenDate).toISOString()}`);
     }
 
-    const allUsers = await this.getUsersWithPagination(users.scrollId, users.users, rule);
     return allUsers;
   }
 
@@ -89,7 +87,7 @@ export class ActiveUserController {
     return this.userUtil.mailDomainNames(users);
   }
 
-  async getUsersWithPagination(scrollId: string, sum: User[], rule: (user: User) => boolean): Promise<User[]> {
+  async getUsersWithPagination(rule: (user: User) => boolean, sum: User[], scrollId?: string): Promise<User[]> {
     const res = await this.api.getUsers({
       filter: 'customAttributes.domainName==main.dm-zz-q.ioee10-cloud.com',
       sort: '-lastSeenDate',
@@ -110,7 +108,7 @@ export class ActiveUserController {
       return sum;
     } else {
       sum.push(...res.users);
-      return this.getUsersWithPagination(res.scrollId, sum, rule);
+      return this.getUsersWithPagination(rule, sum, res.scrollId);
     }
   }
 }
