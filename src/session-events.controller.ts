@@ -1,7 +1,9 @@
-import { Controller, Get, Logger, Query } from '@nestjs/common';
+import { Controller, Get, Logger, Query, UseInterceptors } from '@nestjs/common';
 import { GainsightPxService } from './service/gainsight-px.service';
 import { subDays } from 'date-fns';
-import { SessionEvent, SessionEventFilter } from './model/gainsight-px.model';
+import { PXParams, SessionEvent, SessionEventFilter, SessionEventSort } from './model/gainsight-px.model';
+import { NormalizedDateCacheInterceptor } from './service/normalized-date-cache-interceptor.service';
+import { CacheInterceptor } from '@nestjs/cache-manager';
 
 @Controller()
 export class SessionEventsController {
@@ -10,6 +12,7 @@ export class SessionEventsController {
   constructor(private api: GainsightPxService) {}
 
   @Get('/sessionEventsLastMonth')
+  @UseInterceptors(CacheInterceptor)
   async getSessionEventsLastMonth() {
     const startDate = new Date();
     startDate.setHours(0, 0, 0, 0);
@@ -39,6 +42,7 @@ export class SessionEventsController {
   }
 
   @Get('/sessionEventsLastDay')
+  @UseInterceptors(CacheInterceptor)
   async getSessionEventsLastDay() {
     const startDate = new Date();
     const twentyFourHoursAgo = subDays(startDate, 1);
@@ -50,17 +54,14 @@ export class SessionEventsController {
   }
 
   private async getSessionEventsWithPagination(filter: SessionEventFilter, sum: SessionEvent[], scrollId?: string): Promise<SessionEvent[]> {
-    const res = await this.api.getSessionEvents({
-      filter,
-      sort: 'date',
-      pageSize: 1000,
-      scrollId,
-    });
+    const params = { filter, sort: 'date', pageSize: 1000, scrollId } as PXParams<SessionEventFilter, SessionEventSort>;
+    this.logger.log(`Session events request ${params}`);
+    const res = await this.api.getSessionEvents(params);
 
     const events = res.sessionInitializedEvents;
     sum.push(...events);
-    this.logger.log(`Pagination - received ${events.length} events - overall count ${sum.length} events.`);
     if (events.length < 1000) {
+      this.logger.log(`Session events - overall count ${sum.length}.`);
       return sum;
     } else {
       return this.getSessionEventsWithPagination(filter, sum, res.scrollId);
@@ -84,6 +85,7 @@ export class SessionEventsController {
   }
 
   @Get('/sessionEvents')
+  @UseInterceptors(NormalizedDateCacheInterceptor)
   async getCustomEvents(@Query('start') start?: string, @Query('end') end?: string) {
     let filter = `accountId~t2700*;` as SessionEventFilter;
     if (start) {

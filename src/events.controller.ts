@@ -1,6 +1,7 @@
-import { Controller, Get, Logger, Query } from '@nestjs/common';
+import { Controller, Get, Logger, Query, UseInterceptors } from '@nestjs/common';
 import { GainsightPxService } from './service/gainsight-px.service';
-import { CustomEvent, CustomEventFilter } from './model/gainsight-px.model';
+import { CustomEvent, CustomEventFilter, CustomEventSort, PXParams } from './model/gainsight-px.model';
+import { NormalizedDateCacheInterceptor } from './service/normalized-date-cache-interceptor.service';
 
 @Controller()
 export class EventsController {
@@ -9,6 +10,7 @@ export class EventsController {
   constructor(private api: GainsightPxService) {}
 
   @Get('/customEvents')
+  @UseInterceptors(NormalizedDateCacheInterceptor)
   async getCustomEvents(@Query('start') start?: string, @Query('end') end?: string) {
     let filter = `accountId~t2700*;` as CustomEventFilter;
     if (start) {
@@ -28,6 +30,8 @@ export class EventsController {
   }
 
   private async getEventWithPagination(filter: CustomEventFilter, sum: CustomEvent[], scrollId?: string): Promise<CustomEvent[]> {
+    const params = { filter, sort: 'date', pageSize: 1000, scrollId } as PXParams<CustomEventFilter, CustomEventSort>;
+    this.logger.log(`Custom events request ${params}`);
     const res = await this.api.getCustomEvents({
       filter,
       sort: 'date',
@@ -36,8 +40,8 @@ export class EventsController {
     });
 
     sum.push(...res.customEvents);
-    this.logger.log(`Pagination - received ${res.customEvents.length} custom events - overall count ${sum.length} events.`);
     if (res.customEvents.length < 1000) {
+      this.logger.log(`Custom events - overall count ${sum.length}.`);
       return sum;
     } else {
       return this.getEventWithPagination(filter, sum, res.scrollId);
@@ -45,6 +49,7 @@ export class EventsController {
   }
 
   @Get('/eventCounts')
+  @UseInterceptors(NormalizedDateCacheInterceptor)
   async getEventCounts(@Query('start') start?: string, @Query('end') end?: string) {
     let filter = `accountId~t2700*;` as CustomEventFilter;
     if (start) {
