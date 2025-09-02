@@ -71,7 +71,9 @@ export class EventsController {
       }
       counts[name]++;
     });
-    return Object.entries(counts).map(([value, count]) => ({ value, count }));
+    return Object.entries(counts)
+      .map(([value, count]) => ({ value, count }))
+      .sort((a, b) => b.count - a.count);
   }
 
   @Get('/eventCountsByName')
@@ -96,7 +98,9 @@ export class EventsController {
       }
       counts[widgetName]++;
     });
-    return Object.entries(counts).map(([name, count]) => ({ name, count }));
+    return Object.entries(counts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count);
   }
 
   private filterByApplication(customEvents: CustomEvent[], application: string) {
