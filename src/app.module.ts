@@ -15,8 +15,7 @@ import { CacheModule } from '@nestjs/cache-manager';
   imports: [
     BootstrapModule,
     CacheModule.register({
-      ttl: 60, // cache time-to-live in seconds
-      max: 100, // max number of items in cache
+      ttl: 60000, // cache time-to-live in ms
     }),
   ],
   providers: [
