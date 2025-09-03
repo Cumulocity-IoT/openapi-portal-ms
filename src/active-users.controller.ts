@@ -7,8 +7,8 @@ import { NormalizedDateCacheInterceptor } from './service/normalized-date-cache-
 @Controller()
 export class ActiveUserController {
   readonly logger = new Logger(ActiveUserController.name);
-  cachedRequest: Record<string, Promise<User[]>>;
-  cacheExpiry: Record<string, number>;
+  cachedRequest: Record<string, Promise<User[]>> = {};
+  cacheExpiry: Record<string, number> = {};
 
   constructor(
     private api: GainsightPxService,
