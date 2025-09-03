@@ -14,22 +14,29 @@ export class SessionEventsController {
   @Get('/sessionEventsLastMonth')
   @UseInterceptors(CacheInterceptor)
   async getSessionEventsLastMonth() {
-    const startDate = new Date();
-    startDate.setHours(0, 0, 0, 0);
-    const thirtyDaysAgo = subDays(startDate, 30);
-    const filter = `accountId~t2700*;date>${thirtyDaysAgo.getTime()}` as SessionEventFilter;
+    const endDate = new Date();
+    endDate.setHours(0, 0, 0, 0);
+    const startDate = subDays(endDate, 30);
+    const filter = `accountId~t2700*;date>${startDate.getTime()}` as SessionEventFilter;
 
-    this.logger.log(`Fetching session events with filter: ${JSON.stringify(filter)} (${thirtyDaysAgo.toISOString()})`);
+    this.logger.log(`Fetching session events with filter: ${JSON.stringify(filter)} (${startDate.toISOString()})`);
     const allEvents = await this.getSessionEventsWithPagination(filter, []);
-    return this.aggregateByDay(allEvents);
+
+    const dateMap: Record<string, number> = {};
+    for (let current = new Date(startDate); current <= endDate; current.setHours(current.getHours() + 24)) {
+      const date = new Date(current);
+      date.setHours(0, 0, 0, 0);
+      dateMap[date.toISOString()] = 0;
+    }
+
+    return this.aggregateByDay(allEvents, dateMap);
   }
 
-  private aggregateByDay(events: SessionEvent[]) {
-    const counts: Record<string, number> = {};
+  private aggregateByDay(events: SessionEvent[], counts: Record<string, number>) {
     events.forEach((event) => {
       const date = new Date(event.date);
       date.setHours(0, 0, 0, 0);
-      const key = date.getTime();
+      const key = date.toISOString();
       if (!counts[key]) {
         counts[key] = 0;
       }
@@ -44,13 +51,20 @@ export class SessionEventsController {
   @Get('/sessionEventsLastDay')
   @UseInterceptors(CacheInterceptor)
   async getSessionEventsLastDay() {
-    const startDate = new Date();
-    const twentyFourHoursAgo = subDays(startDate, 1);
-    const dateStamp = twentyFourHoursAgo.getTime();
+    const endDate = new Date();
+    const startDate = subDays(endDate, 1);
+    const dateStamp = startDate.getTime();
 
     const filter = `accountId~t2700*;date>${dateStamp}` as SessionEventFilter;
     const allEvents = await this.getSessionEventsWithPagination(filter, []);
-    return this.aggregateByMinute(allEvents);
+
+    const dateMap: Record<string, number> = {};
+    for (let current = new Date(startDate); current <= endDate; current.setHours(current.getHours() + 1)) {
+      const date = new Date(current);
+      date.setMinutes(0, 0, 0);
+      dateMap[date.toISOString()] = 0;
+    }
+    return this.aggregateByHour(allEvents, dateMap);
   }
 
   private async getSessionEventsWithPagination(filter: SessionEventFilter, sum: SessionEvent[], scrollId?: string): Promise<SessionEvent[]> {
@@ -68,12 +82,11 @@ export class SessionEventsController {
     }
   }
 
-  private aggregateByMinute(events: SessionEvent[]) {
-    const counts: Record<string, number> = {};
+  private aggregateByHour(events: SessionEvent[], counts: Record<string, number>) {
     events.forEach((event) => {
       const date = new Date(event.date);
-      date.setSeconds(0, 0);
-      const key = date.getTime();
+      date.setMinutes(0, 0, 0);
+      const key = date.toISOString();
       if (!counts[key]) {
         counts[key] = 0;
       }

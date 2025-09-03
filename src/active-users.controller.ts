@@ -2,8 +2,9 @@ import { Controller, Get, Logger, Query, UseInterceptors } from '@nestjs/common'
 import { GainsightPxService } from './service/gainsight-px.service';
 import { UserUtilityService } from './service/user-utility.service';
 import { subDays } from 'date-fns';
-import { User } from './model/gainsight-px.model';
+import { PXParams, User, UserFilter, UserSort } from './model/gainsight-px.model';
 import { CacheInterceptor } from '@nestjs/cache-manager';
+import { NormalizedDateCacheInterceptor } from './service/normalized-date-cache-interceptor.service';
 
 @Controller()
 export class ActiveUserController {
@@ -15,6 +16,22 @@ export class ActiveUserController {
     private api: GainsightPxService,
     private userUtil: UserUtilityService
   ) {}
+
+  @Get('/activeUserMetricsDateRange')
+  @UseInterceptors(NormalizedDateCacheInterceptor)
+  async getActiveUserMetricsDateRange(@Query('start') start?: string, @Query('end') end?: string) {
+    let filter = 'customAttributes.domainName==main.dm-zz-q.ioee10-cloud.com;';
+    if (start) {
+      const date = new Date(start);
+      filter += `lastSeenDate>${date.getTime()};`;
+    }
+    if (end) {
+      const date = new Date(end);
+      filter += `lastSeenDate<${date.getTime()};`;
+    }
+    const params: PXParams<UserFilter, UserSort> = { filter: filter as UserFilter, sort: '-lastSeenDate', pageSize: 1000 };
+    return this.api.getUsers(params);
+  }
 
   @Get('/activeUserMetrics')
   @UseInterceptors(CacheInterceptor)
