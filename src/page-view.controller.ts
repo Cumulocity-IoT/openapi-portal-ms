@@ -10,13 +10,10 @@ export class PageViewController {
   constructor(private api: GainsightPxService) {}
   @Get('/pageViews')
   @UseInterceptors(NormalizedDateCacheInterceptor)
-  async getPageViews(@Query('start') start?: string, @Query('end') end?: string) {
-    let filter = `host==main.dm-zz-q.ioee10-cloud.com;` as PageViewFilter;
+  async getPageViews(@Query('start') start: string, @Query('end') end?: string) {
+    const date = new Date(start);
+    let filter = `host==main.dm-zz-q.ioee10-cloud.com;date>${date.getTime()};` as PageViewFilter;
 
-    if (start) {
-      const date = new Date(start);
-      filter += `date>${date.getTime()};`;
-    }
     if (end) {
       const date = new Date(end);
       filter += `date<${date.getTime()};`;
@@ -29,20 +26,44 @@ export class PageViewController {
     return allPageViews;
   }
 
+  @Get('/popularDevices')
+  @UseInterceptors(NormalizedDateCacheInterceptor)
+  async getDeviceCounts(@Query('start') start: string, @Query('end') end?: string) {
+    const pageViews = await this.getPageViews(start, end);
+    const numberPattern = /\d+/g;
+    const counts: Record<string, number> = {};
+    for (const view of pageViews) {
+      const path = view.hash;
+      const matches = path.match(numberPattern);
+      if (matches) {
+        for (const match of matches) {
+          if (!counts[match]) {
+            counts[match] = 0;
+          }
+          counts[match]++;
+        }
+      }
+    }
+
+    const mapped = Object.entries(counts).map(([path, count]) => ({ path, count }));
+    return mapped.sort((a, b) => b.count - a.count);
+  }
+
   @Get('/pageViewCounts')
   @UseInterceptors(NormalizedDateCacheInterceptor)
-  async getPageViewCounts(@Query('start') start?: string, @Query('end') end?: string) {
+  async getPageViewCounts(@Query('start') start: string, @Query('end') end?: string) {
     const pageViews = await this.getPageViews(start, end);
     const counts: Record<string, number> = {};
     for (const view of pageViews) {
-      const widgetName = view.hash;
-      if (!widgetName) {
+      const path = view.hash;
+      const maskeUrl = path.replace(/\d+/g, '*');
+      if (!maskeUrl) {
         continue;
       }
-      if (!counts[widgetName]) {
-        counts[widgetName] = 0;
+      if (!counts[maskeUrl]) {
+        counts[maskeUrl] = 0;
       }
-      counts[widgetName]++;
+      counts[maskeUrl]++;
     }
 
     const mapped = Object.entries(counts).map(([path, count]) => ({ path, count }));
