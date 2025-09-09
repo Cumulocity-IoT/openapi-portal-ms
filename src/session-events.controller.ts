@@ -1,41 +1,41 @@
 import { Controller, Get, Logger, Query, UseInterceptors } from '@nestjs/common';
 import { GainsightPxService } from './service/gainsight-px.service';
-import { subDays } from 'date-fns';
+import { differenceInDays, differenceInHours } from 'date-fns';
 import { PXParams, SessionEvent, SessionEventFilter, SessionEventSort } from './model/gainsight-px.model';
 import { NormalizedDateCacheInterceptor } from './service/normalized-date-cache-interceptor.service';
-import { CacheInterceptor } from '@nestjs/cache-manager';
-
 @Controller()
 export class SessionEventsController {
   private readonly logger = new Logger(SessionEventsController.name);
 
   constructor(private api: GainsightPxService) {}
 
-  @Get('/sessionEventsLastMonth')
-  @UseInterceptors(CacheInterceptor)
-  async getSessionEventsLastMonth() {
-    const endDate = new Date();
-    endDate.setHours(0, 0, 0, 0);
-    const startDate = subDays(endDate, 30);
-    const filter = `accountId~t2700*;date>${startDate.getTime()}` as SessionEventFilter;
+  @Get('/sessionEventsAutoAgg')
+  @UseInterceptors(NormalizedDateCacheInterceptor)
+  async getSessionsAutoAgg(@Query('start') start: string, @Query('end') end?: string) {
+    const startDate = new Date(start);
+    const endDate = end ? new Date(end) : new Date();
 
-    this.logger.log(`Fetching session events with filter: ${JSON.stringify(filter)} (${startDate.toISOString()})`);
-    const allEvents = await this.getSessionEventsWithPagination(filter, []);
-
-    const dateMap: Record<string, number> = {};
-    for (let current = new Date(startDate); current <= endDate; current.setHours(current.getHours() + 24)) {
-      const date = new Date(current);
-      date.setHours(0, 0, 0, 0);
-      dateMap[date.toISOString()] = 0;
+    let filter = `accountId~t2700*;date>${startDate.getTime()};` as SessionEventFilter;
+    if (end) {
+      filter += `date<${endDate.getTime()}`;
     }
-
-    return this.aggregateByDay(allEvents, dateMap);
+    const allEvents = await this.getSessionEventsWithPagination(filter, []);
+    const aggregated = this.aggregateByTimeframe(allEvents, startDate, endDate);
+    return aggregated;
   }
 
-  private aggregateByDay(events: SessionEvent[], counts: Record<string, number>) {
+  private aggregateByTimeframe(events: SessionEvent[], startDate: Date, endDate: Date) {
+    const timeframe = this.detectTimeframe(startDate, endDate);
+    const counts = this.prepopulateDates(startDate, endDate, timeframe);
     events.forEach((event) => {
       const date = new Date(event.date);
-      date.setHours(0, 0, 0, 0);
+      if (timeframe === 'MINUTE') {
+        date.setSeconds(0, 0);
+      } else if (timeframe === 'HOUR') {
+        date.setMinutes(0, 0, 0);
+      } else if (timeframe === 'DAY') {
+        date.setHours(0, 0, 0, 0);
+      }
       const key = date.toISOString();
       if (!counts[key]) {
         counts[key] = 0;
@@ -48,23 +48,41 @@ export class SessionEventsController {
       .sort((a, b) => (a.time < b.time ? -1 : 1));
   }
 
-  @Get('/sessionEventsLastDay')
-  @UseInterceptors(CacheInterceptor)
-  async getSessionEventsLastDay() {
-    const endDate = new Date();
-    const startDate = subDays(endDate, 1);
-    const dateStamp = startDate.getTime();
+  private detectTimeframe(startDate: Date, endDate: Date) {
+    const diffInHours = differenceInHours(endDate, startDate);
+    const diffInDays = differenceInDays(endDate, startDate);
 
-    const filter = `accountId~t2700*;date>${dateStamp}` as SessionEventFilter;
-    const allEvents = await this.getSessionEventsWithPagination(filter, []);
-
-    const dateMap: Record<string, number> = {};
-    for (let current = new Date(startDate); current <= endDate; current.setHours(current.getHours() + 1)) {
-      const date = new Date(current);
-      date.setMinutes(0, 0, 0);
-      dateMap[date.toISOString()] = 0;
+    if (diffInHours <= 1) {
+      return 'MINUTE';
+    } else if (diffInDays <= 1) {
+      return 'HOUR';
+    } else {
+      return 'DAY';
     }
-    return this.aggregateByHour(allEvents, dateMap);
+  }
+
+  private prepopulateDates(startDate: Date, endDate: Date, timeframe: 'MINUTE' | 'HOUR' | 'DAY'): Record<string, number> {
+    const dateMap: Record<string, number> = {};
+    if (timeframe === 'DAY') {
+      for (let current = new Date(startDate); current <= endDate; current.setHours(current.getHours() + 24)) {
+        const date = new Date(current);
+        date.setHours(0, 0, 0, 0);
+        dateMap[date.toISOString()] = 0;
+      }
+    } else if (timeframe === 'HOUR') {
+      for (let current = new Date(startDate); current <= endDate; current.setHours(current.getHours() + 1)) {
+        const date = new Date(current);
+        date.setMinutes(0, 0, 0);
+        dateMap[date.toISOString()] = 0;
+      }
+    } else if (timeframe === 'MINUTE') {
+      for (let current = new Date(startDate); current <= endDate; current.setHours(current.getMinutes() + 1)) {
+        const date = new Date(current);
+        date.setSeconds(0, 0);
+        dateMap[date.toISOString()] = 0;
+      }
+    }
+    return dateMap;
   }
 
   private async getSessionEventsWithPagination(filter: SessionEventFilter, sum: SessionEvent[], scrollId?: string): Promise<SessionEvent[]> {
@@ -82,24 +100,9 @@ export class SessionEventsController {
     }
   }
 
-  private aggregateByHour(events: SessionEvent[], counts: Record<string, number>) {
-    events.forEach((event) => {
-      const date = new Date(event.date);
-      date.setMinutes(0, 0, 0);
-      const key = date.toISOString();
-      if (!counts[key]) {
-        counts[key] = 0;
-      }
-      counts[key]++;
-    });
-    return Object.entries(counts)
-      .map(([time, count]) => ({ time, count }))
-      .sort((a, b) => (a.time < b.time ? -1 : 1));
-  }
-
   @Get('/sessionEvents')
   @UseInterceptors(NormalizedDateCacheInterceptor)
-  async getCustomEvents(@Query('start') start?: string, @Query('end') end?: string) {
+  async getSessions(@Query('start') start?: string, @Query('end') end?: string) {
     let filter = `accountId~t2700*;` as SessionEventFilter;
     if (start) {
       const date = new Date(start);
