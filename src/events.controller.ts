@@ -24,24 +24,17 @@ export class EventsController {
 
     const allEvents = await this.getEventWithPagination(filter, []);
     if (allEvents.length) {
-      this.logger.log(`Custom events - first on ${new Date(allEvents[0].date).toISOString()}, last on ${new Date(allEvents[allEvents.length - 1].date).toISOString()}`);
+      this.logger.log(`Range from ${new Date(allEvents[0].date).toISOString()} to ${new Date(allEvents[allEvents.length - 1].date).toISOString()}`);
     }
     return this.filterByApplication(allEvents, 'devicemanagement');
   }
 
   private async getEventWithPagination(filter: CustomEventFilter, sum: CustomEvent[], scrollId?: string): Promise<CustomEvent[]> {
     const params = { filter, sort: 'date', pageSize: 1000, scrollId } as PXParams<CustomEventFilter, CustomEventSort>;
-    this.logger.log(`Custom events request ${JSON.stringify(params)}`);
-    const res = await this.api.getCustomEvents({
-      filter,
-      sort: 'date',
-      pageSize: 1000,
-      scrollId,
-    });
-
+    const res = await this.api.getCustomEvents(params);
     sum.push(...res.customEvents);
     if (res.customEvents.length < 1000) {
-      this.logger.log(`Custom events - overall count ${sum.length}.`);
+      this.logger.log(`Count ${sum.length}.`);
       return sum;
     } else {
       return this.getEventWithPagination(filter, sum, res.scrollId);

@@ -21,7 +21,7 @@ export class PageViewController {
 
     const allPageViews = await this.getPageViewEventsWithPagination(filter, []);
     if (allPageViews.length) {
-      this.logger.log(`Page views - first on ${new Date(allPageViews[0].date).toISOString()}, last on ${new Date(allPageViews[allPageViews.length - 1].date).toISOString()}`);
+      this.logger.log(`Range from ${new Date(allPageViews[0].date).toISOString()} to ${new Date(allPageViews[allPageViews.length - 1].date).toISOString()}`);
     }
     return allPageViews;
   }
@@ -37,10 +37,11 @@ export class PageViewController {
       const matches = path.match(numberPattern);
       if (matches) {
         for (const match of matches) {
-          if (!counts[match]) {
-            counts[match] = 0;
+          const numberId = '#' + match;
+          if (!counts[numberId]) {
+            counts[numberId] = 0;
           }
-          counts[match]++;
+          counts[numberId]++;
         }
       }
     }
@@ -77,7 +78,6 @@ export class PageViewController {
       pageSize: 1000,
       scrollId,
     } as PXParams<PageViewFilter, PageViewSort>;
-    this.logger.log(`Page views request ${JSON.stringify(params)}`);
     const res = await this.api.getPageViews(params);
 
     const events = res.results;
