@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import axios, { AxiosInstance } from 'axios';
 import { isNil, uniqBy } from 'lodash';
 import {
@@ -30,6 +30,7 @@ import { createHash } from 'crypto';
 export class GainsightPxService {
   private readonly apiClient: AxiosInstance;
   private readonly baseUrl: string;
+  readonly logger = new Logger(GainsightPxService.name);
 
   constructor(private apiKey: string) {
     this.baseUrl = 'https://api.aptrinsic.com/v1/'; // Adjust if using a different data center
@@ -45,40 +46,48 @@ export class GainsightPxService {
   async getSessionEvents(parameters?: PXParams<SessionEventFilter, SessionEventSort>): Promise<SessionEventsResponse> {
     try {
       const params = this.applyParams(parameters);
+      this.logger.log(`GET /events/session, query: ${JSON.stringify(params)}`);
       const response = await this.apiClient.get('/events/session', { params });
       return response.data;
     } catch (error) {
-      throw new Error(`Error fetching session events: ${error.message}`);
+      this.logger.log(`ERROR: ${JSON.stringify(error)}`);
+      throw new Error(`Error: ${JSON.stringify(error.message)}`);
     }
   }
 
   async getCustomEvents(parameters?: PXParams<CustomEventFilter, CustomEventSort>): Promise<CustomEventsResponse> {
     try {
       const params = this.applyParams(parameters);
+      this.logger.log(`GET /events/custom, query: ${JSON.stringify(params)}`);
       const response = await this.apiClient.get('/events/custom', { params });
       return response.data;
     } catch (error) {
-      throw new Error(`Error fetching custom events: ${error.message}`);
+      this.logger.log(`ERROR: ${JSON.stringify(error)}`);
+      throw new Error(`Error: ${JSON.stringify(error.message)}`);
     }
   }
 
   async getPageViews(parameters?: PXParams<PageViewFilter, PageViewSort>): Promise<PageViewEventResponse> {
     try {
       const params = this.applyParams(parameters);
+      this.logger.log(`GET /events/pageView, query: ${JSON.stringify(params)}`);
       const response = await this.apiClient.get('/events/pageView', { params });
       return response.data;
     } catch (error) {
-      throw new Error(`Error fetching page views: ${error.message}`);
+      this.logger.log(`ERROR: ${JSON.stringify(error)}`);
+      throw new Error(`Error: ${JSON.stringify(error.message)}`);
     }
   }
 
   async getIdentifyId(parameters?: PXParams<IdentifyEventFilter, IdentifyEventSort>): Promise<IdentifyEventResponse> {
     try {
       const params = this.applyParams(parameters);
+      this.logger.log(`GET /events/identify, query: ${JSON.stringify(params)}`);
       const response = await this.apiClient.get('/events/identify', { params });
       return response.data;
     } catch (error) {
-      throw new Error(`Error fetching identify events: ${error.message}`);
+      this.logger.log(`ERROR: ${JSON.stringify(error)}`);
+      throw new Error(`Error: ${JSON.stringify(error.message)}`);
     }
   }
 
@@ -126,10 +135,12 @@ export class GainsightPxService {
   async getUsers(parameters?: PXParams<UserFilter, UserSort>): Promise<UsersResponse> {
     try {
       const params = this.applyParams(parameters);
+      this.logger.log(`GET /users, query: ${JSON.stringify(params)}`);
       const response = await this.apiClient.get('/users', { params });
       return response.data;
     } catch (error) {
-      throw new Error(`Error fetching custom events: ${error.message}`);
+      this.logger.log(`ERROR: ${JSON.stringify(error)}`);
+      throw new Error(`Error: ${JSON.stringify(error.message)}`);
     }
   }
 
@@ -259,7 +270,6 @@ export class GainsightPxService {
     }
   }
 
-  
   /**
    * Recursively fetches paginated data using a provided fetch function, applies a filtering rule,
    * and accumulates the results.
@@ -272,12 +282,7 @@ export class GainsightPxService {
    * @param scrollId - (Optional) The scroll identifier for pagination.
    * @returns A promise that resolves to an array of filtered items accumulated from all pages.
    */
-  async getWithPagination<T>(
-    fetchPage: (scrollId?: string) => Promise<{ items: T[]; scrollId?: string; pageSize?: number }>,
-    sum: T[],
-    rule: (item: T) => boolean,
-    scrollId?: string
-  ): Promise<T[]> {
+  async getWithPagination<T>(fetchPage: (scrollId?: string) => Promise<{ items: T[]; scrollId?: string; pageSize?: number }>, sum: T[], rule: (item: T) => boolean, scrollId?: string): Promise<T[]> {
     const res = await fetchPage(scrollId);
     const pageSize = res.pageSize ?? 100;
 

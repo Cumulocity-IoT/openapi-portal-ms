@@ -31,7 +31,6 @@ export class ActiveUserController {
     const cachedExpiry = this.cacheExpiry[key];
     if (!cachedResponse || Date.now() > cachedExpiry) {
       const params: PXParams<UserFilter, UserSort> = { filter: filter as UserFilter, sort: '-lastSeenDate', pageSize: 1000 };
-      this.logger.log('Active users - refreshing cache');
       this.cachedRequest[key] = this.api.getUsers(params).then((res) => res.users);
       this.cacheExpiry[key] = Date.now() + 60 * 1000; // 1 minute
     }

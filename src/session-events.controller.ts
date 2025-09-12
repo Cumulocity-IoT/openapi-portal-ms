@@ -87,7 +87,6 @@ export class SessionEventsController {
 
   private async getSessionEventsWithPagination(filter: SessionEventFilter, sum: SessionEvent[], scrollId?: string): Promise<SessionEvent[]> {
     const params = { filter, sort: 'date', pageSize: 1000, scrollId } as PXParams<SessionEventFilter, SessionEventSort>;
-    this.logger.log(`Session events request ${JSON.stringify(params)}`);
     const res = await this.api.getSessionEvents(params);
 
     const events = res.sessionInitializedEvents;
@@ -115,7 +114,7 @@ export class SessionEventsController {
 
     const allEvents = await this.getSessionEventsWithPagination(filter, []);
     if (allEvents.length) {
-      this.logger.log(`Session events - first on ${new Date(allEvents[0].date).toISOString()}, last on ${new Date(allEvents[allEvents.length - 1].date).toISOString()}`);
+      this.logger.log(`Range from ${new Date(allEvents[0].date).toISOString()} to ${new Date(allEvents[allEvents.length - 1].date).toISOString()}`);
     }
 
     return allEvents.map((e) => ({
