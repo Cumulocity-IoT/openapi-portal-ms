@@ -1,8 +1,9 @@
 import { GainsightPxService } from '../service/gainsight-px.service';
 import { MyCache } from './cache.model';
 import { PXParams, SessionEvent, SessionEventFilter, SessionEventSort } from '../model/gainsight-px.model';
-import { Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 
+@Injectable()
 export class SessionEventsCacheService implements MyCache<SessionEvent> {
   private readonly logger = new Logger(SessionEventsCacheService.name);
 
