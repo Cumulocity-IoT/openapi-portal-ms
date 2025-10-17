@@ -70,7 +70,7 @@ export type PageView = {
   eventId: string;
   identifyId: string;
   propertyKey: string;
-  date: number | string;
+  date: number;
   eventType: string;
   sessionId: string;
   userType: string;

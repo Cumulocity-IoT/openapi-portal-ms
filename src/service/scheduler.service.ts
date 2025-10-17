@@ -1,10 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { formatDuration, intervalToDuration, subDays } from 'date-fns';
-import { GainsightPxService } from './gainsight-px.service';
 import { ActiveUsersCacheService } from '../cache/active-users-cache.service';
+import { CustomEventsCacheService } from '../cache/custom-events-cache.service';
+import { TENANT } from '../app.model';
+import { PageViewCacheService } from '../cache/page-view-cache.service';
+import { SessionEventsCacheService } from '../cache/session-events-cache.service';
 
 const EVERY_5_MINUTES = '*/5 * * * *';
+const EVERY_HOUR = '0 * * * *';
 
 @Injectable()
 export class SchedulerService {
@@ -16,11 +20,13 @@ export class SchedulerService {
   public runs: { start: string; end: string; duration: string }[] = [];
 
   constructor(
-    private api: GainsightPxService,
-    private activeUserService: ActiveUsersCacheService
+    private activeUserCacheService: ActiveUsersCacheService,
+    private customEventsCacheService: CustomEventsCacheService,
+    private pageViewCacheService: PageViewCacheService,
+    private sessionEventsCacheService: SessionEventsCacheService,
   ) {}
 
-  @Cron(EVERY_5_MINUTES)
+  @Cron(EVERY_HOUR)
   async handleCron() {
     if (this.isTaskRunning) {
       this.logger.warn('Task is already running. Skipping this execution.');
@@ -33,8 +39,10 @@ export class SchedulerService {
 
     try {
       const timeRange =  { start: subDays(new Date(), 1).toISOString(), end: new Date().toISOString() };
-      this.activeUserService.createCache(timeRange.start, timeRange.end, 'main.dm-zz-q.ioee10-cloud.com');
-      this.activeUserService.createCache(timeRange.start, timeRange.end, 'main.dm-zz-d.ioee10-cloud.com');
+      this.activeUserCacheService.createCache(timeRange.start, timeRange.end, TENANT.DOMAIN);
+      this.customEventsCacheService.createCache(timeRange.start, timeRange.end, TENANT.ID);
+      this.pageViewCacheService.createCache(timeRange.start, timeRange.end, TENANT.DOMAIN);
+      this.sessionEventsCacheService.createCache(timeRange.start, timeRange.end, TENANT.ID);
     } catch (error) {
       this.logger.error('Error during task execution', error);
     } finally {

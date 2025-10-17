@@ -1,26 +1,19 @@
 import { Controller, Get, Logger, Query, UseInterceptors } from '@nestjs/common';
-import { GainsightPxService } from '../service/gainsight-px.service';
 import { differenceInDays, differenceInHours } from 'date-fns';
-import { PXParams, SessionEvent, SessionEventFilter, SessionEventSort } from '../model/gainsight-px.model';
+import { SessionEvent } from '../model/gainsight-px.model';
 import { NormalizedDateCacheInterceptor } from '../service/normalized-date-cache-interceptor.service';
+import { SessionEventsCacheService } from '../cache/session-events-cache.service';
 @Controller()
 export class SessionEventsController {
   private readonly logger = new Logger(SessionEventsController.name);
 
-  constructor(private api: GainsightPxService) {}
+  constructor(private sessionEventsCacheService: SessionEventsCacheService) {}
 
   @Get('/sessionEventsAutoAgg')
   @UseInterceptors(NormalizedDateCacheInterceptor)
   async getSessionsAutoAgg(@Query('start') start: string, @Query('end') end?: string) {
-    const startDate = new Date(start);
-    const endDate = end ? new Date(end) : new Date();
-
-    let filter = `accountId~t2700*;date>${startDate.getTime()};` as SessionEventFilter;
-    if (end) {
-      filter += `date<${endDate.getTime()}`;
-    }
-    const allEvents = await this.getSessionEventsWithPagination(filter, []);
-    const aggregated = this.aggregateByTimeframe(allEvents, startDate, endDate);
+    const allEvents = await this.sessionEventsCacheService.queryCache(start, end);
+    const aggregated = this.aggregateByTimeframe(allEvents, new Date(start), new Date(end));
     return aggregated;
   }
 
@@ -85,34 +78,10 @@ export class SessionEventsController {
     return dateMap;
   }
 
-  private async getSessionEventsWithPagination(filter: SessionEventFilter, sum: SessionEvent[], scrollId?: string): Promise<SessionEvent[]> {
-    const params = { filter, sort: 'date', pageSize: 1000, scrollId } as PXParams<SessionEventFilter, SessionEventSort>;
-    const res = await this.api.getSessionEvents(params);
-
-    const events = res.sessionInitializedEvents;
-    sum.push(...events);
-    if (events.length < 1000) {
-      this.logger.log(`Session events - overall count ${sum.length}.`);
-      return sum;
-    } else {
-      return this.getSessionEventsWithPagination(filter, sum, res.scrollId);
-    }
-  }
-
   @Get('/sessionEvents')
   @UseInterceptors(NormalizedDateCacheInterceptor)
   async getSessions(@Query('start') start?: string, @Query('end') end?: string) {
-    let filter = `accountId~t2700*;` as SessionEventFilter;
-    if (start) {
-      const date = new Date(start);
-      filter += `date>${date.getTime()};`;
-    }
-    if (end) {
-      const date = new Date(end);
-      filter += `date<${date.getTime()};`;
-    }
-
-    const allEvents = await this.getSessionEventsWithPagination(filter, []);
+    const allEvents = await this.sessionEventsCacheService.queryCache(start, end);
     if (allEvents.length) {
       this.logger.log(`Range from ${new Date(allEvents[0].date).toISOString()} to ${new Date(allEvents[allEvents.length - 1].date).toISOString()}`);
     }

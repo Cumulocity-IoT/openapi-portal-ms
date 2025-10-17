@@ -16,3 +16,8 @@ export const DEFAULT_OPTIONS = {
   [Options.GITHUB_ORG_URL]: 'https://api.github.com/orgs/',
   [Options.GITHUB_REPOS_URL]: 'https://api.github.com/repos/',
 };
+
+export const TENANT = {
+  DOMAIN: 'main.dm-zz-q.ioee10-cloud.com',
+  ID: 't2700',
+}
