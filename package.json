@@ -1,6 +1,6 @@
 {
   "name": "gainsight-sync-ms",
-  "version": "0.0.30",
+  "version": "0.0.31",
   "description": "",
   "author": "",
   "private": true,
@@ -42,6 +42,8 @@
     "@nestjs/cli": "^10.0.0",
     "@nestjs/schematics": "^10.0.0",
     "@nestjs/testing": "^10.0.0",
+    "@types/cache-manager":"^5.0.0",
+    "@types/date-fns": "^2.6.0",
     "@types/express": "^4.17.17",
     "@types/jest": "^29.5.2",
     "@types/lodash": "^4.17.7",

@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { formatDuration, intervalToDuration, subDays } from 'date-fns';
 import { GainsightPxService } from './gainsight-px.service';
+import { ActiveUserController } from 'src/active-users.controller';
 
 const EVERY_5_MINUTES = '*/5 * * * *';
 
@@ -14,7 +15,10 @@ export class SchedulerService {
   public runDuration: string;
   public runs: { start: string; end: string; duration: string }[] = [];
 
-  constructor(private api: GainsightPxService) {}
+  constructor(
+    private api: GainsightPxService,
+    private activeUserService: ActiveUserController
+  ) {}
 
   @Cron(EVERY_5_MINUTES)
   async handleCron() {
@@ -28,37 +32,8 @@ export class SchedulerService {
     this.logger.log('Starting the scheduled task.');
 
     try {
-      // const feature = await this.api.getCustomEventById('7b85f80e-dee0-4e22-8683-d707960c42bd');
-      // console.log('Feature:', JSON.stringify(feature));
-      
-      // const features = await this.api.getFeaturesHierarchy();
-      // console.log('Features:', JSON.stringify(features));
-
-     
-      // const pageViews = await this.api.getPageViews({ filter: 'host==main.dm-zz-p.ioee10-cloud.com',sort: '-date' });
-      // pageViews.results.forEach((event) => { event.date = new Date(event.date).toISOString(); });
-      // console.log('Page Views:', pageViews);
-      
-      // @ts-ignore
-      const customEvents = await this.api.getCustomEvents({ filter: 'accountId~t2700*',sort: '-date', pageSize: 100 });
-      console.log('Custom Events:', customEvents);
-
-      
-      // const customEvents = await this.api.getCustomEvents({ filter: 'accountId~t1564',sort: '-date' });
-      // console.log('Custom Events:', customEvents);
-
-      // todo check for signUpDate
-      // map feature hierarchy to custom event setip ion google or import/ export custom events
-      // users and custom attributes?!
-      // how to set up a structure for customers
-      // right now we have accounts and one account contains many users
-      // how to properly structure that
-      // no use case for historical data
-
-      // trigger surveys
-      // let nadia know when its fixed
-      // const userIds = await this.api.getIdentifyId({ sort: '-date' });
-      // console.log('Identify IDs:', JSON.stringify(userIds));
+      const res1 = this.activeUserService.getActiveUserMetricsDateRange(subDays(new Date(), 1).toISOString(), new Date().toISOString(), 'main.dm-zz-q.ioee10-cloud.com');
+      const res2 = this.activeUserService.getActiveUserMetricsDateRange(subDays(new Date(), 1).toISOString(), new Date().toISOString(), 'main.dm-zz-d.ioee10-cloud.com');
     } catch (error) {
       this.logger.error('Error during task execution', error);
     } finally {

@@ -10,6 +10,7 @@ import { EventsController } from './events.controller';
 import { SessionEventsController } from './session-events.controller';
 import { PageViewController } from './page-view.controller';
 import { CacheModule } from '@nestjs/cache-manager';
+import { SchedulerService } from './service/scheduler.service';
 
 @Module({
   imports: [
@@ -33,7 +34,8 @@ import { CacheModule } from '@nestjs/cache-manager';
         return service;
       },
       inject: [C8yClientProviderService],
-    }
+    },
+    SchedulerService
   ],
   controllers: [AppController, ActiveUserController, EventsController, SessionEventsController, PageViewController],
 })

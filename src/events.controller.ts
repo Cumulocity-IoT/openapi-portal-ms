@@ -2,16 +2,17 @@ import { Controller, Get, Logger, Query, UseInterceptors } from '@nestjs/common'
 import { GainsightPxService } from './service/gainsight-px.service';
 import { CustomEvent, CustomEventFilter, CustomEventSort, PXParams } from './model/gainsight-px.model';
 import { NormalizedDateCacheInterceptor } from './service/normalized-date-cache-interceptor.service';
+import { MyCacheService } from './service/my-cache.service';
+import { isToday, startOfDay, subDays } from 'date-fns';
 
 @Controller()
 export class EventsController {
   readonly logger = new Logger(EventsController.name);
 
-  constructor(private api: GainsightPxService) {}
+  constructor(private api: GainsightPxService, private myCache: MyCacheService) {}
 
   @Get('/customEvents')
-  @UseInterceptors(NormalizedDateCacheInterceptor)
-  async getCustomEvents(@Query('start') start?: string, @Query('end') end?: string) {
+  async fetchCustomEvents(start: string, end: string) {
     let filter = `accountId~t2700*;` as CustomEventFilter;
     if (start) {
       const date = new Date(start);
@@ -96,7 +97,7 @@ export class EventsController {
       .sort((a, b) => b.count - a.count);
   }
 
-  private filterByApplication(customEvents: CustomEvent[], application: string) {
+  filterByApplication(customEvents: CustomEvent[], application: string) {
     return customEvents
       .filter((event) => !event.globalContext['projectName'] || event.globalContext['projectName'].includes(application))
       .map((event) => {
