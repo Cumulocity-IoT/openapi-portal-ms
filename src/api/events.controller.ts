@@ -1,8 +1,8 @@
 import { Controller, Get, Logger, Query, UseInterceptors } from '@nestjs/common';
-import { GainsightPxService } from './service/gainsight-px.service';
-import { CustomEvent, CustomEventFilter, CustomEventSort, PXParams } from './model/gainsight-px.model';
-import { NormalizedDateCacheInterceptor } from './service/normalized-date-cache-interceptor.service';
-import { MyCacheService } from './service/my-cache.service';
+import { GainsightPxService } from '../service/gainsight-px.service';
+import { CustomEvent, CustomEventFilter, CustomEventSort, PXParams } from '../model/gainsight-px.model';
+import { NormalizedDateCacheInterceptor } from '../service/normalized-date-cache-interceptor.service';
+import { MyCacheService } from '../service/my-cache.service';
 import { isToday, startOfDay, subDays } from 'date-fns';
 
 @Controller()

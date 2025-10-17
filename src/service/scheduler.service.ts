@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { formatDuration, intervalToDuration, subDays } from 'date-fns';
 import { GainsightPxService } from './gainsight-px.service';
-import { ActiveUserController } from 'src/active-users.controller';
+import { ActiveUsersCacheService } from '../cache/active-users-cache.service';
 
 const EVERY_5_MINUTES = '*/5 * * * *';
 
@@ -17,7 +17,7 @@ export class SchedulerService {
 
   constructor(
     private api: GainsightPxService,
-    private activeUserService: ActiveUserController
+    private activeUserService: ActiveUsersCacheService
   ) {}
 
   @Cron(EVERY_5_MINUTES)
@@ -32,8 +32,9 @@ export class SchedulerService {
     this.logger.log('Starting the scheduled task.');
 
     try {
-      const res1 = this.activeUserService.getActiveUserMetricsDateRange(subDays(new Date(), 1).toISOString(), new Date().toISOString(), 'main.dm-zz-q.ioee10-cloud.com');
-      const res2 = this.activeUserService.getActiveUserMetricsDateRange(subDays(new Date(), 1).toISOString(), new Date().toISOString(), 'main.dm-zz-d.ioee10-cloud.com');
+      const timeRange =  { start: subDays(new Date(), 1).toISOString(), end: new Date().toISOString() };
+      this.activeUserService.createCache(timeRange.start, timeRange.end, 'main.dm-zz-q.ioee10-cloud.com');
+      this.activeUserService.createCache(timeRange.start, timeRange.end, 'main.dm-zz-d.ioee10-cloud.com');
     } catch (error) {
       this.logger.error('Error during task execution', error);
     } finally {

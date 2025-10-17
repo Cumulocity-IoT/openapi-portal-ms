@@ -1,7 +1,7 @@
 import { Controller, Logger } from '@nestjs/common';
-import { GainsightPxService } from './service/gainsight-px.service';
-import { UserUtilityService } from './service/user-utility.service';
-import { PXParams, User, UserFilter, UserSort } from './model/gainsight-px.model';
+import { GainsightPxService } from '../service/gainsight-px.service';
+import { UserUtilityService } from '../service/user-utility.service';
+import { PXParams, User, UserFilter, UserSort } from '../model/gainsight-px.model';
 
 @Controller()
 export class ActiveUserController {

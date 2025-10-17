@@ -1,8 +1,8 @@
 import { Controller, Get, Logger, Query, UseInterceptors } from '@nestjs/common';
-import { GainsightPxService } from './service/gainsight-px.service';
+import { GainsightPxService } from '../service/gainsight-px.service';
 import { differenceInDays, differenceInHours } from 'date-fns';
-import { PXParams, SessionEvent, SessionEventFilter, SessionEventSort } from './model/gainsight-px.model';
-import { NormalizedDateCacheInterceptor } from './service/normalized-date-cache-interceptor.service';
+import { PXParams, SessionEvent, SessionEventFilter, SessionEventSort } from '../model/gainsight-px.model';
+import { NormalizedDateCacheInterceptor } from '../service/normalized-date-cache-interceptor.service';
 @Controller()
 export class SessionEventsController {
   private readonly logger = new Logger(SessionEventsController.name);

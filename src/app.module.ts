@@ -5,12 +5,13 @@ import { SettingsService } from './service/settings.service';
 import { GainsightPxService } from './service/gainsight-px.service';
 import { BootstrapModule } from './bootstrap.module';
 import { UserUtilityService } from './service/user-utility.service';
-import { ActiveUserController } from './active-users.controller';
-import { EventsController } from './events.controller';
-import { SessionEventsController } from './session-events.controller';
-import { PageViewController } from './page-view.controller';
+import { ActiveUserController } from './api/active-users.controller';
+import { EventsController } from './api/events.controller';
+import { SessionEventsController } from './api/session-events.controller';
+import { PageViewController } from './api/page-view.controller';
 import { CacheModule } from '@nestjs/cache-manager';
 import { SchedulerService } from './service/scheduler.service';
+import { ActiveUsersCacheService } from './cache/active-users-cache.service';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { SchedulerService } from './service/scheduler.service';
       },
       inject: [C8yClientProviderService],
     },
+    ActiveUsersCacheService,
     SchedulerService
   ],
   controllers: [AppController, ActiveUserController, EventsController, SessionEventsController, PageViewController],

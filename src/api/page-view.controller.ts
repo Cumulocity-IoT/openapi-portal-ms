@@ -1,7 +1,7 @@
 import { Controller, Get, Logger, Query, UseInterceptors } from '@nestjs/common';
-import { GainsightPxService } from './service/gainsight-px.service';
-import { PageView, PageViewFilter, PageViewSort, PXParams } from './model/gainsight-px.model';
-import { NormalizedDateCacheInterceptor } from './service/normalized-date-cache-interceptor.service';
+import { GainsightPxService } from '../service/gainsight-px.service';
+import { PageView, PageViewFilter, PageViewSort, PXParams } from '../model/gainsight-px.model';
+import { NormalizedDateCacheInterceptor } from '../service/normalized-date-cache-interceptor.service';
 
 @Controller()
 export class PageViewController {
