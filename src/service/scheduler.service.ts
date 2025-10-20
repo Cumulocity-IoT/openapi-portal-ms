@@ -7,8 +7,8 @@ import { TENANT } from '../app.model';
 import { PageViewCacheService } from '../cache/page-view-cache.service';
 import { SessionEventsCacheService } from '../cache/session-events-cache.service';
 
-// const EVERY_5_MINUTES = '*/5 * * * *';
-const EVERY_HOUR = '0 * * * *';
+const EVERY_10_MINUTES = '*/10 * * * *';
+// const EVERY_HOUR = '0 * * * *';
 
 @Injectable()
 export class SchedulerService {
@@ -26,7 +26,7 @@ export class SchedulerService {
     private sessionEventsCacheService: SessionEventsCacheService
   ) {}
 
-  @Cron(EVERY_HOUR)
+  @Cron(EVERY_10_MINUTES)
   async handleCron() {
     if (this.isTaskRunning) {
       this.logger.warn('Task is already running. Skipping this execution.');

@@ -1,7 +1,6 @@
-import { Controller, Get, Logger, Query, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Logger, Query } from '@nestjs/common';
 import { differenceInDays, differenceInHours } from 'date-fns';
 import { SessionEvent } from '../model/gainsight-px.model';
-import { NormalizedDateCacheInterceptor } from '../service/normalized-date-cache-interceptor.service';
 import { SessionEventsCacheService } from '../cache/session-events-cache.service';
 @Controller()
 export class SessionEventsController {
