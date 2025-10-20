@@ -1,79 +1,33 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PXParams, User, UserFilter, UserSort } from '../model/gainsight-px.model';
 import { GainsightPxService } from '../service/gainsight-px.service';
-import { MyCache } from './cache.model';
+import { TreeCache } from './tree-cache.service';
 
-@Injectable()  
-export class ActiveUsersCacheService implements MyCache<User> {
-  constructor(private api: GainsightPxService) {}
+@Injectable()
+export class ActiveUsersCacheService extends TreeCache<User> {
+  constructor(private api: GainsightPxService) {
+    super();
+  }
 
-  private cache: User[] = [];
+  private readonly logger = new Logger(ActiveUsersCacheService.name);
 
   createCache(start: string, end: string, domainName: string) {
-    return this.getActiveUserMetricsDateRange(start, end, domainName).then((users) => (this.cache = users));
+    return this.getActiveUserMetricsDateRange(start, end, domainName).then((users) => this.setCache(users));
+  }
+
+  getDate(item: User): number {
+    return item.lastSeenDate;
+  }
+
+  getLogger(): Logger {
+    return this.logger;
   }
 
   queryCache(start: string, end: string): User[] {
-    // Early return if cache is empty or completely out of range
-    if (this.cache.length === 0) return [];
-
     const startStamp = new Date(start).getTime();
     const endStamp = new Date(end).getTime();
-
-    // Check if range is completely outside cache bounds
-    if (startStamp > this.cache[this.cache.length - 1].lastSeenDate || endStamp < this.cache[0].lastSeenDate) {
-      return [];
-    }
-
-    const binarySearch = (time: number): number => {
-      let left = 0;
-      let right = this.cache.length - 1;
-
-      while (left <= right) {
-        const mid = Math.floor((left + right) / 2);
-        if (this.cache[mid].lastSeenDate === time) return mid;
-        if (this.cache[mid].lastSeenDate < time) {
-          left = mid + 1;
-        } else {
-          right = mid - 1;
-        }
-      }
-      return left;
-    };
-
-    const startIndex = binarySearch(startStamp);
-    if (startIndex >= this.cache.length) return [];
-
-    const endIndex = binarySearch(endStamp);
-    return this.cache.slice(startIndex, endIndex);
+    return this.getCache(startStamp, endStamp);
   }
-
-  /*
-  const startStamp = new Date(start).getTime();
-    const endStamp = new Date(end).getTime();
-
-    const binarySearch = (time: number): number => {
-        let left = 0;
-        let right = this.cache.length - 1;
-        
-        while (left <= right) {
-            const mid = Math.floor((left + right) / 2);
-            if (this.cache[mid].lastSeenDate === time) return mid;
-            if (this.cache[mid].lastSeenDate < time) {
-                left = mid + 1;
-            } else {
-                right = mid - 1;
-            }
-        }
-        return left;
-    };
-
-    const startIndex = binarySearch(startStamp);
-    if (startIndex >= this.cache.length) return [];
-
-    const endIndex = binarySearch(endStamp);
-    return this.cache.slice(startIndex, endIndex);
-    */
 
   private async getActiveUserMetricsDateRange(start: string, end: string, domainName: string) {
     let filter = `customAttributes.domainName==${domainName};`;

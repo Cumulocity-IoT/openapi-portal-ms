@@ -39,7 +39,7 @@ export class SchedulerService {
     this.logger.log('Starting the scheduled task.');
 
     try {
-      const timeRange = { start: subDays(new Date(), 60).toISOString(), end: new Date().toISOString() };
+      const timeRange = { start: subDays(new Date(), 90).toISOString(), end: new Date().toISOString() };
       const createCaches = [
         this.activeUserCacheService.createCache(timeRange.start, timeRange.end, TENANT.DOMAIN),
         this.customEventsCacheService.createCache(timeRange.start, timeRange.end, TENANT.ID),
