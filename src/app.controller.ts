@@ -13,4 +13,14 @@ export class AppController {
       status: 'UP',
     };
   }
+
+  @Get('/lastRun')
+  getLastRun() {
+    return {
+      lastRun: this.scheduler.lastRun,
+      runDuration: this.scheduler.getDuration(),
+      runs: this.scheduler.runs,
+      isTaskRunning: this.scheduler.isTaskRunning,
+    };
+  }
 }

@@ -7,16 +7,16 @@ import { TENANT } from '../app.model';
 import { PageViewCacheService } from '../cache/page-view-cache.service';
 import { SessionEventsCacheService } from '../cache/session-events-cache.service';
 
-const EVERY_5_MINUTES = '*/5 * * * *';
+// const EVERY_5_MINUTES = '*/5 * * * *';
 const EVERY_HOUR = '0 * * * *';
 
 @Injectable()
 export class SchedulerService {
   private readonly logger = new Logger(SchedulerService.name);
   public isTaskRunning = false;
-  public lastRun: string;
+  public lastRun?: string;
   private runStart: Date;
-  public runDuration: string;
+  public runDuration?: string;
   public runs: { start: string; end: string; duration: string }[] = [];
 
   constructor(
@@ -35,10 +35,11 @@ export class SchedulerService {
 
     this.isTaskRunning = true;
     this.runStart = new Date();
+    delete this.runDuration; 
     this.logger.log('Starting the scheduled task.');
 
     try {
-      const timeRange =  { start: subDays(new Date(), 1).toISOString(), end: new Date().toISOString() };
+      const timeRange =  { start: subDays(new Date(), 30).toISOString(), end: new Date().toISOString() };
       this.activeUserCacheService.createCache(timeRange.start, timeRange.end, TENANT.DOMAIN);
       this.customEventsCacheService.createCache(timeRange.start, timeRange.end, TENANT.ID);
       this.pageViewCacheService.createCache(timeRange.start, timeRange.end, TENANT.DOMAIN);
@@ -59,6 +60,18 @@ export class SchedulerService {
       this.logger.log('Task execution completed. Duration: ' + this.runDuration);
       this.isTaskRunning = false;
     }
+  }
+
+  getDuration() {
+    if (this.isTaskRunning) {
+      const now = new Date();
+      const duration = intervalToDuration({
+        start: this.runStart,
+        end: now,
+      });
+      return formatDuration(duration);
+    }
+    return this.runDuration;
   }
 
   private updateRuns() {
