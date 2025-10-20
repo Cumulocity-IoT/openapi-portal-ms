@@ -12,7 +12,7 @@ export class SessionEventsCacheService implements MyCache<SessionEvent> {
   private cache: SessionEvent[] = [];
 
   createCache(start: string, end: string, tenantId: string) {
-    this.getSessionEvents(start, end, tenantId).then((events) => (this.cache = events));
+    return this.getSessionEvents(start, end, tenantId).then((events) => (this.cache = events));
   }
 
   queryCache(start: string, end: string): SessionEvent[] {

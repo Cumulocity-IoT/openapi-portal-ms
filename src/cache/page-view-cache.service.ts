@@ -11,7 +11,7 @@ export class PageViewCacheService implements MyCache<PageView> {
   constructor(private api: GainsightPxService) {}
 
   createCache(start: string, end: string, domainName: string) {
-    this.getPageViews(start, end, domainName).then((pageViews) => {
+    return this.getPageViews(start, end, domainName).then((pageViews) => {
       this.cache = pageViews;
     });
   }

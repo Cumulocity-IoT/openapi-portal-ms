@@ -10,7 +10,7 @@ export class ActiveUsersCacheService implements MyCache<User> {
   private cache: User[] = [];
 
   createCache(start: string, end: string, domainName: string) {
-    this.getActiveUserMetricsDateRange(start, end, domainName).then((users) => (this.cache = users));
+    return this.getActiveUserMetricsDateRange(start, end, domainName).then((users) => (this.cache = users));
   }
 
   queryCache(start: string, end: string): User[] {

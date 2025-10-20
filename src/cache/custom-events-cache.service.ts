@@ -10,7 +10,7 @@ export class CustomEventsCacheService implements MyCache<CustomEvent> {
   private cache: CustomEvent[] = [];
 
   createCache(start: string, end: string, tenantId: string) {
-    this.getCustomEvents(start, end, tenantId).then((events) => (this.cache = events));
+    return this.getCustomEvents(start, end, tenantId).then((events) => (this.cache = events));
   }
 
   queryCache(start: string, end: string): CustomEvent[] {
