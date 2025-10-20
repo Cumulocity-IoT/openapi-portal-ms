@@ -9,7 +9,6 @@ import { ActiveUserController } from './api/active-users.controller';
 import { EventsController } from './api/custom-events.controller';
 import { SessionEventsController } from './api/session-events.controller';
 import { PageViewController } from './api/page-view.controller';
-import { CacheModule } from '@nestjs/cache-manager';
 import { SchedulerService } from './service/scheduler.service';
 import { ActiveUsersCacheService } from './cache/active-users-cache.service';
 import { CustomEventsCacheService } from './cache/custom-events-cache.service';
@@ -17,12 +16,7 @@ import { PageViewCacheService } from './cache/page-view-cache.service';
 import { SessionEventsCacheService } from './cache/session-events-cache.service';
 
 @Module({
-  imports: [
-    BootstrapModule,
-    CacheModule.register({
-      ttl: 24 * 60 * 60 * 1000, // cache time-to-live in ms
-    }),
-  ],
+  imports: [BootstrapModule],
   providers: [
     UserUtilityService,
     {
@@ -43,7 +37,7 @@ import { SessionEventsCacheService } from './cache/session-events-cache.service'
     CustomEventsCacheService,
     PageViewCacheService,
     SessionEventsCacheService,
-    SchedulerService
+    SchedulerService,
   ],
   controllers: [AppController, ActiveUserController, EventsController, SessionEventsController, PageViewController],
 })

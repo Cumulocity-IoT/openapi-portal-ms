@@ -1,14 +1,14 @@
-import { Controller, Get, Query, UseInterceptors } from '@nestjs/common';
-import { NormalizedDateCacheInterceptor } from '../service/normalized-date-cache-interceptor.service';
+import { Controller, Get, Logger, Query } from '@nestjs/common';
 import { PageViewCacheService } from '../cache/page-view-cache.service';
 
 @Controller()
 export class PageViewController {
+  private readonly logger = new Logger(PageViewController.name);
   constructor(private pageViewCacheService: PageViewCacheService) {}
 
   @Get('/popularDevices')
-  @UseInterceptors(NormalizedDateCacheInterceptor)
-  async getDeviceCounts(@Query('start') start: string, @Query('end') end?: string) {
+  async getDeviceCounts(@Query('start') start: string, @Query('end') end: string) {
+    this.logger.log(`getDeviceCounts from ${start} to ${end}`);
     const pageViews = this.pageViewCacheService.queryCache(start, end);
     const numberPattern = /\d+/g;
     const counts: Record<string, number> = {};
@@ -31,8 +31,8 @@ export class PageViewController {
   }
 
   @Get('/pageViewCounts')
-  @UseInterceptors(NormalizedDateCacheInterceptor)
-  async getPageViewCounts(@Query('start') start: string, @Query('end') end?: string) {
+  async getPageViewCounts(@Query('start') start: string, @Query('end') end: string) {
+    this.logger.log(`getPageViewCounts from ${start} to ${end}`);
     const pageViews = await this.pageViewCacheService.queryCache(start, end);
     const counts: Record<string, number> = {};
     for (const view of pageViews) {

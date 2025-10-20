@@ -10,8 +10,8 @@ export class SessionEventsController {
   constructor(private sessionEventsCacheService: SessionEventsCacheService) {}
 
   @Get('/sessionEventsAutoAgg')
-  @UseInterceptors(NormalizedDateCacheInterceptor)
   async getSessionsAutoAgg(@Query('start') start: string, @Query('end') end?: string) {
+    this.logger.log(`getSessionsAutoAgg from ${start} to ${end}`);
     const allEvents = await this.sessionEventsCacheService.queryCache(start, end);
     const aggregated = this.aggregateByTimeframe(allEvents, new Date(start), new Date(end));
     return aggregated;
@@ -79,8 +79,8 @@ export class SessionEventsController {
   }
 
   @Get('/sessionEvents')
-  @UseInterceptors(NormalizedDateCacheInterceptor)
   async getSessions(@Query('start') start?: string, @Query('end') end?: string) {
+    this.logger.log(`getSessions from ${start} to ${end}`);
     const allEvents = await this.sessionEventsCacheService.queryCache(start, end);
     if (allEvents.length) {
       this.logger.log(`Range from ${new Date(allEvents[0].date).toISOString()} to ${new Date(allEvents[allEvents.length - 1].date).toISOString()}`);

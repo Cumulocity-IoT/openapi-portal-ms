@@ -1,6 +1,5 @@
-import { Controller, Get, Logger, Query, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Logger, Query } from '@nestjs/common';
 import { CustomEvent } from '../model/gainsight-px.model';
-import { NormalizedDateCacheInterceptor } from '../service/normalized-date-cache-interceptor.service';
 import { CustomEventsCacheService } from '../cache/custom-events-cache.service';
 import { get } from 'lodash';
 
@@ -11,8 +10,8 @@ export class EventsController {
   constructor(private customEventsCache: CustomEventsCacheService) {}
 
   @Get('/eventCounts')
-  @UseInterceptors(NormalizedDateCacheInterceptor)
   async getEventCounts(@Query('start') start?: string, @Query('end') end?: string) {
+    this.logger.log(`getEventCounts from ${start} to ${end}`);
     const allEvents = await this.customEventsCache.queryCache(start, end);
     const filtered = this.filteredByProjectName(allEvents, 'devicemanagement');
     return this.aggregateEventCountsBy(filtered, 'eventName');
@@ -37,7 +36,8 @@ export class EventsController {
   }
 
   @Get('/widgetsByName')
-  async getEventCountsByName(@Query('eventName') eventName: string, @Query('start') start?: string, @Query('end') end?: string) {
+  async getEventCountsByName(@Query('eventName') eventName: string, @Query('start') start: string, @Query('end') end: string) {
+    this.logger.log(`getEventCountsByName for event ${eventName} from ${start} to ${end}`);
     const allEvents = await this.customEventsCache.queryCache(start, end);
     const filtered = this.filteredByProjectName(allEvents, 'devicemanagement').filter((event) => event.eventName === eventName);
     return this.aggregateEventCountsBy(filtered, 'attributes.widgetName');
