@@ -12,8 +12,13 @@ export class SessionEventsController {
   async getSessionsAutoAgg(@Query('start') start: string, @Query('end') end?: string) {
     this.logger.log(`getSessionsAutoAgg from ${start} to ${end}`);
     const allEvents = await this.sessionEventsCacheService.queryCache(start, end);
-    const aggregated = this.aggregateByTimeframe(allEvents, new Date(start), new Date(end));
-    return aggregated;
+    try {
+      const aggregated = this.aggregateByTimeframe(allEvents, new Date(start), new Date(end));
+      return aggregated;
+    } catch(e) {
+      this.logger.error('Error during aggregation', e);
+      return [];
+    }
   }
 
   private aggregateByTimeframe(events: SessionEvent[], startDate: Date, endDate: Date) {

@@ -23,6 +23,7 @@ export abstract class TreeCache<T> {
       if (this.getDate(items[i]) < this.getDate(items[i - 1])) {
         isSorted = false;
         this.getLogger().warn('Cache items must be sorted by date in ascending order!');
+        break;
       }
     }
 
