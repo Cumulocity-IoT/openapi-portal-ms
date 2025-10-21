@@ -37,7 +37,7 @@ export abstract class TreeCache<T> {
       items.sort((a, b) => this.getDate(a) - this.getDate(b));
     }
 
-    this.setBounds(items);
+    this.setBounds(items, length);
 
     if (length > 2 && this.getDate(this.oldest) > this.getDate(this.newest)) {
       this.getLogger().error(`Cache items must be sorted by date in ascending order, but oldest is newer than newest! ${this.getDate(this.oldest)} > ${this.getDate(this.newest)}`);
@@ -51,14 +51,15 @@ export abstract class TreeCache<T> {
     }
   }
 
-  private setBounds(items: T[]) {
+  private setBounds(items: T[], length: number) {
     if (!this.oldest) {
       this.oldest = items[0];
     }
 
     // move newest bound on every update
-    if (!this.newest || this.getDate(items[items.length - 1]) > this.getDate(this.newest)) {
-      this.newest = items[length - 1];
+    const latest = items[length - 1];
+    if (!this.newest || this.getDate(latest) > this.getDate(this.newest)) {
+      this.newest = latest;
     }
   }
 
