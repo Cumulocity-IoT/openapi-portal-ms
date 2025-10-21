@@ -1,7 +1,7 @@
 {
   "apiVersion": "2",
   "name": "gainsight-sync-ms",
-  "version": "0.0.42",
+  "version": "0.0.43",
   "provider": {
     "name": "Cumulocity"
   },
