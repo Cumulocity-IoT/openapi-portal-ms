@@ -39,24 +39,14 @@ export class SchedulerService {
     this.logger.log('Starting the scheduled task.');
 
     try {
-      if (this.runs.length === 0) {
-        const timeRange = { start: subDays(new Date(), 90).toISOString(), end: new Date().toISOString() };
-        const createCaches = [
-          this.activeUserCacheService.createCache(timeRange.start, timeRange.end, TENANT.DOMAIN),
-          this.customEventsCacheService.createCache(timeRange.start, timeRange.end, TENANT.ID),
-          this.pageViewCacheService.createCache(timeRange.start, timeRange.end, TENANT.DOMAIN),
-          this.sessionEventsCacheService.createCache(timeRange.start, timeRange.end, TENANT.ID),
-        ];
-        await Promise.all(createCaches);
-      } else {
-        const updateCaches = [
-          this.activeUserCacheService.updateCache(TENANT.DOMAIN),
-          this.customEventsCacheService.updateCache(TENANT.ID),
-          this.pageViewCacheService.updateCache(TENANT.DOMAIN),
-          this.sessionEventsCacheService.updateCache(TENANT.ID),
-        ];
-        await Promise.all(updateCaches);
-      }
+      const timeRange = { start: subDays(new Date(), 90).toISOString(), end: new Date().toISOString() };
+      const promises = [
+        this.activeUserCacheService.createOrUpdateCache(timeRange.start, timeRange.end, TENANT.DOMAIN),
+        this.customEventsCacheService.createOrUpdateCache(timeRange.start, timeRange.end, TENANT.ID),
+        this.pageViewCacheService.createOrUpdateCache(timeRange.start, timeRange.end, TENANT.DOMAIN),
+        this.sessionEventsCacheService.createOrUpdateCache(timeRange.start, timeRange.end, TENANT.ID),
+      ];
+      await Promise.all(promises);
     } catch (error) {
       this.logger.error('Error during task execution', error);
     } finally {

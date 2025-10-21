@@ -16,8 +16,9 @@ export abstract class TreeCache<T> {
   abstract getLogger(): Logger;
 
   setCache(items: T[]) {
-    const length = items.length;
+    const length = items?.length ?? 0;
     if (length === 0) {
+      this.getLogger().warn('No items!');
       return;
     }
 
@@ -55,6 +56,7 @@ export abstract class TreeCache<T> {
       this.oldest = items[0];
     }
 
+    // move newest bound on every update
     if (!this.newest || this.getDate(items[items.length - 1]) > this.getDate(this.newest)) {
       this.newest = items[length - 1];
     }

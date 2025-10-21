@@ -11,14 +11,9 @@ export class SessionEventsCacheService extends TreeCache<SessionEvent> {
     super();
   }
 
-  createCache(start: string, end: string, tenantId: string) {
-    return this.getSessionEvents(start, end, tenantId).then((events) => this.setCache(events));
-  }
-
-  updateCache(tenantId: string) {
-    const start = new Date(this.newest.date).toISOString();
-    const end = new Date().toISOString();
-    return this.getSessionEvents(start, end, tenantId).then((events) => this.setCache(events));
+  createOrUpdateCache(start: string, end: string, tenantId: string) {
+    const startDate = this.newest ? new Date(this.newest.date).toISOString() : start;
+    return this.getSessionEvents(startDate, end, tenantId).then((events) => this.setCache(events));
   }
 
   queryCache(start: string, end: string): SessionEvent[] {
