@@ -15,6 +15,12 @@ export class CustomEventsCacheService extends TreeCache<CustomEvent> {
     return this.getCustomEvents(start, end, tenantId).then((events) => this.setCache(events));
   }
 
+  updateCache(tenantId: string) {
+    const start = new Date(this.newest.date).toISOString();
+    const end = new Date().toISOString();
+    return this.getCustomEvents(start, end, tenantId).then((events) => this.setCache(events));
+  }
+
   getDate(item: CustomEvent): number {
     return item.date;
   }

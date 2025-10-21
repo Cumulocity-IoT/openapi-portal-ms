@@ -15,6 +15,12 @@ export class ActiveUsersCacheService extends TreeCache<User> {
     return this.getActiveUserMetricsDateRange(start, end, domainName).then((users) => this.setCache(users));
   }
 
+  updateCache(domainName: string) {
+    const start = new Date(this.newest.lastSeenDate).toISOString();
+    const end = new Date().toISOString();
+    return this.getActiveUserMetricsDateRange(start, end, domainName).then((users) => this.setCache(users));
+  }
+
   getDate(item: User): number {
     return item.lastSeenDate;
   }

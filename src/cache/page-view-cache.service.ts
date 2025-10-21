@@ -5,6 +5,7 @@ import { TreeCache } from './tree-cache.service';
 
 @Injectable()
 export class PageViewCacheService extends TreeCache<PageView> {
+  
   private readonly logger = new Logger(PageViewCacheService.name);
 
   constructor(private api: GainsightPxService) {
@@ -15,6 +16,12 @@ export class PageViewCacheService extends TreeCache<PageView> {
     return this.getPageViews(start, end, domainName).then((pageViews) => {
       this.setCache(pageViews);
     });
+  }
+
+  updateCache(domainName: string) {
+    const start = new Date(this.newest.date).toISOString();
+    const end = new Date().toISOString();
+    return this.getPageViews(start, end, domainName).then((events) => this.setCache(events));
   }
 
   queryCache(start: string, end: string): PageView[] {

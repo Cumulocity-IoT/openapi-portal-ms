@@ -39,14 +39,24 @@ export class SchedulerService {
     this.logger.log('Starting the scheduled task.');
 
     try {
-      const timeRange = { start: subDays(new Date(), 90).toISOString(), end: new Date().toISOString() };
-      const createCaches = [
-        this.activeUserCacheService.createCache(timeRange.start, timeRange.end, TENANT.DOMAIN),
-        this.customEventsCacheService.createCache(timeRange.start, timeRange.end, TENANT.ID),
-        this.pageViewCacheService.createCache(timeRange.start, timeRange.end, TENANT.DOMAIN),
-        this.sessionEventsCacheService.createCache(timeRange.start, timeRange.end, TENANT.ID),
-      ];
-      await Promise.all(createCaches);
+      if (this.runs.length === 0) {
+        const timeRange = { start: subDays(new Date(), 90).toISOString(), end: new Date().toISOString() };
+        const createCaches = [
+          this.activeUserCacheService.createCache(timeRange.start, timeRange.end, TENANT.DOMAIN),
+          this.customEventsCacheService.createCache(timeRange.start, timeRange.end, TENANT.ID),
+          this.pageViewCacheService.createCache(timeRange.start, timeRange.end, TENANT.DOMAIN),
+          this.sessionEventsCacheService.createCache(timeRange.start, timeRange.end, TENANT.ID),
+        ];
+        await Promise.all(createCaches);
+      } else {
+        const updateCaches = [
+          this.activeUserCacheService.updateCache(TENANT.DOMAIN),
+          this.customEventsCacheService.updateCache(TENANT.ID),
+          this.pageViewCacheService.updateCache(TENANT.DOMAIN),
+          this.sessionEventsCacheService.updateCache(TENANT.ID),
+        ];
+        await Promise.all(updateCaches);
+      }
     } catch (error) {
       this.logger.error('Error during task execution', error);
     } finally {
@@ -58,7 +68,6 @@ export class SchedulerService {
       });
 
       this.runDuration = formatDuration(duration);
-      this.runs.push();
       this.updateRuns();
       this.logger.log('Task execution completed. Duration: ' + this.runDuration);
       this.isTaskRunning = false;
