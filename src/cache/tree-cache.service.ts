@@ -17,26 +17,34 @@ export abstract class TreeCache<T> {
       return;
     }
 
+    // Verify data is sorted in ascending order by date
+    let isSorted = true;
+    for (let i = 1; i < length; i++) {
+      if (this.getDate(items[i]) < this.getDate(items[i - 1])) {
+        isSorted = false;
+        this.getLogger().warn('Cache items must be sorted by date in ascending order!');
+      }
+    }
+
+    if (!isSorted) {
+      this.getLogger().log(`Sorting things out...`);
+      items.sort((a, b) => this.getDate(a) - this.getDate(b));
+    }
+
+    this.oldest = items[0];
+    this.newest = items[length - 1];
+    if (length > 2 && this.getDate(this.oldest) > this.getDate(this.newest)) {
+      this.getLogger().error(`Cache items must be sorted by date in ascending order, but oldest is newer than newest! ${this.getDate(this.oldest)} > ${this.getDate(this.newest)}`);
+    }
+
     const tree = new IntervalTree<GenericInterval<T>>();
+    this.getLogger().warn('Cache items count: ' + length);
     for (const item of items) {
       const time = this.getDate(item);
       // Use same start and end if it's a point-in-time event
       tree.insert({ low: time, high: time, item });
     }
     this.tree = tree;
-
-    // Verify data is sorted in ascending order by date
-    for (let i = 1; i < length; i++) {
-      if (this.getDate(items[i]) < this.getDate(items[i - 1])) {
-        this.getLogger().error('Cache items must be sorted by date in ascending order!');
-      }
-    }
-
-    this.oldest = items[0];
-    this.newest = items[length - 1];
-    if (items.length > 2 && this.getDate(this.oldest) > this.getDate(this.newest)) {
-      this.getLogger().error(`Cache items must be sorted by date in ascending order, but oldest is newer than newest! ${this.getDate(this.oldest)} > ${this.getDate(this.newest)}`);
-    }
   }
 
   getCache(start: number, end: number): T[] {
