@@ -11,65 +11,110 @@ export class ActiveUserController {
   ) {}
 
   @Get('/activeUserMetrics/numberOfUsers')
-  async numberOfUsers(@Query('start') start: string, @Query('end') end: string) {
+  numberOfUsers(@Query('start') start: string, @Query('end') end: string) {
     this.logger.log(`numberOfUsers from ${start} to ${end}`);
-    const users = await this.cache.queryCache(start, end);
-    return this.userUtil.numberOfUsers(users);
+    try {
+      const users = this.cache.queryCache(start, end);
+      return this.userUtil.numberOfUsers(users);
+    } catch (e) {
+      this.logger.error('Error during numberOfUsers calculation', e);
+      return { count: 0 };
+    }
   }
 
   @Get('/activeUserMetrics/newSignups')
   async numberOfNewSignups(@Query('start') start: string, @Query('end') end: string) {
     this.logger.log(`numberOfNewSignups from ${start} to ${end}`);
-    const users = await this.cache.queryCache(start, end);
-    return this.userUtil.numberOfNewSignups(users);
+    try {
+      const users = await this.cache.queryCache(start, end);
+      return this.userUtil.numberOfNewSignups(users);
+    } catch (e) {
+      this.logger.error('Error during numberOfNewSignups calculation', e);
+      return { count: 0 };
+    }
   }
 
   @Get('/activeUserMetrics/topLanguages')
   async topLanguages(@Query('start') start: string, @Query('end') end: string) {
     this.logger.log(`topLanguages from ${start} to ${end}`);
-    const users = await this.cache.queryCache(start, end);
-    return this.userUtil.topLanguages(users);
+    try {
+      const users = await this.cache.queryCache(start, end);
+      return this.userUtil.topLanguages(users);
+    } catch (e) {
+      this.logger.error('Error during topLanguages calculation', e);
+      return [];
+    }
   }
 
   @Get('/activeUserMetrics/topUserRoles')
   async topUserRoles(@Query('start') start: string, @Query('end') end: string) {
     this.logger.log(`topUserRoles from ${start} to ${end}`);
-    const users = await this.cache.queryCache(start, end);
-    return this.userUtil.topUserRoles(users);
+    try {
+      const users = await this.cache.queryCache(start, end);
+      return this.userUtil.topUserRoles(users);
+    } catch (e) {
+      this.logger.error('Error during topUserRoles calculation', e);
+      return [];
+    }
   }
 
   @Get('/activeUserMetrics/topCountries')
   async topCountries(@Query('start') start: string, @Query('end') end: string) {
     this.logger.log(`topCountries from ${start} to ${end}`);
-    const users = await this.cache.queryCache(start, end);
-    return this.userUtil.topCountries(users);
+    try {
+      const users = await this.cache.queryCache(start, end);
+      return this.userUtil.topCountries(users);
+    } catch (e) {
+      this.logger.error('Error during topCountries calculation', e);
+      return [];
+    }
   }
 
   @Get('/activeUserMetrics/topPlatforms')
   async topPlatforms(@Query('start') start: string, @Query('end') end: string) {
     this.logger.log(`topPlatorms from ${start} to ${end}`);
-    const users = await this.cache.queryCache(start, end);
-    return this.userUtil.topPlatforms(users);
+    try {
+      const users = await this.cache.queryCache(start, end);
+      return this.userUtil.topPlatforms(users);
+    } catch (e) {
+      this.logger.error('Error during topPlatforms calculation', e);
+      return [];
+    }
   }
 
   @Get('/activeUserMetrics/topBrowsers')
   async topBrowsers(@Query('start') start: string, @Query('end') end: string) {
     this.logger.log(`topBrowsers from ${start} to ${end}`);
-    const users = await this.cache.queryCache(start, end);
-    return this.userUtil.topBrowsers(users);
+    try {
+      const users = await this.cache.queryCache(start, end);
+      return this.userUtil.topBrowsers(users);
+    } catch (e) {
+      this.logger.error('Error during topBrowsers calculation', e);
+      return [];
+    }
   }
 
   @Get('/activeUserMetrics/topDeviceTypes')
   async topDeviceTypes(@Query('start') start: string, @Query('end') end: string) {
     this.logger.log(`topDeviceTypes from ${start} to ${end}`);
-    const users = await this.cache.queryCache(start, end);
-    return this.userUtil.topDeviceTypes(users);
+    try {
+      const users = await this.cache.queryCache(start, end);
+      return this.userUtil.topDeviceTypes(users);
+    } catch (e) {
+      this.logger.error('Error during topDeviceTypes calculation', e);
+      return [];
+    }
   }
 
   @Get('/activeUserMetrics/mailDomainNames')
   async mailDomainNames(@Query('start') start: string, @Query('end') end: string) {
     this.logger.log(`mailDomainNames from ${start} to ${end}`);
-    const users = await this.cache.queryCache(start, end);
-    return this.userUtil.mailDomainNames(users);
+    try {
+      const users = await this.cache.queryCache(start, end);
+      return this.userUtil.mailDomainNames(users);
+    } catch (e) {
+      this.logger.error('Error during mailDomainNames calculation', e);
+      return [];
+    }
   }
 }

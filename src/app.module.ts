@@ -14,9 +14,10 @@ import { ActiveUsersCacheService } from './cache/active-users-cache.service';
 import { CustomEventsCacheService } from './cache/custom-events-cache.service';
 import { PageViewCacheService } from './cache/page-view-cache.service';
 import { SessionEventsCacheService } from './cache/session-events-cache.service';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
-  imports: [BootstrapModule],
+  imports: [BootstrapModule, ScheduleModule.forRoot()],
   providers: [
     UserUtilityService,
     {

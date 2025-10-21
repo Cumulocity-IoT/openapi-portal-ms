@@ -12,9 +12,14 @@ export class EventsController {
   @Get('/eventCounts')
   async getEventCounts(@Query('start') start?: string, @Query('end') end?: string) {
     this.logger.log(`getEventCounts from ${start} to ${end}`);
-    const allEvents = await this.customEventsCache.queryCache(start, end);
-    const filtered = this.filteredByProjectName(allEvents, 'devicemanagement');
-    return this.aggregateEventCountsBy(filtered, 'eventName');
+    try {
+      const allEvents = await this.customEventsCache.queryCache(start, end);
+      const filtered = this.filteredByProjectName(allEvents, 'devicemanagement');
+      return this.aggregateEventCountsBy(filtered, 'eventName');
+    } catch (e) {
+      this.logger.error('Error during event count aggregation', e);
+      return [];
+    }
   }
 
   private filteredByProjectName(customEvents: CustomEvent[], projectName: string) {
@@ -38,9 +43,14 @@ export class EventsController {
   @Get('/widgetsByName')
   async getEventCountsByName(@Query('eventName') eventName: string, @Query('start') start: string, @Query('end') end: string) {
     this.logger.log(`getEventCountsByName for event ${eventName} from ${start} to ${end}`);
-    const allEvents = await this.customEventsCache.queryCache(start, end);
-    const filtered = this.filteredByProjectName(allEvents, 'devicemanagement').filter((event) => event.eventName === eventName);
-    return this.aggregateEventCountsBy(filtered, 'attributes.widgetName');
+    try {
+      const allEvents = await this.customEventsCache.queryCache(start, end);
+      const filtered = this.filteredByProjectName(allEvents, 'devicemanagement').filter((event) => event.eventName === eventName);
+      return this.aggregateEventCountsBy(filtered, 'attributes.widgetName');
+    } catch (e) {
+      this.logger.error('Error during event count by name aggregation', e);
+      return [];
+    }
   }
 
   // private minify(events: CustomEvent[]) {

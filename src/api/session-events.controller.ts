@@ -11,11 +11,11 @@ export class SessionEventsController {
   @Get('/sessionEventsAutoAgg')
   async getSessionsAutoAgg(@Query('start') start: string, @Query('end') end?: string) {
     this.logger.log(`getSessionsAutoAgg from ${start} to ${end}`);
-    const allEvents = await this.sessionEventsCacheService.queryCache(start, end);
     try {
+      const allEvents = await this.sessionEventsCacheService.queryCache(start, end);
       const aggregated = this.aggregateByTimeframe(allEvents, new Date(start), new Date(end));
       return aggregated;
-    } catch(e) {
+    } catch (e) {
       this.logger.error('Error during aggregation', e);
       return [];
     }
@@ -85,17 +85,22 @@ export class SessionEventsController {
   @Get('/sessionEvents')
   async getSessions(@Query('start') start?: string, @Query('end') end?: string) {
     this.logger.log(`getSessions from ${start} to ${end}`);
-    const allEvents = await this.sessionEventsCacheService.queryCache(start, end);
-    if (allEvents.length) {
-      this.logger.log(`Range from ${new Date(allEvents[0].date).toISOString()} to ${new Date(allEvents[allEvents.length - 1].date).toISOString()}`);
-    }
+    try {
+      const allEvents = await this.sessionEventsCacheService.queryCache(start, end);
+      if (allEvents.length) {
+        this.logger.log(`Range from ${new Date(allEvents[0].date).toISOString()} to ${new Date(allEvents[allEvents.length - 1].date).toISOString()}`);
+      }
 
-    return allEvents.map((e) => ({
-      time: new Date(e.date).toISOString(),
-      eventId: e.eventId,
-      identifyId: e.identifyId,
-      inferredLocation: e.inferredLocation,
-      userType: e.userType,
-    }));
+      return allEvents.map((e) => ({
+        time: new Date(e.date).toISOString(),
+        eventId: e.eventId,
+        identifyId: e.identifyId,
+        inferredLocation: e.inferredLocation,
+        userType: e.userType,
+      }));
+    } catch (e) {
+      this.logger.error('Error during session events retrieval', e);
+      return [];
+    }
   }
 }
