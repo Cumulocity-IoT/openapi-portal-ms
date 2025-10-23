@@ -1,7 +1,7 @@
 {
   "apiVersion": "2",
   "name": "gainsight-sync-ms",
-  "version": "0.0.47",
+  "version": "0.0.48",
   "provider": {
     "name": "Cumulocity"
   },
@@ -16,19 +16,19 @@
     "ROLE_APPLICATION_MANAGEMENT_ADMIN"
   ],
   "livenessProbe": {
-		"httpGet": {
-			"path": "/health",
-			"port": 80
-		},
-		"initialDelaySeconds": 30,
-		"periodSeconds": 10
-	},
-	"readinessProbe": {
-		"httpGet": {
-			"path": "/health",
-			"port": 80
-		},
-		"initialDelaySeconds": 10,
-		"periodSeconds": 10
-	}
+    "httpGet": {
+      "path": "/health",
+      "port": 80
+    },
+    "initialDelaySeconds": 30,
+    "periodSeconds": 10
+  },
+  "readinessProbe": {
+    "httpGet": {
+      "path": "/health",
+      "port": 80
+    },
+    "initialDelaySeconds": 10,
+    "periodSeconds": 10
+  }
 }
