@@ -1,4 +1,4 @@
-import { BasicAuth, Client } from '@c8y/client';
+import { BasicAuth, Client, ICredentials } from '@c8y/client';
 import { Injectable, Logger } from '@nestjs/common';
 import 'dotenv/config';
 
@@ -76,5 +76,14 @@ export class C8yClientProviderService {
         return Promise.reject();
       },
     );
+  }
+
+  getUserClient(username: string, password: string): Promise<Client> {
+    const user:ICredentials = {
+      user: username,
+      password: password,
+      tenant: this.tenant,
+    };
+    return Client.authenticate(user, this.baseUrl);
   }
 }

@@ -1,7 +1,9 @@
-import { Controller, Get, Logger, Query } from '@nestjs/common';
+import { Controller, Get, Logger, Query, UseGuards } from '@nestjs/common';
 import { UserUtilityService } from '../service/user-utility.service';
 import { ActiveUsersCacheService } from '../cache/active-users-cache.service';
+import { PermissionGuard } from '../guards/permission.guard';
 
+@UseGuards(PermissionGuard)
 @Controller()
 export class ActiveUserController {
   private readonly logger = new Logger(ActiveUserController.name);

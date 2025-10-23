@@ -1,8 +1,10 @@
-import { Controller, Get, Logger, Query } from '@nestjs/common';
+import { Controller, Get, Logger, Query, UseGuards } from '@nestjs/common';
 import { CustomEvent } from '../model/gainsight-px.model';
 import { CustomEventsCacheService } from '../cache/custom-events-cache.service';
 import { get } from 'lodash';
+import { PermissionGuard } from '../guards/permission.guard';
 
+@UseGuards(PermissionGuard)
 @Controller()
 export class EventsController {
   readonly logger = new Logger(EventsController.name);

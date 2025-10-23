@@ -1,7 +1,9 @@
-import { Controller, Get, Logger, Query } from '@nestjs/common';
+import { Controller, Get, Logger, Query, UseGuards } from '@nestjs/common';
 import { differenceInDays, differenceInHours } from 'date-fns';
 import { SessionEvent } from '../model/gainsight-px.model';
 import { SessionEventsCacheService } from '../cache/session-events-cache.service';
+import { PermissionGuard } from '../guards/permission.guard';
+@UseGuards(PermissionGuard)
 @Controller()
 export class SessionEventsController {
   private readonly logger = new Logger(SessionEventsController.name);

@@ -1,6 +1,8 @@
-import { Controller, Get, Logger, Query } from '@nestjs/common';
+import { Controller, Get, Logger, Query, UseGuards } from '@nestjs/common';
 import { PageViewCacheService } from '../cache/page-view-cache.service';
-
+import { PageView } from '../model/gainsight-px.model';
+import { PermissionGuard } from '../guards/permission.guard';
+@UseGuards(PermissionGuard)
 @Controller()
 export class PageViewController {
   private readonly logger = new Logger(PageViewController.name);
@@ -11,28 +13,32 @@ export class PageViewController {
     this.logger.log(`getDeviceCounts from ${start} to ${end}`);
     try {
       const pageViews = this.pageViewCacheService.queryCache(start, end);
-      const numberPattern = /\d+/g;
-      const counts: Record<string, number> = {};
-      for (const view of pageViews) {
-        const path = view.hash;
-        const matches = path.match(numberPattern);
-        if (matches) {
-          for (const match of matches) {
-            const numberId = '#' + match;
-            if (!counts[numberId]) {
-              counts[numberId] = 0;
-            }
-            counts[numberId]++;
-          }
-        }
-      }
-
-      const mapped = Object.entries(counts).map(([path, count]) => ({ path, count }));
-      return mapped.sort((a, b) => b.count - a.count);
+      return this.createPopularDevicesAggregation(pageViews);
     } catch (e) {
       this.logger.error('Error during device count aggregation', e);
       return [];
     }
+  }
+
+  private createPopularDevicesAggregation(views: PageView[]) {
+    const numberPattern = /\d+/g;
+    const counts: Record<string, number> = {};
+    for (const view of views) {
+      const path = view.hash;
+      const matches = path.match(numberPattern);
+      if (matches) {
+        for (const match of matches) {
+          const numberId = '#' + match;
+          if (!counts[numberId]) {
+            counts[numberId] = 0;
+          }
+          counts[numberId]++;
+        }
+      }
+    }
+
+    const mapped = Object.entries(counts).map(([path, count]) => ({ path, count }));
+    return mapped.sort((a, b) => b.count - a.count);
   }
 
   @Get('/pageViewCounts')
@@ -40,24 +46,28 @@ export class PageViewController {
     this.logger.log(`getPageViewCounts from ${start} to ${end}`);
     try {
       const pageViews = await this.pageViewCacheService.queryCache(start, end);
-      const counts: Record<string, number> = {};
-      for (const view of pageViews) {
-        const path = view.hash;
-        const maskeUrl = path.replace(/\d+/g, '*');
-        if (!maskeUrl) {
-          continue;
-        }
-        if (!counts[maskeUrl]) {
-          counts[maskeUrl] = 0;
-        }
-        counts[maskeUrl]++;
-      }
-
-      const mapped = Object.entries(counts).map(([path, count]) => ({ path, count }));
-      return mapped.sort((a, b) => b.count - a.count);
+      return this.createrPopularPagesAggregation(pageViews);
     } catch (e) {
       this.logger.error('Error during page view count aggregation', e);
       return [];
     }
+  }
+
+  private createrPopularPagesAggregation(views: PageView[]) {
+    const counts: Record<string, number> = {};
+    for (const view of views) {
+      const path = view.hash;
+      const maskeUrl = path.replace(/\d+/g, '*');
+      if (!maskeUrl) {
+        continue;
+      }
+      if (!counts[maskeUrl]) {
+        counts[maskeUrl] = 0;
+      }
+      counts[maskeUrl]++;
+    }
+
+    const mapped = Object.entries(counts).map(([path, count]) => ({ path, count }));
+    return mapped.sort((a, b) => b.count - a.count);
   }
 }

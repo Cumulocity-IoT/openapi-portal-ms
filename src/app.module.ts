@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { C8yClientProviderService } from './service/c8y-client-provider.service';
 import { SettingsService } from './service/settings.service';
@@ -14,7 +15,7 @@ import { ActiveUsersCacheService } from './cache/active-users-cache.service';
 import { CustomEventsCacheService } from './cache/custom-events-cache.service';
 import { PageViewCacheService } from './cache/page-view-cache.service';
 import { SessionEventsCacheService } from './cache/session-events-cache.service';
-import { ScheduleModule } from '@nestjs/schedule';
+import { PermissionService } from './service/permission.service';
 
 @Module({
   imports: [BootstrapModule, ScheduleModule.forRoot()],
@@ -39,6 +40,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     PageViewCacheService,
     SessionEventsCacheService,
     SchedulerService,
+    PermissionService,
   ],
   controllers: [AppController, ActiveUserController, EventsController, SessionEventsController, PageViewController],
 })

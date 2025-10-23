@@ -6,14 +6,29 @@
     "name": "Cumulocity"
   },
   "isolation": "PER_TENANT",
-  "roles": [],
+  "roles": [
+    "ROLE_SCHINDLER_GAINSIGHT_READ"
+  ],
   "requiredRoles": [
     "ROLE_OPTION_MANAGEMENT_READ",
     "ROLE_OPTION_MANAGEMENT_ADMIN",
     "ROLE_APPLICATION_MANAGEMENT_READ",
-    "ROLE_APPLICATION_MANAGEMENT_ADMIN",
-    "ROLE_INVENTORY_READ",
-    "ROLE_INVENTORY_ADMIN",
-    "ROLE_MEASUREMENT_READ"
-  ]
+    "ROLE_APPLICATION_MANAGEMENT_ADMIN"
+  ],
+  "livenessProbe": {
+		"httpGet": {
+			"path": "/health",
+			"port": 80
+		},
+		"initialDelaySeconds": 30,
+		"periodSeconds": 10
+	},
+	"readinessProbe": {
+		"httpGet": {
+			"path": "/health",
+			"port": 80
+		},
+		"initialDelaySeconds": 10,
+		"periodSeconds": 10
+	}
 }
