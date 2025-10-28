@@ -1,10 +1,10 @@
 import { Controller, Get, Logger, Query, UseGuards } from '@nestjs/common';
+import { get } from 'lodash';
 import { CustomEvent } from '../model/gainsight-px.model';
 import { CustomEventsCacheService } from '../cache/custom-events-cache.service';
-import { get } from 'lodash';
-import { PermissionGuard } from '../guards/permission.guard';
+import { TenantGuard } from '../guards/tenant.guard';
 
-@UseGuards(PermissionGuard)
+@UseGuards(TenantGuard)
 @Controller()
 export class EventsController {
   readonly logger = new Logger(EventsController.name);
@@ -12,10 +12,10 @@ export class EventsController {
   constructor(private customEventsCache: CustomEventsCacheService) {}
 
   @Get('/eventCounts')
-  async getEventCounts(@Query('start') start?: string, @Query('end') end?: string) {
+  async getEventCounts(@Query('start') start: string, @Query('end') end: string, @Query('tenantId') tenantId: string) {
     this.logger.log(`getEventCounts from ${start} to ${end}`);
     try {
-      const allEvents = await this.customEventsCache.queryCache(start, end);
+      const allEvents = await this.customEventsCache.queryCache(start, end, tenantId);
       const filtered = this.filteredByProjectName(allEvents, 'devicemanagement');
       return this.aggregateEventCountsBy(filtered, 'eventName');
     } catch (e) {
@@ -43,10 +43,10 @@ export class EventsController {
   }
 
   @Get('/widgetsByName')
-  async getEventCountsByName(@Query('eventName') eventName: string, @Query('start') start: string, @Query('end') end: string) {
+  async getEventCountsByName(@Query('eventName') eventName: string, @Query('start') start: string, @Query('end') end: string, @Query('tenantId') tenantId: string) {
     this.logger.log(`getEventCountsByName for event ${eventName} from ${start} to ${end}`);
     try {
-      const allEvents = await this.customEventsCache.queryCache(start, end);
+      const allEvents = await this.customEventsCache.queryCache(start, end, tenantId);
       const filtered = this.filteredByProjectName(allEvents, 'devicemanagement').filter((event) => event.eventName === eventName);
       return this.aggregateEventCountsBy(filtered, 'attributes.widgetName');
     } catch (e) {

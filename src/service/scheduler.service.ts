@@ -3,9 +3,9 @@ import { Cron } from '@nestjs/schedule';
 import { formatDuration, intervalToDuration, subDays } from 'date-fns';
 import { ActiveUsersCacheService } from '../cache/active-users-cache.service';
 import { CustomEventsCacheService } from '../cache/custom-events-cache.service';
-import { TENANT } from '../app.model';
 import { PageViewCacheService } from '../cache/page-view-cache.service';
 import { SessionEventsCacheService } from '../cache/session-events-cache.service';
+import { ConfigurationService } from './configuration.service';
 
 const EVERY_10_MINUTES = '*/10 * * * *';
 // const EVERY_HOUR = '0 * * * *';
@@ -23,7 +23,8 @@ export class SchedulerService {
     private activeUserCacheService: ActiveUsersCacheService,
     private customEventsCacheService: CustomEventsCacheService,
     private pageViewCacheService: PageViewCacheService,
-    private sessionEventsCacheService: SessionEventsCacheService
+    private sessionEventsCacheService: SessionEventsCacheService,
+    private configService: ConfigurationService
   ) {}
 
   @Cron(EVERY_10_MINUTES)
@@ -40,12 +41,19 @@ export class SchedulerService {
 
     try {
       const timeRange = { start: subDays(new Date(), 90).toISOString(), end: new Date().toISOString() };
-      const promises = [
-        this.activeUserCacheService.createOrUpdateCache(timeRange.start, timeRange.end, TENANT.DOMAIN),
-        this.customEventsCacheService.createOrUpdateCache(timeRange.start, timeRange.end, TENANT.ID),
-        this.pageViewCacheService.createOrUpdateCache(timeRange.start, timeRange.end, TENANT.DOMAIN),
-        this.sessionEventsCacheService.createOrUpdateCache(timeRange.start, timeRange.end, TENANT.ID),
-      ];
+      const domains = await this.configService.getAllDomains();
+      const promises: Promise<void>[] = [];
+      for (const domain of domains) {
+        this.logger.log('Starting caching for domain: ' + domain.url + ' (tenantId: ' + domain.id + ')');
+        promises.push(
+          ...[
+            this.activeUserCacheService.createOrUpdateCache(timeRange.start, timeRange.end, domain),
+            this.customEventsCacheService.createOrUpdateCache(timeRange.start, timeRange.end, domain),
+            this.pageViewCacheService.createOrUpdateCache(timeRange.start, timeRange.end, domain),
+            this.sessionEventsCacheService.createOrUpdateCache(timeRange.start, timeRange.end, domain),
+          ]
+        );
+      }
       await Promise.all(promises);
     } catch (error) {
       this.logger.error('Error during task execution', error);

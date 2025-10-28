@@ -11,15 +11,15 @@ export class SessionEventsCacheService extends TreeCache<SessionEvent> {
     super();
   }
 
-  createOrUpdateCache(start: string, end: string, tenantId: string) {
-    const startDate = this.newest ? new Date(this.newest.date).toISOString() : start;
-    return this.getSessionEvents(startDate, end, tenantId).then((events) => this.setCache(events));
+  createOrUpdateCache(start: string, end: string, domain: { id: string, url: string}) {
+    const startDate = this.getStartDate(start, domain.id);
+    return this.getSessionEvents(startDate, end, domain.id).then((events) => this.setCache(events, domain.id));
   }
 
-  queryCache(start: string, end: string): SessionEvent[] {
+  queryCache(start: string, end: string, tenantId: string): SessionEvent[] {
     const startStamp = new Date(start).getTime();
     const endStamp = new Date(end).getTime();
-    return this.getCache(startStamp, endStamp);
+    return this.getCache(startStamp, endStamp, tenantId);
   }
 
   getDate(item: SessionEvent): number {

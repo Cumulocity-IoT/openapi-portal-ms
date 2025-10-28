@@ -1,6 +1,6 @@
 {
   "name": "gainsight-sync-ms",
-  "version": "0.0.47",
+  "version": "0.1.0",
   "description": "",
   "author": "",
   "private": true,
@@ -35,7 +35,8 @@
     "lodash": "^4.17.21",
     "node-interval-tree": "^2.1.2",
     "reflect-metadata": "^0.2.0",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.10",

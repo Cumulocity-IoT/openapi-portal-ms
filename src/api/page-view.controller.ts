@@ -1,18 +1,18 @@
 import { Controller, Get, Logger, Query, UseGuards } from '@nestjs/common';
 import { PageViewCacheService } from '../cache/page-view-cache.service';
 import { PageView } from '../model/gainsight-px.model';
-import { PermissionGuard } from '../guards/permission.guard';
-@UseGuards(PermissionGuard)
+import { TenantGuard } from '../guards/tenant.guard';
+@UseGuards(TenantGuard)
 @Controller()
 export class PageViewController {
   private readonly logger = new Logger(PageViewController.name);
   constructor(private pageViewCacheService: PageViewCacheService) {}
 
   @Get('/popularDevices')
-  async getDeviceCounts(@Query('start') start: string, @Query('end') end: string) {
+  async getDeviceCounts(@Query('start') start: string, @Query('end') end: string, @Query('tenantId') tenantId: string) {
     this.logger.log(`getDeviceCounts from ${start} to ${end}`);
     try {
-      const pageViews = this.pageViewCacheService.queryCache(start, end);
+      const pageViews = this.pageViewCacheService.queryCache(start, end, tenantId);
       return this.createPopularDevicesAggregation(pageViews);
     } catch (e) {
       this.logger.error('Error during device count aggregation', e);
@@ -42,10 +42,10 @@ export class PageViewController {
   }
 
   @Get('/pageViewCounts')
-  async getPageViewCounts(@Query('start') start: string, @Query('end') end: string) {
+  async getPageViewCounts(@Query('start') start: string, @Query('end') end: string, @Query('tenantId') tenantId: string) {
     this.logger.log(`getPageViewCounts from ${start} to ${end}`);
     try {
-      const pageViews = await this.pageViewCacheService.queryCache(start, end);
+      const pageViews = await this.pageViewCacheService.queryCache(start, end, tenantId);
       return this.createrPopularPagesAggregation(pageViews);
     } catch (e) {
       this.logger.error('Error during page view count aggregation', e);

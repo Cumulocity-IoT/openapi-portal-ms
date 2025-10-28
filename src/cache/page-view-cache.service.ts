@@ -11,15 +11,15 @@ export class PageViewCacheService extends TreeCache<PageView> {
     super();
   }
 
-  createOrUpdateCache(start: string, end: string, domainName: string) {
-    const startDate = this.newest ? new Date(this.newest.date).toISOString() : start;
-    return this.getPageViews(startDate, end, domainName).then((pageViews) => this.setCache(pageViews));
+  createOrUpdateCache(start: string, end: string, domain: { id: string; url: string }) {
+    const startDate = this.getStartDate(start, domain.id);
+    return this.getPageViews(startDate, end, domain.url).then((pageViews) => this.setCache(pageViews, domain.id));
   }
 
-  queryCache(start: string, end: string): PageView[] {
+  queryCache(start: string, end: string, tenantId: string): PageView[] {
     const startStamp = new Date(start).getTime();
     const endStamp = new Date(end).getTime();
-    return this.getCache(startStamp, endStamp);
+    return this.getCache(startStamp, endStamp, tenantId);
   }
 
   getDate(item: PageView): number {

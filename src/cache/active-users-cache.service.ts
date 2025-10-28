@@ -11,9 +11,9 @@ export class ActiveUsersCacheService extends TreeCache<User> {
 
   private readonly logger = new Logger(ActiveUsersCacheService.name);
 
-  createOrUpdateCache(start: string, end: string, domainName: string) {
-    const startDate = this.newest ? new Date(this.newest.lastSeenDate).toISOString() : start;
-    return this.getActiveUserMetricsDateRange(startDate, end, domainName).then((users) => this.setCache(users));
+  createOrUpdateCache(start: string, end: string, domain: { id: string; url: string }) {
+    const startDate = this.getStartDate(start, domain.id);
+    return this.getActiveUserMetricsDateRange(startDate, end, domain.url).then((users) => this.setCache(users, domain.id));
   }
 
   getDate(item: User): number {
@@ -24,14 +24,14 @@ export class ActiveUsersCacheService extends TreeCache<User> {
     return this.logger;
   }
 
-  queryCache(start: string, end: string): User[] {
+  queryCache(start: string, end: string, tenantId: string): User[] {
     const startStamp = new Date(start).getTime();
     const endStamp = new Date(end).getTime();
-    return this.getCache(startStamp, endStamp);
+    return this.getCache(startStamp, endStamp, tenantId);
   }
 
-  private async getActiveUserMetricsDateRange(start: string, end: string, domainName: string) {
-    let filter = `customAttributes.domainName==${domainName};`;
+  private async getActiveUserMetricsDateRange(start: string, end: string, url: string) {
+    let filter = `customAttributes.domainName==${url};`;
 
     const dateFrom = new Date(start);
     filter += `lastSeenDate>${dateFrom.getTime()};`;

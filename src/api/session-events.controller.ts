@@ -2,8 +2,8 @@ import { Controller, Get, Logger, Query, UseGuards } from '@nestjs/common';
 import { differenceInDays, differenceInHours } from 'date-fns';
 import { SessionEvent } from '../model/gainsight-px.model';
 import { SessionEventsCacheService } from '../cache/session-events-cache.service';
-import { PermissionGuard } from '../guards/permission.guard';
-@UseGuards(PermissionGuard)
+import { TenantGuard } from '../guards/tenant.guard';
+@UseGuards(TenantGuard)
 @Controller()
 export class SessionEventsController {
   private readonly logger = new Logger(SessionEventsController.name);
@@ -11,10 +11,10 @@ export class SessionEventsController {
   constructor(private sessionEventsCacheService: SessionEventsCacheService) {}
 
   @Get('/sessionEventsAutoAgg')
-  async getSessionsAutoAgg(@Query('start') start: string, @Query('end') end?: string) {
+  async getSessionsAutoAgg(@Query('start') start: string, @Query('end') end: string, @Query('tenantId') tenantId: string) {
     this.logger.log(`getSessionsAutoAgg from ${start} to ${end}`);
     try {
-      const allEvents = await this.sessionEventsCacheService.queryCache(start, end);
+      const allEvents = await this.sessionEventsCacheService.queryCache(start, end, tenantId);
       const aggregated = this.aggregateByTimeframe(allEvents, new Date(start), new Date(end));
       return aggregated;
     } catch (e) {
@@ -85,10 +85,10 @@ export class SessionEventsController {
   }
 
   @Get('/sessionEvents')
-  async getSessions(@Query('start') start?: string, @Query('end') end?: string) {
+  async getSessions(@Query('start') start: string, @Query('end') end: string, @Query('tenantId') tenantId: string) {
     this.logger.log(`getSessions from ${start} to ${end}`);
     try {
-      const allEvents = await this.sessionEventsCacheService.queryCache(start, end);
+      const allEvents = await this.sessionEventsCacheService.queryCache(start, end, tenantId);
       if (allEvents.length) {
         this.logger.log(`Range from ${new Date(allEvents[0].date).toISOString()} to ${new Date(allEvents[allEvents.length - 1].date).toISOString()}`);
       }

@@ -7,7 +7,7 @@
   },
   "isolation": "PER_TENANT",
   "roles": [
-    "ROLE_SCHINDLER_GAINSIGHT_READ"
+    "ROLE_GAINSIGHT_READ"
   ],
   "requiredRoles": [
     "ROLE_OPTION_MANAGEMENT_READ",

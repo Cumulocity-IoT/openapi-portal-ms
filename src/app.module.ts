@@ -15,7 +15,7 @@ import { ActiveUsersCacheService } from './cache/active-users-cache.service';
 import { CustomEventsCacheService } from './cache/custom-events-cache.service';
 import { PageViewCacheService } from './cache/page-view-cache.service';
 import { SessionEventsCacheService } from './cache/session-events-cache.service';
-import { PermissionService } from './service/permission.service';
+import { ConfigurationService } from './service/configuration.service';
 
 @Module({
   imports: [BootstrapModule, ScheduleModule.forRoot()],
@@ -40,7 +40,7 @@ import { PermissionService } from './service/permission.service';
     PageViewCacheService,
     SessionEventsCacheService,
     SchedulerService,
-    PermissionService,
+    ConfigurationService,
   ],
   controllers: [AppController, ActiveUserController, EventsController, SessionEventsController, PageViewController],
 })
