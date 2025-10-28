@@ -3,12 +3,16 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class SettingsService {
-  constructor(private client: Client) {}
+  private client: Client;
+
+  setClient(client: Client) {
+    this.client = client;
+  }
 
   private createTenantOption(option: ITenantOption) {
     return this.client.options.tenant.create(option);
   }
-  
+
   getTenantOption(option: ITenantOption) {
     return this.client.options.tenant.detail(option);
   }

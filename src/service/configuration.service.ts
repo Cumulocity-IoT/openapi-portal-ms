@@ -1,7 +1,8 @@
-import { Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { SettingsService } from './settings.service';
 import { GainsightConfigValue, isValidGainsightConfigValue } from '../app.model';
 
+@Injectable()
 export class ConfigurationService {
   private readonly logger = new Logger(ConfigurationService.name);
   constructor(private settings: SettingsService) {}

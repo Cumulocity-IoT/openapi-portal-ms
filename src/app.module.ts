@@ -23,9 +23,9 @@ import { ConfigurationService } from './service/configuration.service';
     UserUtilityService,
     {
       provide: GainsightPxService,
-      useFactory: async (c8yClientProvider: C8yClientProviderService) => {
+      useFactory: async (c8yClientProvider: C8yClientProviderService, settings: SettingsService) => {
         const client = await c8yClientProvider.getBootstrapClient();
-        const settings = new SettingsService(client);
+        settings.setClient(client);
         const { data } = await settings.getTenantOption({ category: 'gainsight', key: 'api.key' });
         if (!data || !data.value) {
           throw new Error('Gainsight PX API key is not configured. Please set the tenant option gainsight/api.key');
@@ -33,7 +33,7 @@ import { ConfigurationService } from './service/configuration.service';
         const service = new GainsightPxService(data.value!);
         return service;
       },
-      inject: [C8yClientProviderService],
+      inject: [C8yClientProviderService, SettingsService],
     },
     ActiveUsersCacheService,
     CustomEventsCacheService,
@@ -41,6 +41,7 @@ import { ConfigurationService } from './service/configuration.service';
     SessionEventsCacheService,
     SchedulerService,
     ConfigurationService,
+    SettingsService
   ],
   controllers: [AppController, ActiveUserController, EventsController, SessionEventsController, PageViewController],
 })
