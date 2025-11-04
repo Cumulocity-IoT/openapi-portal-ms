@@ -51,6 +51,7 @@ export class EventsController {
     }
   }
 
+  @Get('/events')
   getEvents(@Query('start') start: string, @Query('end') end: string, @Query('tenantId') tenantId: string) {
     this.logger.log(`getEvents from ${start} to ${end}`);
     try {
