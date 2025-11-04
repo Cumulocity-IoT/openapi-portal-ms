@@ -16,24 +16,23 @@ export class EventsController {
     this.logger.log(`getEventCounts from ${start} to ${end}`);
     try {
       const allEvents = this.customEventsCache.queryCache(start, end, tenantId);
-      const filtered = this.filteredByProjectName(allEvents, 'devicemanagement');
-      return this.aggregateEventCountsBy(filtered, 'eventName');
+      return this.aggregateEventCountsBy(allEvents, 'eventName');
     } catch (e) {
       this.logger.error('Error during event count aggregation', e);
       return [];
     }
   }
 
-  private filteredByProjectName(customEvents: CustomEvent[], projectName: string) {
-    return customEvents.filter((event) => !event.globalContext['projectName'] || event.globalContext['projectName'].includes(projectName));
-  }
+  // private filteredByProjectName(customEvents: CustomEvent[], projectName: string) {
+  //   return customEvents.filter((event) => !event.globalContext['projectName'] || event.globalContext['projectName'].includes(projectName));
+  // }
 
   private aggregateEventCountsBy(customEvents: CustomEvent[], by: string): { value: string; count: number }[] {
     const counts: Record<string, number> = {};
     for (const event of customEvents) {
       const name = get(event, by) || 'unknown';
       counts[name] = (counts[name] ?? 0) + 1;
-    };
+    }
     return Object.entries(counts)
       .map(([value, count]) => ({ value, count }))
       .sort((a, b) => b.count - a.count);
@@ -44,8 +43,19 @@ export class EventsController {
     this.logger.log(`getEventCountsByName for event ${eventName} from ${start} to ${end}`);
     try {
       const allEvents = this.customEventsCache.queryCache(start, end, tenantId);
-      const filtered = this.filteredByProjectName(allEvents, 'devicemanagement').filter((event) => event.eventName === eventName);
+      const filtered = allEvents.filter((event) => event.eventName === eventName);
       return this.aggregateEventCountsBy(filtered, 'attributes.widgetName');
+    } catch (e) {
+      this.logger.error('Error during event count by name aggregation', e);
+      return [];
+    }
+  }
+
+  getEvents(@Query('start') start: string, @Query('end') end: string, @Query('tenantId') tenantId: string) {
+    this.logger.log(`getEvents from ${start} to ${end}`);
+    try {
+      const allEvents = this.customEventsCache.queryCache(start, end, tenantId);
+      return allEvents;
     } catch (e) {
       this.logger.error('Error during event count by name aggregation', e);
       return [];

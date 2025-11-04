@@ -12,6 +12,18 @@ export class ActiveUserController {
     private userUtil: UserUtilityService
   ) {}
 
+  @Get('/activeUsers')
+  getUsers(@Query('start') start: string, @Query('end') end: string, @Query('tenantId') tenantId: string) {
+    this.logger.log(`getUsers from ${start} to ${end}`);
+    try {
+      const users = this.cache.queryCache(start, end, tenantId);
+      return users.map((u) => ({ id: u.id, identifyId: u.identifyId }));
+    } catch (e) {
+      this.logger.error('Error during getUsers', e);
+      return [];
+    }
+  }
+
   @Get('/activeUserMetrics/numberOfUsers')
   numberOfUsers(@Query('start') start: string, @Query('end') end: string, @Query('tenantId') tenantId: string) {
     this.logger.log(`numberOfUsers from ${start} to ${end}`);

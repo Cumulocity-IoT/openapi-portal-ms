@@ -18,11 +18,11 @@ describe('EventsController (empty cache)', () => {
     expect(mockCache.queryCache).toHaveBeenCalled();
   });
 
-  it('filteredByProjectName returns empty array for empty input', () => {
-    const res = (controller as any).filteredByProjectName([], 'devicemanagement');
-    expect(Array.isArray(res)).toBe(true);
-    expect(res.length).toBe(0);
-  });
+  // it('filteredByProjectName returns empty array for empty input', () => {
+  //   const res = (controller as any).filteredByProjectName([], 'devicemanagement');
+  //   expect(Array.isArray(res)).toBe(true);
+  //   expect(res.length).toBe(0);
+  // });
 
   it('aggregateEventCountsBy returns empty array for empty input', () => {
     const res = (controller as any).aggregateEventCountsBy([], 'eventName');

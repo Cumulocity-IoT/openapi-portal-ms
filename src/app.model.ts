@@ -2,7 +2,7 @@ export const TENANT = {
   DOMAIN: 'main.dm-zz-q.ioee10-cloud.com',
   ID: 't2700',
 };
-export const REQUIRED_PERMISSION = 'ROLE_SCHINDLER_GAINSIGHT_READ';
+export const REQUIRED_PERMISSION = 'ROLE_GAINSIGHT_READ';
 
 import { z } from 'zod';
 
