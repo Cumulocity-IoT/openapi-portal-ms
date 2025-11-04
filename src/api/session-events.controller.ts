@@ -1,5 +1,5 @@
 import { Controller, Get, Logger, Query, UseGuards } from '@nestjs/common';
-import { differenceInDays, differenceInHours } from 'date-fns';
+import { addDays, addHours, addMinutes, differenceInDays, differenceInHours, startOfDay, startOfHour, startOfMinute } from 'date-fns';
 import { SessionEvent } from '../model/gainsight-px.model';
 import { SessionEventsCacheService } from '../cache/session-events-cache.service';
 import { TenantGuard } from '../guards/tenant.guard';
@@ -14,7 +14,7 @@ export class SessionEventsController {
   async getSessionsAutoAgg(@Query('start') start: string, @Query('end') end: string, @Query('tenantId') tenantId: string) {
     this.logger.log(`getSessionsAutoAgg from ${start} to ${end}`);
     try {
-      const allEvents = await this.sessionEventsCacheService.queryCache(start, end, tenantId);
+      const allEvents = this.sessionEventsCacheService.queryCache(start, end, tenantId);
       const aggregated = this.aggregateByTimeframe(allEvents, new Date(start), new Date(end));
       return aggregated;
     } catch (e) {
@@ -26,7 +26,7 @@ export class SessionEventsController {
   private aggregateByTimeframe(events: SessionEvent[], startDate: Date, endDate: Date) {
     const timeframe = this.detectTimeframe(startDate, endDate);
     const counts = this.prepopulateDates(startDate, endDate, timeframe);
-    events.forEach((event) => {
+    for (const event of events) {
       const date = new Date(event.date);
       if (timeframe === 'MINUTE') {
         date.setSeconds(0, 0);
@@ -40,7 +40,7 @@ export class SessionEventsController {
         counts[key] = 0;
       }
       counts[key]++;
-    });
+    };
 
     return Object.entries(counts)
       .map(([time, count]) => ({ time, count }))
@@ -62,23 +62,28 @@ export class SessionEventsController {
 
   private prepopulateDates(startDate: Date, endDate: Date, timeframe: 'MINUTE' | 'HOUR' | 'DAY'): Record<string, number> {
     const dateMap: Record<string, number> = {};
+    if (startDate > endDate) return dateMap;
+
     if (timeframe === 'DAY') {
-      for (let current = new Date(startDate); current <= endDate; current.setHours(current.getHours() + 24)) {
-        const date = new Date(current);
-        date.setHours(0, 0, 0, 0);
-        dateMap[date.toISOString()] = 0;
+      let current = startOfDay(startDate);
+      const last = startOfDay(endDate);
+      while (current <= last) {
+        dateMap[current.toISOString()] = 0;
+        current = addDays(current, 1);
       }
     } else if (timeframe === 'HOUR') {
-      for (let current = new Date(startDate); current <= endDate; current.setHours(current.getHours() + 1)) {
-        const date = new Date(current);
-        date.setMinutes(0, 0, 0);
-        dateMap[date.toISOString()] = 0;
+      let current = startOfHour(startDate);
+      const last = startOfHour(endDate);
+      while (current <= last) {
+        dateMap[current.toISOString()] = 0;
+        current = addHours(current, 1);
       }
     } else if (timeframe === 'MINUTE') {
-      for (let current = new Date(startDate); current <= endDate; current.setHours(current.getMinutes() + 1)) {
-        const date = new Date(current);
-        date.setSeconds(0, 0);
-        dateMap[date.toISOString()] = 0;
+      let current = startOfMinute(startDate);
+      const last = startOfMinute(endDate);
+      while (current <= last) {
+        dateMap[current.toISOString()] = 0;
+        current = addMinutes(current, 1);
       }
     }
     return dateMap;
@@ -88,7 +93,7 @@ export class SessionEventsController {
   async getSessions(@Query('start') start: string, @Query('end') end: string, @Query('tenantId') tenantId: string) {
     this.logger.log(`getSessions from ${start} to ${end}`);
     try {
-      const allEvents = await this.sessionEventsCacheService.queryCache(start, end, tenantId);
+      const allEvents = this.sessionEventsCacheService.queryCache(start, end, tenantId);
       if (allEvents.length) {
         this.logger.log(`Range from ${new Date(allEvents[0].date).toISOString()} to ${new Date(allEvents[allEvents.length - 1].date).toISOString()}`);
       }

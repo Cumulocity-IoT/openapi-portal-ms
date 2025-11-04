@@ -73,6 +73,10 @@ export abstract class TreeCache<T> {
 
   getCache(start: number, end: number, tenantId: string): T[] {
     // Check if range is completely outside cache bounds
+    if (!tenantId || !this.bounds.has(tenantId)) {
+      this.getLogger().log('No cache for tenantId ' + tenantId);
+      return [];
+    }
     const bounds = this.bounds.get(tenantId);
     if (start > this.getDate(bounds.newest)) {
       this.getLogger().log(`Start date param is more recent than the newest lastSeenDate in the cache. ${start} > ${this.getDate(bounds.newest)}`);

@@ -12,10 +12,10 @@ export class EventsController {
   constructor(private customEventsCache: CustomEventsCacheService) {}
 
   @Get('/eventCounts')
-  async getEventCounts(@Query('start') start: string, @Query('end') end: string, @Query('tenantId') tenantId: string) {
+  getEventCounts(@Query('start') start: string, @Query('end') end: string, @Query('tenantId') tenantId: string) {
     this.logger.log(`getEventCounts from ${start} to ${end}`);
     try {
-      const allEvents = await this.customEventsCache.queryCache(start, end, tenantId);
+      const allEvents = this.customEventsCache.queryCache(start, end, tenantId);
       const filtered = this.filteredByProjectName(allEvents, 'devicemanagement');
       return this.aggregateEventCountsBy(filtered, 'eventName');
     } catch (e) {
@@ -30,23 +30,20 @@ export class EventsController {
 
   private aggregateEventCountsBy(customEvents: CustomEvent[], by: string): { value: string; count: number }[] {
     const counts: Record<string, number> = {};
-    customEvents.forEach((event) => {
+    for (const event of customEvents) {
       const name = get(event, by) || 'unknown';
-      if (!counts[name]) {
-        counts[name] = 0;
-      }
-      counts[name]++;
-    });
+      counts[name] = (counts[name] ?? 0) + 1;
+    };
     return Object.entries(counts)
       .map(([value, count]) => ({ value, count }))
       .sort((a, b) => b.count - a.count);
   }
 
   @Get('/widgetsByName')
-  async getEventCountsByName(@Query('eventName') eventName: string, @Query('start') start: string, @Query('end') end: string, @Query('tenantId') tenantId: string) {
+  getEventCountsByName(@Query('eventName') eventName: string, @Query('start') start: string, @Query('end') end: string, @Query('tenantId') tenantId: string) {
     this.logger.log(`getEventCountsByName for event ${eventName} from ${start} to ${end}`);
     try {
-      const allEvents = await this.customEventsCache.queryCache(start, end, tenantId);
+      const allEvents = this.customEventsCache.queryCache(start, end, tenantId);
       const filtered = this.filteredByProjectName(allEvents, 'devicemanagement').filter((event) => event.eventName === eventName);
       return this.aggregateEventCountsBy(filtered, 'attributes.widgetName');
     } catch (e) {

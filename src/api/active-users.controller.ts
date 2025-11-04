@@ -29,7 +29,7 @@ export class ActiveUserController {
     this.logger.log(`numberOfNewSignups from ${start} to ${end}`);
     try {
       const users = await this.cache.queryCache(start, end, tenantId);
-      return this.userUtil.numberOfNewSignups(users);
+      return this.userUtil.numberOfNewSignups(users, start);
     } catch (e) {
       this.logger.error('Error during numberOfNewSignups calculation', e);
       return { count: 0 };

@@ -1,29 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { subDays } from 'date-fns';
 import { User } from '../model/gainsight-px.model';
 
 @Injectable()
 export class UserUtilityService {
-  top50Users(users: User[]) {
-    const topUsers = users
-      .sort((a, b) => (b.numberOfVisits ?? 0) - (a.numberOfVisits ?? 0))
-      .slice(0, 50)
-      .map((user) => ({
-        id: user.id,
-        name: user.firstName + ' ' + user.lastName,
-        email: user.email,
-        numberOfVisits: user.numberOfVisits,
-        lastSeenDate: user.lastSeenDate,
-      }));
 
-    return { topUsers };
-  }
-
-  numberOfNewSignups(users: User[]) {
-    const startDate = new Date();
-    startDate.setHours(0, 0, 0, 0);
-    const thirtyDaysAgo = subDays(startDate, 30);
-    const newSignups = users.filter((user) => new Date(user.signUpDate) >= thirtyDaysAgo);
+  numberOfNewSignups(users: User[], startDate: string) {
+    const start = new Date(startDate).getTime();
+    const newSignups = users.filter((user) => user.signUpDate >= start);
     return { count: newSignups.length };
   }
 
@@ -33,19 +16,16 @@ export class UserUtilityService {
 
   topLanguages(users: User[]) {
     const counts: Record<string, number> = {};
-    users.forEach((user) => {
+    for (const user of users) {
       const lang = user.customAttributes?.userLanguage || 'unknown';
-      if (!counts[lang]) {
-        counts[lang] = 0;
-      }
-      counts[lang]++;
-    });
+      counts[lang] = (counts[lang] ?? 0) + 1;
+    }
     const total = users.length;
     const languageCounts = Object.entries(counts)
       .map(([value, count]) => ({
         value,
         count,
-        percentage: (count / total) * 100,
+        percentage: total > 0 ? Math.round((count / total) * 10000) / 100 : 0,
       }))
       .sort((a, b) => b.count - a.count);
     return languageCounts;
@@ -54,23 +34,20 @@ export class UserUtilityService {
   topUserRoles(users: User[]) {
     const counts: Record<string, number> = {};
     let allRolesCount = 0;
-    users.forEach((user) => {
+    for (const user of users) {
       const roleString = user.customAttributes?.userRoles || 'unknown';
       const roles = roleString.split(',').map((r) => r.trim());
-      roles.forEach((role) => {
-        if (!counts[role]) {
-          counts[role] = 0;
-        }
-        counts[role]++;
+      for (const role of roles) {
+        counts[role] = (counts[role] ?? 0) + 1;
         allRolesCount++;
-      });
-    });
+      }
+    }
 
     const roleCounts = Object.entries(counts)
       .map(([value, count]) => ({
         value,
         count,
-        percentage: (count / allRolesCount) * 100,
+        percentage: allRolesCount > 0 ? Math.round((count / allRolesCount) * 10000) / 100 : 0,
       }))
       .sort((a, b) => b.count - a.count);
     return roleCounts;
@@ -78,19 +55,16 @@ export class UserUtilityService {
 
   topCountries(users: User[]) {
     const counts: Record<string, number> = {};
-    users.forEach((user) => {
+    for (const user of users) {
       const country = user.lastInferredLocation?.countryName || 'unknown';
-      if (!counts[country]) {
-        counts[country] = 0;
-      }
-      counts[country]++;
-    });
+      counts[country] = (counts[country] ?? 0) + 1;
+    }
     const total = users.length;
     const countryCounts = Object.entries(counts)
       .map(([value, count]) => ({
         value,
         count,
-        percentage: (count / total) * 100,
+        percentage: total > 0 ? Math.round((count / total) * 10000) / 100 : 0,
       }))
       .sort((a, b) => b.count - a.count);
     return countryCounts;
@@ -105,18 +79,14 @@ export class UserUtilityService {
       }
       const [first] = lastVisitedUserAgentData;
       const platform = first.userAgent?.platformType || 'unknown';
-
-      if (!counts[platform]) {
-        counts[platform] = 0;
-      }
-      counts[platform]++;
+      counts[platform] = (counts[platform] ?? 0) + 1;
     }
     const total = users.length;
     const platformCounts = Object.entries(counts)
       .map(([value, count]) => ({
         value,
         count,
-        percentage: (count / total) * 100,
+        percentage: total > 0 ? Math.round((count / total) * 10000) / 100 : 0,
       }))
       .sort((a, b) => b.count - a.count);
     return platformCounts;
@@ -131,18 +101,14 @@ export class UserUtilityService {
       }
       const [first] = lastVisitedUserAgentData;
       const browser = first.userAgent?.browserType || 'unknown';
-
-      if (!counts[browser]) {
-        counts[browser] = 0;
-      }
-      counts[browser]++;
+      counts[browser] = (counts[browser] ?? 0) + 1;
     }
     const total = users.length;
     const browserCounts = Object.entries(counts)
       .map(([value, count]) => ({
         value,
         count,
-        percentage: (count / total) * 100,
+        percentage: total > 0 ? Math.round((count / total) * 10000) / 100 : 0,
       }))
       .sort((a, b) => b.count - a.count);
     return browserCounts;
@@ -157,18 +123,14 @@ export class UserUtilityService {
       }
       const [first] = lastVisitedUserAgentData;
       const device = first.userAgent?.device || 'unknown';
-
-      if (!counts[device]) {
-        counts[device] = 0;
-      }
-      counts[device]++;
+      counts[device] = (counts[device] ?? 0) + 1;
     }
     const total = users.length;
     const deviceCounts = Object.entries(counts)
       .map(([value, count]) => ({
         value,
         count,
-        percentage: (count / total) * 100,
+        percentage: total > 0 ? Math.round((count / total) * 10000) / 100 : 0,
       }))
       .sort((a, b) => b.count - a.count);
     return deviceCounts;
@@ -179,17 +141,14 @@ export class UserUtilityService {
     const usersWithDomain = users.filter((u) => u.email?.includes('@'));
     for (const user of usersWithDomain) {
       const domain = user.email.split('@')[1];
-      if (!counts[domain]) {
-        counts[domain] = 0;
-      }
-      counts[domain]++;
+      counts[domain] = (counts[domain] ?? 0) + 1;
     }
     const total = usersWithDomain.length;
     const mailCounts = Object.entries(counts)
       .map(([value, count]) => ({
         value,
         count,
-        percentage: (count / total) * 100,
+        percentage: total > 0 ? Math.round((count / total) * 10000) / 100 : 0,
       }))
       .sort((a, b) => b.count - a.count);
     return mailCounts;

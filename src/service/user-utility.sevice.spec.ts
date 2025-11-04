@@ -7,12 +7,8 @@ describe('UserUtilityService (empty input)', () => {
     svc = new UserUtilityService();
   });
 
-  it('top50Users returns empty topUsers for empty array', () => {
-    expect(svc.top50Users([])).toEqual({ topUsers: [] });
-  });
-
   it('numberOfNewSignups returns count 0 for empty array', () => {
-    expect(svc.numberOfNewSignups([])).toEqual({ count: 0 });
+    expect(svc.numberOfNewSignups([], '')).toEqual({ count: 0 });
   });
 
   it('numberOfUsers returns count 0 for empty array', () => {

@@ -45,7 +45,7 @@ export class PageViewController {
   async getPageViewCounts(@Query('start') start: string, @Query('end') end: string, @Query('tenantId') tenantId: string) {
     this.logger.log(`getPageViewCounts from ${start} to ${end}`);
     try {
-      const pageViews = await this.pageViewCacheService.queryCache(start, end, tenantId);
+      const pageViews = this.pageViewCacheService.queryCache(start, end, tenantId);
       return this.createrPopularPagesAggregation(pageViews);
     } catch (e) {
       this.logger.error('Error during page view count aggregation', e);
