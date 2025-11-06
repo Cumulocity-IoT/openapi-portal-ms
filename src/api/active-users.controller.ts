@@ -17,7 +17,12 @@ export class ActiveUserController {
     this.logger.log(`getUsers from ${start} to ${end}`);
     try {
       const users = this.cache.queryCache(start, end, tenantId);
-      return users.map((u) => ({ id: u.id, identifyId: u.identifyId }));
+      return users.map((u) => {
+        const roleString = u.customAttributes?.userRoles ?? '-';
+        const roles = roleString.split(',').map((r) => r.trim());
+        const country = u.lastInferredLocation?.countryName ?? '-';
+        return { id: u.identifyId, roles, country };
+      });
     } catch (e) {
       this.logger.error('Error during getUsers', e);
       return [];

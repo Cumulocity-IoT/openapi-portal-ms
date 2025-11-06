@@ -15,7 +15,7 @@ export class CustomEventsCacheService extends TreeCache<ReducedEvent> {
     const startDate = this.getStartDate(start, domain.id);
     return this.getCustomEvents(startDate, end, domain.id).then((events) => {
       const reduced: ReducedEvent[] = events.map((e) => ({
-        name: e.eventId,
+        name: e.eventName,
         data: e.attributes,
         date: e.date,
         userId: e.identifyId,
