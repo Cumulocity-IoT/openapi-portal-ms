@@ -1,6 +1,6 @@
 import { Controller, Get, Logger, Query, UseGuards } from '@nestjs/common';
 import { get } from 'lodash';
-import { CustomEvent } from '../model/gainsight-px.model';
+import { CustomEvent, ReducedEvent } from '../model/gainsight-px.model';
 import { CustomEventsCacheService } from '../cache/custom-events-cache.service';
 import { TenantGuard } from '../guards/tenant.guard';
 
@@ -16,9 +16,9 @@ export class EventsController {
     this.logger.log(`getEventCounts from ${start} to ${end}`);
     try {
       const allEvents = this.customEventsCache.queryCache(start, end, tenantId);
-      return this.aggregateEventCountsBy(allEvents, 'eventName');
+      return this.aggregateEventCountsBy(allEvents, 'name');
     } catch (e) {
-      this.logger.error('Error during event count aggregation', e);
+      this.logger.error('Error during eventCounts', e);
       return [];
     }
   }
@@ -27,7 +27,7 @@ export class EventsController {
   //   return customEvents.filter((event) => !event.globalContext['projectName'] || event.globalContext['projectName'].includes(projectName));
   // }
 
-  private aggregateEventCountsBy(customEvents: CustomEvent[], by: string): { value: string; count: number }[] {
+  private aggregateEventCountsBy(customEvents: ReducedEvent[], by: string): { value: string; count: number }[] {
     const counts: Record<string, number> = {};
     for (const event of customEvents) {
       const name = get(event, by) || 'unknown';
@@ -43,22 +43,30 @@ export class EventsController {
     this.logger.log(`getEventCountsByName for event ${eventName} from ${start} to ${end}`);
     try {
       const allEvents = this.customEventsCache.queryCache(start, end, tenantId);
-      const filtered = allEvents.filter((event) => event.eventName === eventName);
-      return this.aggregateEventCountsBy(filtered, 'attributes.widgetName');
+      const filtered = allEvents.filter((event) => event.name === eventName);
+      return this.aggregateEventCountsBy(filtered, 'data.widgetName');
     } catch (e) {
-      this.logger.error('Error during event count by name aggregation', e);
+      this.logger.error('Error during getEventCountsByName', e);
       return [];
     }
   }
 
   @Get('/events')
-  getEvents(@Query('start') start: string, @Query('end') end: string, @Query('tenantId') tenantId: string) {
+  getEvents(@Query('start') start: string, @Query('end') end: string, @Query('tenantId') tenantId: string, @Query('withId') withId = false) {
     this.logger.log(`getEvents from ${start} to ${end}`);
     try {
       const allEvents = this.customEventsCache.queryCache(start, end, tenantId);
-      return allEvents;
+      return allEvents.map((e) => ({
+        name: e.name,
+        data: e.data,
+        date: new Date(e.date).toISOString(),
+        ...(withId && {
+          userId: e.userId,
+          sessionId: e.sessionId,
+        }),
+      }));
     } catch (e) {
-      this.logger.error('Error during event count by name aggregation', e);
+      this.logger.error('Error during event', e);
       return [];
     }
   }

@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { GainsightPxService } from '../service/gainsight-px.service';
-import { CustomEvent, CustomEventFilter, CustomEventSort, PXParams } from '../model/gainsight-px.model';
+import { CustomEvent, CustomEventFilter, CustomEventSort, PXParams, ReducedEvent } from '../model/gainsight-px.model';
 import { TreeCache } from './tree-cache.service';
 
 @Injectable()
-export class CustomEventsCacheService extends TreeCache<CustomEvent> {
+export class CustomEventsCacheService extends TreeCache<ReducedEvent> {
   private logger: Logger = new Logger(CustomEventsCacheService.name);
 
   constructor(private api: GainsightPxService) {
@@ -13,17 +13,26 @@ export class CustomEventsCacheService extends TreeCache<CustomEvent> {
 
   createOrUpdateCache(start: string, end: string, domain: { id: string; url: string }) {
     const startDate = this.getStartDate(start, domain.id);
-    return this.getCustomEvents(startDate, end, domain.id).then((users) => this.setCache(users, domain.id));
+    return this.getCustomEvents(startDate, end, domain.id).then((events) => {
+      const reduced: ReducedEvent[] = events.map((e) => ({
+        name: e.eventId,
+        data: e.attributes,
+        date: e.date,
+        userId: e.identifyId,
+        sessionId: e.sessionId,
+      }));
+      this.setCache(reduced, domain.id);
+    });
   }
 
-  getDate(item: CustomEvent): number {
+  getDate(item: ReducedEvent): number {
     return item.date;
   }
   getLogger(): Logger {
     return this.logger;
   }
 
-  queryCache(start: string, end: string, tenantId: string): CustomEvent[] {
+  queryCache(start: string, end: string, tenantId: string): ReducedEvent[] {
     const startStamp = new Date(start).getTime();
     const endStamp = new Date(end).getTime();
     return this.getCache(startStamp, endStamp, tenantId);

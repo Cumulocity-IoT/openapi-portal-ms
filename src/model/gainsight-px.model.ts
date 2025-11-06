@@ -15,6 +15,14 @@ export type CustomEvent = {
   globalContext: Record<string, any>;
 };
 
+export type ReducedEvent = {
+  name: string;
+  data: Record<string, any>;
+  date: number;
+  userId: string;
+  sessionId: string;
+}
+
 export type CustomEventsResponse = {
   customEvents: CustomEvent[];
 } & Pagination;
