@@ -9,7 +9,7 @@ export class ConfigurationService {
 
   async getAllDomains(): Promise<{ url: string; id: string }[]> {
     try {
-      const res = await this.settings.fetchOrFallbackTo<GainsightConfigValue>({ key: 'config', category: 'gainsight' }, []);
+      const res = await this.settings.fetchOrUndefined<GainsightConfigValue>({ key: 'config', category: 'gainsight' }) ?? [];
       if (res && isValidGainsightConfigValue(res)) {
         return res.map((s) => s.domains).flat();
       }
@@ -22,7 +22,7 @@ export class ConfigurationService {
 
   async getDomainsForUser(user: string): Promise<{ url: string; id: string }[]> {
     try {
-      const res = await this.settings.fetchOrFallbackTo<GainsightConfigValue>({ key: `config`, category: 'gainsight' }, []);
+      const res = await this.settings.fetchOrUndefined<GainsightConfigValue>({ key: `config`, category: 'gainsight' }) ?? [];
       if (res && isValidGainsightConfigValue(res)) {
         return res.find((cfg) => user.includes(cfg.mail)).domains || [];
       }

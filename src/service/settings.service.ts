@@ -29,6 +29,17 @@ export class SettingsService {
     }
   }
 
+  async fetchOrUndefined<T>(option: ITenantOption): Promise<T | undefined> {
+    try {
+      const { data } = await this.getTenantOption(option);
+      const value = JSON.parse(data.value);
+      return value;
+    } catch (e) {
+      console.warn(`Error occured for tenant option ${JSON.stringify(option)}: ${e} - returning undefined`);
+      return undefined;
+    }
+  }
+
   private async createDefault<T>(option: ITenantOption, defaultValue: T): Promise<void> {
     try {
       await this.createTenantOption({

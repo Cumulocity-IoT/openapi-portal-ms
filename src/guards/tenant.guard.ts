@@ -1,5 +1,4 @@
 import { Injectable, CanActivate, ExecutionContext, SetMetadata, UnauthorizedException, BadRequestException } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
 import { ConfigurationService } from '../service/configuration.service';
 
 export const PERMISSIONS_KEY = 'permissions';
@@ -8,18 +7,10 @@ export const Permissions = (...permissions: string[]) => SetMetadata(PERMISSIONS
 @Injectable()
 export class TenantGuard implements CanActivate {
   constructor(
-    private reflector: Reflector,
     private configService: ConfigurationService
-  ) {}
+  ) { }
 
   canActivate(context: ExecutionContext): boolean | Promise<boolean> {
-    const requiredPermissions = this.reflector.getAllAndOverride<string[]>(PERMISSIONS_KEY, [context.getHandler(), context.getClass()]);
-
-    // If no @Permissions decorator, skip check
-    if (!requiredPermissions || requiredPermissions.length === 0) {
-      return true;
-    }
-
     const request = context.switchToHttp().getRequest();
 
     const authHeader = request.headers['authorization'];
@@ -37,7 +28,6 @@ export class TenantGuard implements CanActivate {
     }
 
     const tenantId = request.query.tenantId;
-
     if (!tenantId || typeof tenantId !== 'string' || tenantId.trim() === '') {
       throw new BadRequestException('Missing required query parameter: tenantId');
     }
