@@ -11,9 +11,9 @@ export class ActiveUsersCacheService extends TreeCache<User> {
 
   private readonly logger = new Logger(ActiveUsersCacheService.name);
 
-  createOrUpdateCache(start: string, end: string, domain: { id: string; url: string }) {
+  createOrUpdateCache(start: string, end: string, domain: { id: string; url: string }): Promise<void> {
     const startDate = this.getStartDate(start, domain.id);
-    this.getActiveUserMetricsDateRange(startDate, end, domain.url).then((users) => this.setCache(users, domain.id));
+    return this.getActiveUserMetricsDateRange(startDate, end, domain.url).then((users) => this.setCache(users, domain.id));
   }
 
   getDate(item: User): number {

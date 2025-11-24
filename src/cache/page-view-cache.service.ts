@@ -11,7 +11,7 @@ export class PageViewCacheService extends TreeCache<PageView> {
     super();
   }
 
-  createOrUpdateCache(start: string, end: string, domain: { id: string; url: string }) {
+  createOrUpdateCache(start: string, end: string, domain: { id: string; url: string }): Promise<void> {
     const startDate = this.getStartDate(start, domain.id);
     return this.getPageViews(startDate, end, domain.url).then((pageViews) => this.setCache(pageViews, domain.id));
   }

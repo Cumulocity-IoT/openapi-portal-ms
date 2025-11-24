@@ -11,7 +11,7 @@ export class CustomEventsCacheService extends TreeCache<ReducedEvent> {
     super();
   }
 
-  createOrUpdateCache(start: string, end: string, domain: { id: string; url: string }) {
+  createOrUpdateCache(start: string, end: string, domain: { id: string; url: string }): Promise<void> {
     const startDate = this.getStartDate(start, domain.id);
     return this.getCustomEvents(startDate, end, domain.id).then((events) => {
       const reduced: ReducedEvent[] = events.map((e) => ({

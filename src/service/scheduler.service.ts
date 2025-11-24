@@ -46,7 +46,7 @@ export class SchedulerService {
       .then((domains) => {
         const promises: Promise<void>[] = [];
         for (const domain of domains) {
-          this.logger.log('Starting caching for domain: ' + domain.url + ' (tenantId: ' + domain.id + ')');
+          this.logger.log('Running cache update for domain: ' + domain.url + ' (tenantId: ' + domain.id + ')');
           promises.push(
             ...[
               this.activeUserCacheService.createOrUpdateCache(timeRange.start, timeRange.end, domain).catch((error) => this.logger.error('Error during cache creation for active users', error)),

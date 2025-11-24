@@ -11,7 +11,7 @@ export class SessionEventsCacheService extends TreeCache<SessionEvent> {
     super();
   }
 
-  createOrUpdateCache(start: string, end: string, domain: { id: string, url: string}) {
+  createOrUpdateCache(start: string, end: string, domain: { id: string, url: string}): Promise<void> {
     const startDate = this.getStartDate(start, domain.id);
     return this.getSessionEvents(startDate, end, domain.id).then((events) => this.setCache(events, domain.id));
   }
