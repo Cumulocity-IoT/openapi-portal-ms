@@ -13,7 +13,7 @@ export class ActiveUsersCacheService extends TreeCache<User> {
 
   createOrUpdateCache(start: string, end: string, domain: { id: string; url: string }) {
     const startDate = this.getStartDate(start, domain.id);
-    return this.getActiveUserMetricsDateRange(startDate, end, domain.url).then((users) => this.setCache(users, domain.id));
+    this.getActiveUserMetricsDateRange(startDate, end, domain.url).then((users) => this.setCache(users, domain.id));
   }
 
   getDate(item: User): number {
@@ -40,6 +40,8 @@ export class ActiveUsersCacheService extends TreeCache<User> {
     filter += `lastSeenDate<${dateTo.getTime()};`;
 
     const params: PXParams<UserFilter, UserSort> = { filter: filter as UserFilter, sort: 'lastSeenDate', pageSize: 1000 };
-    return this.api.getUsers(params).then((res) => res.users);
+    const { users } = await this.api.getUsers(params);
+    this.logger.log(`Fetched ${users.length} active users for domain ${url} from ${start} to ${end}.`);
+    return users;
   }
 }

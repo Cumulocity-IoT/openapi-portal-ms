@@ -34,9 +34,7 @@ export class PageViewCacheService extends TreeCache<PageView> {
     const dateTo = new Date(end);
     const filter = `host==${host};date>${dateFrom.getTime()};date<${dateTo.getTime()};` as PageViewFilter;
     const allPageViews = await this.getPageViewEventsWithPagination(filter, []);
-    if (allPageViews.length) {
-      this.logger.log(`Range from ${new Date(allPageViews[0].date).toISOString()} to ${new Date(allPageViews[allPageViews.length - 1].date).toISOString()}`);
-    }
+    this.logger.log(`Fetched ${allPageViews.length} page views for host ${host} from ${start} to ${end}.`);
 
     return allPageViews;
   }
@@ -54,7 +52,7 @@ export class PageViewCacheService extends TreeCache<PageView> {
     sum.push(...events);
 
     if (events.length < 1000) {
-      this.logger.log(`Page views - overall count ${sum.length}.`);
+      this.logger.verbose(`Page views - overall count ${sum.length}.`);
       return sum;
     } else {
       return this.getPageViewEventsWithPagination(filter, sum, res.scrollId);

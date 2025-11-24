@@ -12,7 +12,7 @@ export class SessionEventsController {
 
   @Get('/sessionEventsAutoAgg')
   async getSessionsAutoAgg(@Query('start') start: string, @Query('end') end: string, @Query('tenantId') tenantId: string) {
-    this.logger.log(`getSessionsAutoAgg from ${start} to ${end}`);
+    this.logger.verbose(`getSessionsAutoAgg from ${start} to ${end} tenant ${tenantId}`);
     try {
       const allEvents = this.sessionEventsCacheService.queryCache(start, end, tenantId);
       const aggregated = this.aggregateByTimeframe(allEvents, new Date(start), new Date(end));
@@ -91,11 +91,11 @@ export class SessionEventsController {
 
   @Get('/sessionEvents')
   async getSessions(@Query('start') start: string, @Query('end') end: string, @Query('tenantId') tenantId: string) {
-    this.logger.log(`getSessions from ${start} to ${end}`);
+    this.logger.verbose(`getSessions from ${start} to ${end} tenant ${tenantId}`);
     try {
       const allEvents = this.sessionEventsCacheService.queryCache(start, end, tenantId);
       if (allEvents.length) {
-        this.logger.log(`Range from ${new Date(allEvents[0].date).toISOString()} to ${new Date(allEvents[allEvents.length - 1].date).toISOString()}`);
+        this.logger.verbose(`Range from ${new Date(allEvents[0].date).toISOString()} to ${new Date(allEvents[allEvents.length - 1].date).toISOString()}`);
       }
 
       return allEvents.map((e) => ({

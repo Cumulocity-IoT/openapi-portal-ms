@@ -24,7 +24,7 @@ export abstract class TreeCache<T> {
   setCache(items: T[], tenantId: string) {
     const length = items?.length ?? 0;
     if (length === 0) {
-      this.getLogger().warn('No items!');
+      this.getLogger().verbose('No items to add.');
       return;
     }
 
@@ -79,18 +79,18 @@ export abstract class TreeCache<T> {
     }
     const bounds = this.bounds.get(tenantId);
     if (start > this.getDate(bounds.newest)) {
-      this.getLogger().log(`Start date param is more recent than the newest lastSeenDate in the cache. ${start} > ${this.getDate(bounds.newest)}`);
+      this.getLogger().warn(`Start date param is more recent than the newest lastSeenDate in the cache. ${start} > ${this.getDate(bounds.newest)}`);
       return [];
     }
 
     if (end < this.getDate(bounds.oldest)) {
-      this.getLogger().log(`End date param is older than the oldest lastSeenDate in the cache. ${end} < ${this.getDate(bounds.oldest)}`);
+      this.getLogger().warn(`End date param is older than the oldest lastSeenDate in the cache. ${end} < ${this.getDate(bounds.oldest)}`);
       return [];
     }
 
     const tree = this.cache.get(tenantId);
     const results = tree.search(start, end);
-    this.getLogger().log(`Cache query from ${new Date(start).toISOString()} to ${new Date(end).toISOString()} returned ${results.length} items.`);
+    this.getLogger().verbose(`Cache query from ${new Date(start).toISOString()} to ${new Date(end).toISOString()} returned ${results.length} items.`);
     return results.map((interval) => interval.item);
   }
 }

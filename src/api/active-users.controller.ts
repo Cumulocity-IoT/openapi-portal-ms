@@ -14,7 +14,7 @@ export class ActiveUserController {
 
   @Get('/activeUsers')
   getUsers(@Query('start') start: string, @Query('end') end: string, @Query('tenantId') tenantId: string) {
-    this.logger.log(`getUsers from ${start} to ${end}`);
+    this.logger.verbose(`getUsers from ${start} to ${end} for tenant ${tenantId}`);
     try {
       const users = this.cache.queryCache(start, end, tenantId);
       return users.map((u) => {
@@ -31,7 +31,7 @@ export class ActiveUserController {
 
   @Get('/activeUserMetrics/numberOfUsers')
   numberOfUsers(@Query('start') start: string, @Query('end') end: string, @Query('tenantId') tenantId: string) {
-    this.logger.log(`numberOfUsers from ${start} to ${end}`);
+    this.logger.verbose(`numberOfUsers from ${start} to ${end} tenant ${tenantId}`);
     try {
       const users = this.cache.queryCache(start, end, tenantId);
       return this.userUtil.numberOfUsers(users);
@@ -43,7 +43,7 @@ export class ActiveUserController {
 
   @Get('/activeUserMetrics/newSignups')
   numberOfNewSignups(@Query('start') start: string, @Query('end') end: string, @Query('tenantId') tenantId: string) {
-    this.logger.log(`numberOfNewSignups from ${start} to ${end}`);
+    this.logger.verbose(`numberOfNewSignups from ${start} to ${end} tenant ${tenantId}`);
     try {
       const users = this.cache.queryCache(start, end, tenantId);
       return this.userUtil.numberOfNewSignups(users, start);
@@ -55,7 +55,7 @@ export class ActiveUserController {
 
   @Get('/activeUserMetrics/topLanguages')
   topLanguages(@Query('start') start: string, @Query('end') end: string, @Query('tenantId') tenantId: string) {
-    this.logger.log(`topLanguages from ${start} to ${end}`);
+    this.logger.verbose(`topLanguages from ${start} to ${end} tenant ${tenantId}`);
     try {
       const users = this.cache.queryCache(start, end, tenantId);
       return this.userUtil.topLanguages(users);
@@ -67,7 +67,7 @@ export class ActiveUserController {
 
   @Get('/activeUserMetrics/topUserRoles')
   topUserRoles(@Query('start') start: string, @Query('end') end: string, @Query('tenantId') tenantId: string) {
-    this.logger.log(`topUserRoles from ${start} to ${end}`);
+    this.logger.verbose(`topUserRoles from ${start} to ${end} tenant ${tenantId}`);
     try {
       const users = this.cache.queryCache(start, end, tenantId);
       return this.userUtil.topUserRoles(users);
@@ -79,7 +79,7 @@ export class ActiveUserController {
 
   @Get('/activeUserMetrics/topCountries')
   topCountries(@Query('start') start: string, @Query('end') end: string, @Query('tenantId') tenantId: string) {
-    this.logger.log(`topCountries from ${start} to ${end}`);
+    this.logger.verbose(`topCountries from ${start} to ${end} tenant ${tenantId}`);
     try {
       const users = this.cache.queryCache(start, end, tenantId);
       return this.userUtil.topCountries(users);
@@ -91,7 +91,7 @@ export class ActiveUserController {
 
   @Get('/activeUserMetrics/topPlatforms')
   topPlatforms(@Query('start') start: string, @Query('end') end: string, @Query('tenantId') tenantId: string) {
-    this.logger.log(`topPlatorms from ${start} to ${end}`);
+    this.logger.verbose(`topPlatorms from ${start} to ${end} tenant ${tenantId}`);
     try {
       const users = this.cache.queryCache(start, end, tenantId);
       return this.userUtil.topPlatforms(users);
@@ -103,7 +103,7 @@ export class ActiveUserController {
 
   @Get('/activeUserMetrics/topBrowsers')
   topBrowsers(@Query('start') start: string, @Query('end') end: string, @Query('tenantId') tenantId: string) {
-    this.logger.log(`topBrowsers from ${start} to ${end}`);
+    this.logger.verbose(`topBrowsers from ${start} to ${end} tenant ${tenantId}`);
     try {
       const users = this.cache.queryCache(start, end, tenantId);
       return this.userUtil.topBrowsers(users);
@@ -115,7 +115,7 @@ export class ActiveUserController {
 
   @Get('/activeUserMetrics/topDeviceTypes')
   topDeviceTypes(@Query('start') start: string, @Query('end') end: string, @Query('tenantId') tenantId: string) {
-    this.logger.log(`topDeviceTypes from ${start} to ${end}`);
+    this.logger.verbose(`topDeviceTypes from ${start} to ${end} tenant ${tenantId}`);
     try {
       const users = this.cache.queryCache(start, end, tenantId);
       return this.userUtil.topDeviceTypes(users);
@@ -127,7 +127,7 @@ export class ActiveUserController {
 
   @Get('/activeUserMetrics/mailDomainNames')
   mailDomainNames(@Query('start') start: string, @Query('end') end: string, @Query('tenantId') tenantId: string) {
-    this.logger.log(`mailDomainNames from ${start} to ${end}`);
+    this.logger.verbose(`mailDomainNames from ${start} to ${end} tenant ${tenantId}`);
     try {
       const users = this.cache.queryCache(start, end, tenantId);
       return this.userUtil.mailDomainNames(users);

@@ -10,7 +10,7 @@ export class PageViewController {
 
   @Get('/popularDevices')
   async getDeviceCounts(@Query('start') start: string, @Query('end') end: string, @Query('tenantId') tenantId: string) {
-    this.logger.log(`getDeviceCounts from ${start} to ${end}`);
+    this.logger.verbose(`getDeviceCounts from ${start} to ${end} tenant ${tenantId}`);
     try {
       const pageViews = this.pageViewCacheService.queryCache(start, end, tenantId);
       return this.createPopularDevicesAggregation(pageViews);
@@ -43,7 +43,7 @@ export class PageViewController {
 
   @Get('/pageViewCounts')
   async getPageViewCounts(@Query('start') start: string, @Query('end') end: string, @Query('tenantId') tenantId: string) {
-    this.logger.log(`getPageViewCounts from ${start} to ${end}`);
+    this.logger.verbose(`getPageViewCounts from ${start} to ${end} tenant ${tenantId}`);
     try {
       const pageViews = this.pageViewCacheService.queryCache(start, end, tenantId);
       return this.createrPopularPagesAggregation(pageViews);

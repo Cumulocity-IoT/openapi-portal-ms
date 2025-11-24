@@ -38,7 +38,7 @@ export class CustomEventsCacheService extends TreeCache<ReducedEvent> {
     return this.getCache(startStamp, endStamp, tenantId);
   }
 
-  private getCustomEvents(start: string, end: string, tenantId: string) {
+  private async getCustomEvents(start: string, end: string, tenantId: string): Promise<CustomEvent[]> {
     let filter = `accountId~${tenantId}*;` as CustomEventFilter; // `accountId~t2700*;eventName==${eventName};` as CustomEventFilter;
     if (start) {
       const date = new Date(start);
@@ -48,7 +48,9 @@ export class CustomEventsCacheService extends TreeCache<ReducedEvent> {
       const date = new Date(end);
       filter += `date<${date.getTime()};`;
     }
-    return this.getEventWithPagination(filter, []);
+    const events = await this.getEventWithPagination(filter, []);
+    this.logger.log(`Fetched ${events.length} custom events for tenant ${tenantId} from ${start} to ${end}.`);
+    return events;
   }
 
   private async getEventWithPagination(filter: CustomEventFilter, sum: CustomEvent[], scrollId?: string): Promise<CustomEvent[]> {

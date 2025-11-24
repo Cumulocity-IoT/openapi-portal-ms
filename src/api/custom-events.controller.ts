@@ -40,7 +40,7 @@ export class EventsController {
 
   @Get('/widgetsByName')
   getEventCountsByName(@Query('eventName') eventName: string, @Query('start') start: string, @Query('end') end: string, @Query('tenantId') tenantId: string) {
-    this.logger.log(`getEventCountsByName for event ${eventName} from ${start} to ${end}`);
+    this.logger.verbose(`getEventCountsByName for event ${eventName} from ${start} to ${end} tenant ${tenantId}`);
     try {
       const allEvents = this.customEventsCache.queryCache(start, end, tenantId);
       const filtered = allEvents.filter((event) => event.name === eventName);
@@ -53,7 +53,7 @@ export class EventsController {
 
   @Get('/events')
   getEvents(@Query('start') start: string, @Query('end') end: string, @Query('tenantId') tenantId: string, @Query('withId') withId = false) {
-    this.logger.log(`getEvents from ${start} to ${end}`);
+    this.logger.verbose(`getEvents from ${start} to ${end} tenant ${tenantId}`);
     try {
       const allEvents = this.customEventsCache.queryCache(start, end, tenantId);
       return allEvents.map((e) => ({

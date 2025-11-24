@@ -35,6 +35,7 @@ export class SessionEventsCacheService extends TreeCache<SessionEvent> {
 
     const filter = `accountId~${tenantId}*;date>${startDate.getTime()};date<${endDate.getTime()}` as SessionEventFilter;
     const allEvents = await this.getSessionEventsWithPagination(filter, []);
+    this.logger.log(`Fetched ${allEvents.length} session events for tenant ${tenantId} from ${start} to ${end}.`);
     return allEvents;
   }
 
@@ -45,7 +46,7 @@ export class SessionEventsCacheService extends TreeCache<SessionEvent> {
     const events = res.sessionInitializedEvents;
     sum.push(...events);
     if (events.length < 1000) {
-      this.logger.log(`Session events - overall count ${sum.length}.`);
+      this.logger.verbose(`Session events - overall count ${sum.length}.`);
       return sum;
     } else {
       return this.getSessionEventsWithPagination(filter, sum, res.scrollId);
