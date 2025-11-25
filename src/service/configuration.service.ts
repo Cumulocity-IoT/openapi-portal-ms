@@ -24,11 +24,11 @@ export class ConfigurationService {
     try {
       const res = await this.settings.fetchOrUndefined<GainsightConfigValue>({ key: `config`, category: 'gainsight' }) ?? [];
       if (res && isValidGainsightConfigValue(res)) {
-        return res.find((cfg) => user.includes(cfg.mail)).domains || [];
+        return res.find((cfg) => user.includes(cfg.mail))?.domains ?? [];
       }
       return [];
     } catch (e) {
-      this.logger.error('Could not find any mathcing domain for user ' + user, e);
+      this.logger.error('Could not find any matching domain for user ' + user, e);
       return [];
     }
   }

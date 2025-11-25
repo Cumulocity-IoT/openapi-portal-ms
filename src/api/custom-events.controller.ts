@@ -1,6 +1,6 @@
 import { Controller, Get, Logger, Query, UseGuards } from '@nestjs/common';
 import { get } from 'lodash';
-import { CustomEvent, ReducedEvent } from '../model/gainsight-px.model';
+import { ReducedEvent } from '../model/gainsight-px.model';
 import { CustomEventsCacheService } from '../cache/custom-events-cache.service';
 import { TenantGuard } from '../guards/tenant.guard';
 

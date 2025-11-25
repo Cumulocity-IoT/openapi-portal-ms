@@ -27,7 +27,20 @@ export class ActiveUsersCacheService extends TreeCache<User> {
   queryCache(start: string, end: string, tenantId: string): User[] {
     const startStamp = new Date(start).getTime();
     const endStamp = new Date(end).getTime();
-    return this.getCache(startStamp, endStamp, tenantId);
+    const cached = this.getCache(startStamp, endStamp, tenantId);
+
+    // dedupe by identifyId, keeping the entry with the newest lastSeenDate
+    const byIdentify = new Map<string, User>();
+    for (const u of cached) {
+      const key = u.identifyId;
+      const existing = byIdentify.get(key);
+      if (!existing || u.lastSeenDate > existing.lastSeenDate) {
+        byIdentify.set(key, u);
+      }
+    }
+
+    const users = [...byIdentify.values()];
+    return users;
   }
 
   private async getActiveUserMetricsDateRange(start: string, end: string, url: string) {

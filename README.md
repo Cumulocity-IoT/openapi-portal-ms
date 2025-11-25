@@ -54,99 +54,12 @@ All GET endpoints return JSON. On internal errors the endpoints return an empty 
 
 ## Endpoints
 
-### Events
-Events are like a click of a button, adding of a widget, etc.
+The full, up-to-date API specification and generated docs are available from the bundled OpenAPI outputs in the `docs/` folder. Instead of duplicating the endpoint list here, open the generated files:
 
-Custom Events
-- GET /customEvents (if present)
-  - Description: raw custom events for configured projects (may be filtered to project/devicemanagement).
-  - Query params: start, end, tenantId
-  - Response: array of raw event objects (date, attributes, sessionId, globalContext, ...)
+- HTML (single-file): `docs/openapi.html` (generated with `@redocly/cli` — preview or bundle using the CLI)
+- Markdown: `docs/openapi.md` (if present — produced from the OpenAPI spec)
 
-Event Counts
-- GET /eventCounts
-  - Description: counts of custom events grouped by event name for a project (e.g. devicemanagement).
-  - Query params: start, end, tenantId
-  - Response: [{ value: string (eventName), count: number }, ...]
-
-Event Counts By Name (widgets)
-- GET /widgetsByName
-  - Description: counts grouped by widget (or widgetName attribute) for a single event name.
-  - Query params: eventName (required), start, end, tenantId
-  - Response: [{ name: string (widgetName), count: number }, ...]
-
-### Sessions
-Sessions describe how often users are active over a time period. If no more activity is detected, the session counts as terminated. Unique users can have multiple sessions per day.
-
-Session Events
-- GET /sessionEvents
-  - Description: returns raw session event records (per-tenant) in the requested date range.
-  - Query params: start, end, tenantId
-  - Response: array of session events (time/date, eventId, identifyId, inferredLocation, userType, ...)
-
-Session Events Auto Aggregation
-- GET /sessionEventsAutoAgg
-  - Description: aggregates session events into buckets depending on requested range:
-    - If range ≤ 1 hour → MINUTE buckets
-    - If range ≤ 1 day → HOUR buckets
-    - Otherwise → DAY buckets
-  - Query params: start (required), end, tenantId
-  - Response: [{ time: ISO timestamp for bucket start, count: number }, ...] sorted ascending by time
-
-### Page views
-Where did users route to. Can be used to derive general paths (as done via /pageViews) or to determine popular devices (extracted from the urls and count aggregated).
-
-Page Views
-- GET /pageViews (if present)
-  - Description: returns raw page view events for configured domains.
-  - Query params: start (required for some handlers), end, tenantId
-  - Response: array of page view objects (scheme, host, path, hash, query, ...)
-
-Popular Devices
-- GET /popularDevices
-  - Description: aggregates device identifiers or hashes extracted from page view data (e.g. in path/hash) and returns counts.
-  - Query params: start (required), end, tenantId
-  - Response: [{ path: string, count: number }, ...] sorted by count desc
-
-Page View Counts
-- GET /pageViewCounts
-  - Description: groups page views by masked/mapped URL (e.g. numbers replaced with `*`) and returns counts.
-  - Query params: start (required), end, tenantId
-  - Response: [{ path: string, count: number }, ...]
-
-### Active User Metrics
-All endpoints below typically use the page view / user profile caches and accept start/end/tenantId query params. Each returns an array of values or a { count } object depending on the metric.
-
-- GET /activeUserMetrics/numberOfUsers
-  - Returns the number of active users in the date range.
-
-- GET /activeUserMetrics/newSignups
-  - Returns the number of new signups since the requested start date.
-
-- GET /activeUserMetrics/topLanguages
-  - Returns language counts/percentages.
-
-- GET /activeUserMetrics/topUserRoles
-  - Returns role counts/percentages (roles are parsed from a comma-separated custom attribute).
-
-- GET /activeUserMetrics/topCountries
-  - Returns country counts/percentages.
-
-- GET /activeUserMetrics/topPlatforms
-  - Returns platform counts/percentages (based on lastVisitedUserAgentData).
-
-- GET /activeUserMetrics/topBrowsers
-  - Returns browser counts/percentages.
-
-- GET /activeUserMetrics/topDeviceTypes
-  - Returns device type counts/percentages.
-
-- GET /activeUserMetrics/mailDomainNames
-  - Returns email domain counts/percentages.
-
-Response shapes for metrics
-- Count responses: { count: number }
-- Top lists: [{ value: string, count: number, percentage: number }, ...] — percentage rounded to two decimals.
+You can generate or preview these locally; see the "OpenAPI / API docs" section above for `@redocly/cli` commands.
 
 # Technical details
 
@@ -186,3 +99,13 @@ Response shapes for metrics
 - Monitor memory usage: caches keep all fetched items in memory per tenant; if telemetry volume is large, consider retention windows or backing the cache with a persistent store.
 - Rehydrate cache on startup or expose a health endpoint to allow external tooling to verify caches are populated.
 - The service assumes input dates are ISO parsable. Make sure upstream data provides valid timestamps.
+
+## OpenAPI / API docs
+
+- **Spec file shipped:** `docs/openapi.json` (OpenAPI v3.0.1) — a static spec covering the controllers in `src/api`.
+- **Generate / preview docs using Redocly CLI:** this repository includes `@redocly/cli` as a devDependency. After running `npm install` you can:
+  - Preview the docs locally: `npx @redocly/cli preview-docs docs/openapi.json`
+  - Bundle into a single-file HTML (example): `npx @redocly/cli build-docs docs/openapi.json -o docs/index.html`
+  - Inspect available commands: `npx @redocly/cli --help`
+
+If you prefer to generate the OpenAPI spec from the running app (automatic DTO/schema extraction), you can integrate `@nestjs/swagger` and emit a runtime spec instead of (or in addition to) the static `docs/openapi.json`.

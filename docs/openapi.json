@@ -1,0 +1,228 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Gainsight Sync Microservice API",
+    "version": "0.1.0",
+    "description": "OpenAPI spec for the Gainsight Sync microservice (selected endpoints)."
+  },
+  "servers": [{ "url": "http://localhost:80", "description": "Local" }],
+  "paths": {
+    "/activeUsers": {
+      "get": {
+        "summary": "Get active users",
+        "parameters": [
+          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": false },
+          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": false },
+          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": false }
+        ],
+        "responses": {
+          "200": { "description": "Array of users", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ActiveUserList" } } } }
+        }
+      }
+    },
+    "/activeUserMetrics/numberOfUsers": {
+      "get": {
+        "summary": "Number of active users",
+        "parameters": [
+          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" } },
+          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" } },
+          { "name": "tenantId", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Count", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Count" } } } } }
+      }
+    },
+    "/activeUserMetrics/newSignups": {
+      "get": {
+        "summary": "New signups",
+        "parameters": [
+          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" } },
+          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" } },
+          { "name": "tenantId", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Count", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Count" } } } } }
+      }
+    },
+    "/activeUserMetrics/topLanguages": {
+      "get": {
+        "summary": "Top languages",
+        "parameters": [
+          { "name": "start", "in": "query", "schema": { "type": "string" } },
+          { "name": "end", "in": "query", "schema": { "type": "string" } },
+          { "name": "tenantId", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Language counts", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/MetricItem" } } } } } }
+      }
+    },
+    "/activeUserMetrics/topUserRoles": {
+      "get": {
+        "summary": "Top user roles",
+        "parameters": [
+          { "name": "start", "in": "query", "schema": { "type": "string" } },
+          { "name": "end", "in": "query", "schema": { "type": "string" } },
+          { "name": "tenantId", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Role counts", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/MetricItem" } } } } } }
+      }
+    },
+    "/activeUserMetrics/topCountries": {
+      "get": {
+        "summary": "Top countries",
+        "parameters": [
+          { "name": "start", "in": "query", "schema": { "type": "string" } },
+          { "name": "end", "in": "query", "schema": { "type": "string" } },
+          { "name": "tenantId", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Country counts", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/MetricItem" } } } } } }
+      }
+    },
+    "/activeUserMetrics/topPlatforms": {
+      "get": {
+        "summary": "Top platforms",
+        "parameters": [
+          { "name": "start", "in": "query", "schema": { "type": "string" } },
+          { "name": "end", "in": "query", "schema": { "type": "string" } },
+          { "name": "tenantId", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Platform counts", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/MetricItem" } } } } } }
+      }
+    },
+    "/activeUserMetrics/topBrowsers": {
+      "get": {
+        "summary": "Top browsers",
+        "parameters": [
+          { "name": "start", "in": "query", "schema": { "type": "string" } },
+          { "name": "end", "in": "query", "schema": { "type": "string" } },
+          { "name": "tenantId", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Browser counts", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/MetricItem" } } } } } }
+      }
+    },
+    "/activeUserMetrics/topDeviceTypes": {
+      "get": {
+        "summary": "Top device types",
+        "parameters": [
+          { "name": "start", "in": "query", "schema": { "type": "string" } },
+          { "name": "end", "in": "query", "schema": { "type": "string" } },
+          { "name": "tenantId", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Device counts", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/MetricItem" } } } } } }
+      }
+    },
+    "/activeUserMetrics/mailDomainNames": {
+      "get": {
+        "summary": "Mail domain counts",
+        "parameters": [
+          { "name": "start", "in": "query", "schema": { "type": "string" } },
+          { "name": "end", "in": "query", "schema": { "type": "string" } },
+          { "name": "tenantId", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Mail domain counts", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/MetricItem" } } } } } }
+      }
+    },
+    "/customEvents": {
+      "get": {
+        "summary": "Custom events",
+        "parameters": [
+          { "name": "start", "in": "query", "schema": { "type": "string" } },
+          { "name": "end", "in": "query", "schema": { "type": "string" } },
+          { "name": "tenantId", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Custom events", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CustomEvent" } } } } } }
+      }
+    },
+    "/eventCounts": {
+      "get": {
+        "summary": "Event counts by name",
+        "parameters": [
+          { "name": "start", "in": "query", "schema": { "type": "string" } },
+          { "name": "end", "in": "query", "schema": { "type": "string" } },
+          { "name": "tenantId", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Counts", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/SimpleCount" } } } } } }
+      }
+    },
+    "/eventCountsByName": {
+      "get": {
+        "summary": "Event counts grouped by widget name for an event",
+        "parameters": [
+          { "name": "eventName", "in": "query", "schema": { "type": "string" }, "required": true },
+          { "name": "start", "in": "query", "schema": { "type": "string" } },
+          { "name": "end", "in": "query", "schema": { "type": "string" } },
+          { "name": "tenantId", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Widget counts", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/SimpleCount" } } } } } }
+      }
+    },
+    "/sessionEvents": {
+      "get": {
+        "summary": "Session events",
+        "parameters": [
+          { "name": "start", "in": "query", "schema": { "type": "string" } },
+          { "name": "end", "in": "query", "schema": { "type": "string" } },
+          { "name": "tenantId", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Session events", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/SessionEvent" } } } } } }
+      }
+    },
+    "/sessionEventsAutoAgg": {
+      "get": {
+        "summary": "Auto-aggregated session events (minute/hour/day)",
+        "parameters": [
+          { "name": "start", "in": "query", "schema": { "type": "string" }, "required": true },
+          { "name": "end", "in": "query", "schema": { "type": "string" } },
+          { "name": "tenantId", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Aggregated buckets", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Bucket" } } } } } }
+      }
+    },
+    "/pageViews": {
+      "get": {
+        "summary": "Page view events",
+        "parameters": [
+          { "name": "start", "in": "query", "schema": { "type": "string" }, "required": false },
+          { "name": "end", "in": "query", "schema": { "type": "string" } },
+          { "name": "tenantId", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Page view events", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/PageView" } } } } } }
+      }
+    },
+    "/popularDevices": {
+      "get": {
+        "summary": "Popular devices (from page view hashes/paths)",
+        "parameters": [
+          { "name": "start", "in": "query", "schema": { "type": "string" }, "required": false },
+          { "name": "end", "in": "query", "schema": { "type": "string" } },
+          { "name": "tenantId", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Popular devices", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/SimpleCount" } } } } } }
+      }
+    },
+    "/pageViewCounts": {
+      "get": {
+        "summary": "Counts grouped by page path",
+        "parameters": [
+          { "name": "start", "in": "query", "schema": { "type": "string" }, "required": false },
+          { "name": "end", "in": "query", "schema": { "type": "string" } },
+          { "name": "tenantId", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Page view counts", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/SimpleCount" } } } } } }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Count": { "type": "object", "properties": { "count": { "type": "integer", "format": "int32" } } },
+      "SimpleCount": { "type": "object", "properties": { "value": { "type": "string" }, "count": { "type": "integer" } } },
+      "MetricItem": { "type": "object", "properties": { "value": { "type": "string" }, "count": { "type": "integer" }, "percentage": { "type": "number", "format": "float" } } },
+      "ActiveUser": { "type": "object", "properties": { "id": { "type": "string" }, "roles": { "type": "array", "items": { "type": "string" } }, "country": { "type": "string" } } },
+      "ActiveUserList": { "type": "array", "items": { "$ref": "#/components/schemas/ActiveUser" } },
+      "CustomEvent": { "type": "object", "properties": { "date": { "type": "string", "format": "date-time" }, "widgetName": { "type": "string" }, "sessionId": { "type": "string" } } },
+      "SessionEvent": { "type": "object", "properties": { "time": { "type": "string", "format": "date-time" }, "eventId": { "type": "string" }, "identifyId": { "type": "string" } } },
+      "Bucket": { "type": "object", "properties": { "time": { "type": "string", "format": "date-time" }, "count": { "type": "integer" } } },
+      "PageView": {
+        "type": "object",
+        "properties": { "scheme": { "type": "string" }, "host": { "type": "string" }, "path": { "type": "string" }, "hash": { "type": "string" }, "date": { "type": "string", "format": "date-time" } }
+      }
+    }
+  }
+}
