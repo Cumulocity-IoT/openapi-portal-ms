@@ -22,7 +22,6 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
- 
   "dependencies": {
     "@c8y/client": "^1022.44.3",
     "@nestjs/common": "^11.1.7",
