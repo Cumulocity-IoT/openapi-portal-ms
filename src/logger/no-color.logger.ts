@@ -1,8 +1,8 @@
 import { LoggerService } from '@nestjs/common';
 
 // Simple utility to strip ANSI color codes from strings
-const stripAnsi = (input: string) => {
-  if (!input) return input;
+const stripAnsi = (input?: unknown) => {
+  if (typeof input !== 'string') return input;
   return input.replace(/\x1b\[[0-9;]*m/g, '');
 };
 
@@ -15,16 +15,16 @@ const prefix = (level: string, context?: string) => {
 
 export class NoColorLogger implements LoggerService {
   log(message: any, context?: string) {
-    if (typeof message === 'string') message = stripAnsi(message);
-    console.log(prefix('LOG', context), message);
+    console.log(prefix('LOG', context), stripAnsi(message));
   }
 
   error(message: any, trace?: string, context?: string) {
-    if (typeof message === 'string') message = stripAnsi(message);
-    if (typeof trace === 'string') trace = stripAnsi(trace);
-    console.error(prefix('ERROR', context), message);
+    if (message) {
+      message = stripAnsi(message);
+      console.error(prefix('ERROR', context), message);
+    }
     if (trace) {
-      console.error(timestamp(), stripAnsi(trace));
+      console.error(stripAnsi(trace));
     }
   }
 
@@ -33,13 +33,11 @@ export class NoColorLogger implements LoggerService {
     console.warn(prefix('WARN', context), message);
   }
 
-  debug?(message: any, context?: string) {
-    if (typeof message === 'string') message = stripAnsi(message);
-    console.debug(prefix('DEBUG', context), message);
+  debug(message: any, context?: string) {
+    console.debug(prefix('DEBUG', context), stripAnsi(message));
   }
 
-  verbose?(message: any, context?: string) {
-    if (typeof message === 'string') message = stripAnsi(message);
-    console.info(prefix('VERBOSE', context), message);
+  verbose(message: any, context?: string) {
+    console.info(prefix('VERBOSE', context), stripAnsi(message));
   }
 }

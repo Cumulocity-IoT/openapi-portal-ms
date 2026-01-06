@@ -1,0 +1,12 @@
+{
+  "author": "Hendrik Näther",
+  "description": "This is the Open API spec for the Gainsight PX integration with Cumulocity.",
+  "version": "0.0.0",
+  "name": "gainsight-c8y-openapi",
+  "contentSecurityPolicy": "base-uri 'none'; default-src 'self' 'unsafe-inline' http: https: ws: wss:; connect-src 'self' http: https: ws: wss:;  script-src 'self' *.bugherd.com *.twitter.com *.twimg.com *.aptrinsic.com 'unsafe-inline' 'unsafe-eval' data:; style-src * 'unsafe-inline' blob:; img-src * data: blob:; font-src * data:; frame-src *; worker-src 'self' blob:;",
+  "dynamicOptionsUrl": true,
+  "isPackage": false,
+  "noAppSwitcher": false,
+  "contextPath": "gainsight-c8y-openapi",
+  "key": "gainsight-c8y-openapi-application-key"
+}
