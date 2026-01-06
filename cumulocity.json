@@ -30,5 +30,11 @@
     },
     "initialDelaySeconds": 10,
     "periodSeconds": 10
+  },
+  "requestedResources": {
+    "memory": "10G"
+  },
+  "resources": {
+    "memory": "128G"
   }
 }

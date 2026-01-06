@@ -59,7 +59,7 @@ The full, up-to-date API specification and generated docs are available from the
 - HTML (single-file): `docs/openapi.html` (generated with `@redocly/cli` — preview or bundle using the CLI)
 - Markdown: `docs/openapi.md` (if present — produced from the OpenAPI spec)
 
-You can generate or preview these locally; see the "OpenAPI / API docs" section above for `@redocly/cli` commands.
+You can generate or preview these locally; see the "OpenAPI / API docs" section below for `@redocly/cli` commands.
 
 # Technical details
 
