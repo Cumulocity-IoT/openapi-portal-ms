@@ -32,9 +32,9 @@
     "periodSeconds": 10
   },
   "requestedResources": {
-    "memory": "10G"
+    "memory": "2048M"
   },
   "resources": {
-    "memory": "128G"
+    "memory": "4096M"
   }
 }
