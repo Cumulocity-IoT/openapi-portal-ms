@@ -54,6 +54,23 @@ Retrieves custom events from the Gainsight PX API.
   scrollId: string;
   totalHits: number;
 }
+
+### `getEventsV2(start: string, end: string, tenantId: string, filter?: string, fields?: string)`
+
+A lightweight query endpoint that returns events in the given time range. Supports an optional safe filter expression (compiled with `filtrex`) and an optional comma-separated `fields` list used to project properties from `event.data` into the response objects.
+
+- **filter** (optional): a `filtrex` expression evaluated against each event. Examples:
+  - `name == "click"` — match events whose `name` equals `click`.
+  - `transactions <= 5 and abs(profit) > 20.5` — numeric comparisons.
+  - `a.b.c in ("x","y")` — nested property membership check.
+
+- **fields** (optional): comma-separated list of fields to extract from `event.data`. Examples:
+  - `a` → include `data.a` as `a` in the result
+  - `attributes.size, user.id` → include `attributes.size` and `user.id`
+  - If omitted, the whole `data` object is returned (or projected as-is by the service)
+
+Response objects include `name`, ISO `date`, and any projected fields at the top-level.
+
 ```
 
 ## Page Views

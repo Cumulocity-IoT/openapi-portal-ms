@@ -6,14 +6,21 @@
     "description": "OpenAPI spec for the Gainsight Sync microservice (selected endpoints)."
   },
   "servers": [{ "url": "http://localhost:80", "description": "Local" }],
+  "tags": [
+    { "name": "Events", "description": "Endpoints from src/api/custom-events.controller.ts" },
+    { "name": "PageView", "description": "Endpoints from src/api/page-view.controller.ts" },
+    { "name": "SessionEvents", "description": "Endpoints from src/api/session-events.controller.ts" },
+    { "name": "ActiveUser", "description": "Endpoints from src/api/active-users.controller.ts" }
+  ],
   "paths": {
     "/activeUsers": {
       "get": {
+        "tags": ["ActiveUser"],
         "summary": "Get active users",
         "parameters": [
-          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": false },
-          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": false },
-          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": false }
+          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
+          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
+          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" }
         ],
         "responses": {
           "200": { "description": "Array of users", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ActiveUserList" } } } }
@@ -22,190 +29,235 @@
     },
     "/activeUserMetrics/numberOfUsers": {
       "get": {
+        "tags": ["ActiveUser"],
         "summary": "Number of active users",
         "parameters": [
-          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" } },
-          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" } },
-          { "name": "tenantId", "in": "query", "schema": { "type": "string" } }
+          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
+          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
+          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" }
         ],
         "responses": { "200": { "description": "Count", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Count" } } } } }
       }
     },
     "/activeUserMetrics/newSignups": {
       "get": {
+        "tags": ["ActiveUser"],
         "summary": "New signups",
         "parameters": [
-          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" } },
-          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" } },
-          { "name": "tenantId", "in": "query", "schema": { "type": "string" } }
+          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
+          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
+          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" }
         ],
         "responses": { "200": { "description": "Count", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Count" } } } } }
       }
     },
     "/activeUserMetrics/topLanguages": {
       "get": {
+        "tags": ["ActiveUser"],
         "summary": "Top languages",
         "parameters": [
-          { "name": "start", "in": "query", "schema": { "type": "string" } },
-          { "name": "end", "in": "query", "schema": { "type": "string" } },
-          { "name": "tenantId", "in": "query", "schema": { "type": "string" } }
+          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
+          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
+          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" }
         ],
         "responses": { "200": { "description": "Language counts", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/MetricItem" } } } } } }
       }
     },
     "/activeUserMetrics/topUserRoles": {
       "get": {
+        "tags": ["ActiveUser"],
         "summary": "Top user roles",
         "parameters": [
-          { "name": "start", "in": "query", "schema": { "type": "string" } },
-          { "name": "end", "in": "query", "schema": { "type": "string" } },
-          { "name": "tenantId", "in": "query", "schema": { "type": "string" } }
+          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
+          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
+          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" }
         ],
         "responses": { "200": { "description": "Role counts", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/MetricItem" } } } } } }
       }
     },
     "/activeUserMetrics/topCountries": {
       "get": {
+        "tags": ["ActiveUser"],
         "summary": "Top countries",
         "parameters": [
-          { "name": "start", "in": "query", "schema": { "type": "string" } },
-          { "name": "end", "in": "query", "schema": { "type": "string" } },
-          { "name": "tenantId", "in": "query", "schema": { "type": "string" } }
+          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
+          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
+          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" }
         ],
         "responses": { "200": { "description": "Country counts", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/MetricItem" } } } } } }
       }
     },
     "/activeUserMetrics/topPlatforms": {
       "get": {
+        "tags": ["ActiveUser"],
         "summary": "Top platforms",
         "parameters": [
-          { "name": "start", "in": "query", "schema": { "type": "string" } },
-          { "name": "end", "in": "query", "schema": { "type": "string" } },
-          { "name": "tenantId", "in": "query", "schema": { "type": "string" } }
+          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
+          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
+          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" }
         ],
         "responses": { "200": { "description": "Platform counts", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/MetricItem" } } } } } }
       }
     },
     "/activeUserMetrics/topBrowsers": {
       "get": {
+        "tags": ["ActiveUser"],
         "summary": "Top browsers",
         "parameters": [
-          { "name": "start", "in": "query", "schema": { "type": "string" } },
-          { "name": "end", "in": "query", "schema": { "type": "string" } },
-          { "name": "tenantId", "in": "query", "schema": { "type": "string" } }
+          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
+          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
+          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" }
         ],
         "responses": { "200": { "description": "Browser counts", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/MetricItem" } } } } } }
       }
     },
     "/activeUserMetrics/topDeviceTypes": {
       "get": {
+        "tags": ["ActiveUser"],
         "summary": "Top device types",
         "parameters": [
-          { "name": "start", "in": "query", "schema": { "type": "string" } },
-          { "name": "end", "in": "query", "schema": { "type": "string" } },
-          { "name": "tenantId", "in": "query", "schema": { "type": "string" } }
+          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
+          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
+          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" }
         ],
         "responses": { "200": { "description": "Device counts", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/MetricItem" } } } } } }
       }
     },
     "/activeUserMetrics/mailDomainNames": {
       "get": {
+        "tags": ["ActiveUser"],
         "summary": "Mail domain counts",
         "parameters": [
-          { "name": "start", "in": "query", "schema": { "type": "string" } },
-          { "name": "end", "in": "query", "schema": { "type": "string" } },
-          { "name": "tenantId", "in": "query", "schema": { "type": "string" } }
+          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
+          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
+          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" }
         ],
         "responses": { "200": { "description": "Mail domain counts", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/MetricItem" } } } } } }
       }
     },
     "/customEvents": {
       "get": {
-        "summary": "Custom events",
+        "tags": ["Events"],
+        "summary": "Custom events (service)",
         "parameters": [
-          { "name": "start", "in": "query", "schema": { "type": "string" } },
-          { "name": "end", "in": "query", "schema": { "type": "string" } },
-          { "name": "tenantId", "in": "query", "schema": { "type": "string" } }
+          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
+          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
+          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" }
         ],
         "responses": { "200": { "description": "Custom events", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CustomEvent" } } } } } }
       }
     },
     "/eventCounts": {
       "get": {
+        "tags": ["Events"],
         "summary": "Event counts by name",
         "parameters": [
-          { "name": "start", "in": "query", "schema": { "type": "string" } },
-          { "name": "end", "in": "query", "schema": { "type": "string" } },
-          { "name": "tenantId", "in": "query", "schema": { "type": "string" } }
+          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
+          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
+          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" }
         ],
         "responses": { "200": { "description": "Counts", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/SimpleCount" } } } } } }
       }
     },
-    "/eventCountsByName": {
+    "/widgetsByName": {
       "get": {
+        "tags": ["Events"],
         "summary": "Event counts grouped by widget name for an event",
         "parameters": [
           { "name": "eventName", "in": "query", "schema": { "type": "string" }, "required": true },
-          { "name": "start", "in": "query", "schema": { "type": "string" } },
-          { "name": "end", "in": "query", "schema": { "type": "string" } },
-          { "name": "tenantId", "in": "query", "schema": { "type": "string" } }
+          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
+          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
+          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" }
         ],
         "responses": { "200": { "description": "Widget counts", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/SimpleCount" } } } } } }
       }
     },
     "/sessionEvents": {
       "get": {
+        "tags": ["SessionEvents"],
         "summary": "Session events",
         "parameters": [
-          { "name": "start", "in": "query", "schema": { "type": "string" } },
-          { "name": "end", "in": "query", "schema": { "type": "string" } },
-          { "name": "tenantId", "in": "query", "schema": { "type": "string" } }
+          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
+          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
+          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" }
         ],
         "responses": { "200": { "description": "Session events", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/SessionEvent" } } } } } }
       }
     },
     "/sessionEventsAutoAgg": {
       "get": {
+        "tags": ["SessionEvents"],
         "summary": "Auto-aggregated session events (minute/hour/day)",
         "parameters": [
-          { "name": "start", "in": "query", "schema": { "type": "string" }, "required": true },
-          { "name": "end", "in": "query", "schema": { "type": "string" } },
-          { "name": "tenantId", "in": "query", "schema": { "type": "string" } }
+          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
+          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
+          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" }
         ],
         "responses": { "200": { "description": "Aggregated buckets", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Bucket" } } } } } }
       }
     },
     "/pageViews": {
       "get": {
+        "tags": ["PageView"],
         "summary": "Page view events",
         "parameters": [
-          { "name": "start", "in": "query", "schema": { "type": "string" }, "required": false },
-          { "name": "end", "in": "query", "schema": { "type": "string" } },
-          { "name": "tenantId", "in": "query", "schema": { "type": "string" } }
+          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
+          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
+          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" }
         ],
         "responses": { "200": { "description": "Page view events", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/PageView" } } } } } }
       }
     },
     "/popularDevices": {
       "get": {
+        "tags": ["PageView"],
         "summary": "Popular devices (from page view hashes/paths)",
         "parameters": [
-          { "name": "start", "in": "query", "schema": { "type": "string" }, "required": false },
-          { "name": "end", "in": "query", "schema": { "type": "string" } },
-          { "name": "tenantId", "in": "query", "schema": { "type": "string" } }
+          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
+          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
+          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" }
         ],
         "responses": { "200": { "description": "Popular devices", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/SimpleCount" } } } } } }
       }
     },
     "/pageViewCounts": {
       "get": {
+        "tags": ["PageView"],
         "summary": "Counts grouped by page path",
         "parameters": [
-          { "name": "start", "in": "query", "schema": { "type": "string" }, "required": false },
-          { "name": "end", "in": "query", "schema": { "type": "string" } },
-          { "name": "tenantId", "in": "query", "schema": { "type": "string" } }
+          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
+          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
+          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" }
         ],
         "responses": { "200": { "description": "Page view counts", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/SimpleCount" } } } } } }
+      }
+    },
+    "/events": {
+      "get": {
+        "tags": ["Events"],
+        "summary": "Get events (base)",
+        "parameters": [
+          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
+          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
+          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" },
+          { "name": "withId", "in": "query", "schema": { "type": "boolean" } }
+        ],
+        "responses": { "200": { "description": "Events", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Event" } } } } } }
+      }
+    },
+    "/events-v2": {
+      "get": {
+        "tags": ["Events"],
+        "summary": "Get events V2 (filter + projection)",
+        "description": "Return events in the given time range. Supports a safe filter expression (using filtrex) and an optional comma-separated list of fields to project from event.data into the response.",
+        "parameters": [
+          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
+          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
+          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" },
+          { "name": "filter", "in": "query", "schema": { "type": "string" }, "description": "A safe filtrex expression evaluated against each event. You can use the following operations:\n\nx + y Add\nx - y Subtract\nx * y Multiply\nx / y Divide\nx ^ y Power\nx mod y Modulo\nx == y Equals\nx < y Less than\nx <= y Less than or equal to\nx > y Greater than\nx >= y Greater than or equal to\nx == y <= z Chained relation, equivalent to (x == y and y <= z)\nx of y Get property x of object y\nx in (a, b, c) Equivalent to (x == a or x == b or x == c)\nx not in (a, b, c) Equivalent to (x != a and x != b and x != c)\nx or y Boolean or\nx and y Boolean and\nnot x Boolean not\nif x then y else z If boolean x is true, return value y, else return z\n( x ) Explicity operator precedence\n( x, y, z ) Array of elements x, y and z\nabs(x) Absolute value\nceil(x) Round floating point up\nfloor(x) Round floating point down\nlog(x) Natural logarithm\nlog2(x) Binary logarithm\nlog10(x) Decadic logarithm\nmax(a, b, c...) Max value (variable length of args)\nmin(a, b, c...) Min value (variable length of args)\nround(x) Round floating point\nsqrt(x) Square root\nexists(x) True if x is neither undefined nor null\nempty(x) True if x doesn't exist, it is an empty string or empty array\nmyFooBarFunction(x) Custom function defined in options.extraFunctions", "example": "name == \"loadWidget\"" },
+          { "name": "fields", "in": "query", "schema": { "type": "string" }, "description": "Comma-separated list of fields to project from event.data (flattened keys). Examples: 'a', 'attributes.size,user.id'", "example": "attributes.size,user.id" }
+        ],
+        "responses": { "200": { "description": "Projected events", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/EventProjection" } } } } } }
       }
     }
   },
@@ -217,6 +269,8 @@
       "ActiveUser": { "type": "object", "properties": { "id": { "type": "string" }, "roles": { "type": "array", "items": { "type": "string" } }, "country": { "type": "string" } } },
       "ActiveUserList": { "type": "array", "items": { "$ref": "#/components/schemas/ActiveUser" } },
       "CustomEvent": { "type": "object", "properties": { "date": { "type": "string", "format": "date-time" }, "widgetName": { "type": "string" }, "sessionId": { "type": "string" } } },
+      "Event": { "type": "object", "properties": { "name": { "type": "string" }, "date": { "type": "string", "format": "date-time" } }, "additionalProperties": true },
+      "EventProjection": { "type": "object", "properties": { "name": { "type": "string" }, "date": { "type": "string", "format": "date-time" } }, "additionalProperties": true },
       "SessionEvent": { "type": "object", "properties": { "time": { "type": "string", "format": "date-time" }, "eventId": { "type": "string" }, "identifyId": { "type": "string" } } },
       "Bucket": { "type": "object", "properties": { "time": { "type": "string", "format": "date-time" }, "count": { "type": "integer" } } },
       "PageView": {
