@@ -1,17 +1,17 @@
 import { Controller, Get, Logger, Query, UseGuards } from '@nestjs/common';
-import { compileExpression } from 'filtrex';
 import { get } from 'lodash';
 import { ReducedEvent } from '../model/gainsight-px.model';
 import { CustomEventsCacheService } from '../cache/custom-events-cache.service';
 import { TenantGuard } from '../guards/tenant.guard';
 import { projectData } from '../util/data-projection';
+import { FilterService } from '../service/filter.service';
 
 @UseGuards(TenantGuard)
 @Controller()
 export class EventsController {
   readonly logger = new Logger(EventsController.name);
 
-  constructor(private customEventsCache: CustomEventsCacheService) {}
+  constructor(private customEventsCache: CustomEventsCacheService, private filterService: FilterService) {}
 
   @Get('/eventCounts')
   getEventCounts(@Query('start') start: string, @Query('end') end: string, @Query('tenantId') tenantId: string) {
@@ -110,10 +110,9 @@ export class EventsController {
     this.logger.verbose(`getEvents from ${start} to ${end} tenant ${tenantId}`);
     try {
       const allEvents = this.customEventsCache.queryCache(start, end, tenantId);
-      const filterFunc = filter ? compileExpression(filter) : () => true;
+      const filtered = this.filterService.filterArray(allEvents, filter);
       const fieldList = fields ? fields.split(',').map(f => f.trim()) : [];
-      return allEvents
-        .filter(filterFunc)
+      return filtered
         .map((e) => {
           const base = {
             name: e.name,

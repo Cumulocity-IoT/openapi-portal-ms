@@ -16,6 +16,7 @@ import { CustomEventsCacheService } from './cache/custom-events-cache.service';
 import { PageViewCacheService } from './cache/page-view-cache.service';
 import { SessionEventsCacheService } from './cache/session-events-cache.service';
 import { ConfigurationService } from './service/configuration.service';
+import { FilterService } from './service/filter.service';
 
 @Module({
   imports: [BootstrapModule, ScheduleModule.forRoot()],
@@ -41,7 +42,8 @@ import { ConfigurationService } from './service/configuration.service';
     SessionEventsCacheService,
     SchedulerService,
     ConfigurationService,
-    SettingsService
+    SettingsService,
+    FilterService
   ],
   controllers: [AppController, ActiveUserController, EventsController, SessionEventsController, PageViewController],
 })
