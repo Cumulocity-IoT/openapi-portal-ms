@@ -103,9 +103,23 @@ You can generate or preview these locally; see the "OpenAPI / API docs" section 
 ## OpenAPI / API docs
 
 - **Spec file shipped:** `docs/openapi.json` (OpenAPI v3.0.1) — a static spec covering the controllers in `src/api`.
-- **Generate / preview docs using Redocly CLI:** this repository includes `@redocly/cli` as a devDependency. After running `npm install` you can:
+- **Generate / preview docs using Redocly CLI:** this repository includes `@redocly/cli` as a devDependency. After running `pnpm install` you can:
   - Preview the docs locally: `npx @redocly/cli preview-docs docs/openapi.json`
   - Bundle into a single-file HTML (example): `npx @redocly/cli build-docs docs/openapi.json -o docs/index.html`
   - Inspect available commands: `npx @redocly/cli --help`
 
 If you prefer to generate the OpenAPI spec from the running app (automatic DTO/schema extraction), you can integrate `@nestjs/swagger` and emit a runtime spec instead of (or in addition to) the static `docs/openapi.json`.
+
+---
+
+## Contributing
+
+- Add new files to `.gitignore` as needed for local env files (`.env.local`), IDE settings, and platform-specific files (`.DS_Store`).
+- Run:
+  - `pnpm install`
+  - `pnpm run lint`
+  - `pnpm test`
+  - `pnpm run build`
+- Use the same naming and route patterns as existing modules under `src/api`, `src/cache`, and `src/service`.
+- Do not commit secrets in `.env` or code.
+

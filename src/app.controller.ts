@@ -1,5 +1,5 @@
-import { Controller, Get } from '@nestjs/common';
-import { SchedulerService } from './service/scheduler.service';
+import { Controller, Get } from "@nestjs/common";
+import { SchedulerService } from "./service/scheduler.service";
 
 @Controller()
 export class AppController {
@@ -7,14 +7,14 @@ export class AppController {
     this.scheduler.handleCron();
   }
 
-  @Get('/health')
+  @Get("/health")
   checkHealth() {
     return {
-      status: 'UP',
+      status: "UP",
     };
   }
 
-  @Get('/lastRun')
+  @Get("/lastRun")
   getLastRun() {
     return {
       lastRun: this.scheduler.lastRun,

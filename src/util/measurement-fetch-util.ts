@@ -1,4 +1,4 @@
-import { sub } from 'date-fns';
+import { sub } from "date-fns";
 
 export function datesForLast24Hours() {
   const now = new Date();

@@ -1,6 +1,6 @@
-import { get, groupBy, maxBy, meanBy, sortBy, round } from 'lodash';
-import { parseISO, startOfDay, startOfHour } from 'date-fns';
-import { IMeasurement } from '@c8y/client';
+import { get, groupBy, maxBy, meanBy, sortBy, round } from "lodash";
+import { parseISO, startOfDay, startOfHour } from "date-fns";
+import { IMeasurement } from "@c8y/client";
 
 export interface GroupedMeasurements {
   [key: string]: IMeasurement[]; // Key is the hour in 'YYYY-MM-DDTHH:00:00Z' format
@@ -32,8 +32,8 @@ function calculatAveragesForGrouping(
   grouped: GroupedMeasurements,
   datapoint: string,
 ): { time: string; value: number }[] {
-  if (!datapoint.includes('.')) {
-    throw new Error('Datapoint needs to contain fragment.series!');
+  if (!datapoint.includes(".")) {
+    throw new Error("Datapoint needs to contain fragment.series!");
   }
 
   const averages = Object.keys(grouped).map((time) => {
@@ -110,8 +110,8 @@ export function calculatePercentile(
   datapoint: string,
   percentile = 90,
 ): { value: number | undefined; time: string } {
-  if (!datapoint.includes('.')) {
-    throw new Error('Datapoint needs to contain fragment.series!');
+  if (!datapoint.includes(".")) {
+    throw new Error("Datapoint needs to contain fragment.series!");
   }
 
   if (!data.length) {
@@ -122,7 +122,7 @@ export function calculatePercentile(
     value: get(m, `${datapoint}.value`),
     time: get(m, `${datapoint}.time`),
   })) as { value: number | undefined; time: string }[];
-  const sortedValues = sortBy(values, 'value');
+  const sortedValues = sortBy(values, "value");
   const index = Math.ceil((percentile / 100) * sortedValues.length) - 1;
   const match = sortedValues[index];
   match.value = round(match.value, 2);

@@ -1,17 +1,17 @@
 import { SessionEventsController } from "./session-events.controller";
 
-describe('SessionEventsController.prepopulateDates (edge cases)', () => {
+describe("SessionEventsController.prepopulateDates (edge cases)", () => {
   let controller: SessionEventsController;
 
   beforeEach(() => {
     controller = new SessionEventsController({} as any);
   });
 
-  it('DAY timeframe with identical start and end returns single midnight bucket', () => {
-    const start = new Date('2025-11-01T10:20:30Z');
-    const end = new Date('2025-11-01T10:20:30Z');
+  it("DAY timeframe with identical start and end returns single midnight bucket", () => {
+    const start = new Date("2025-11-01T10:20:30Z");
+    const end = new Date("2025-11-01T10:20:30Z");
 
-    const map = (controller as any).prepopulateDates(start, end, 'DAY');
+    const map = (controller as any).prepopulateDates(start, end, "DAY");
     const keys = Object.keys(map).sort();
 
     const expected = new Date(start);
@@ -22,11 +22,11 @@ describe('SessionEventsController.prepopulateDates (edge cases)', () => {
     expect(map[keys[0]]).toBe(0);
   });
 
-  it('HOUR timeframe spanning multiple hours prepopulates each hour bucket inclusive', () => {
-    const start = new Date('2025-11-01T10:15:00Z');
-    const end = new Date('2025-11-01T12:45:00Z');
+  it("HOUR timeframe spanning multiple hours prepopulates each hour bucket inclusive", () => {
+    const start = new Date("2025-11-01T10:15:00Z");
+    const end = new Date("2025-11-01T12:45:00Z");
 
-    const map = (controller as any).prepopulateDates(start, end, 'HOUR');
+    const map = (controller as any).prepopulateDates(start, end, "HOUR");
     const keys = Object.keys(map).sort();
 
     const normalizeHour = (d: Date) => {
@@ -40,7 +40,11 @@ describe('SessionEventsController.prepopulateDates (edge cases)', () => {
 
     // count expected hours inclusive
     let expectedHours = 0;
-    for (let cur = new Date(normStart); cur <= normEnd; cur.setHours(cur.getHours() + 1)) {
+    for (
+      let cur = new Date(normStart);
+      cur <= normEnd;
+      cur.setHours(cur.getHours() + 1)
+    ) {
       expectedHours++;
     }
 
@@ -50,11 +54,11 @@ describe('SessionEventsController.prepopulateDates (edge cases)', () => {
     keys.forEach((k) => expect(map[k]).toBe(0));
   });
 
-  it('MINUTE timeframe spanning minutes prepopulates each minute bucket inclusive', () => {
-    const start = new Date('2025-11-01T10:15:20Z');
-    const end = new Date('2025-11-01T10:17:45Z');
+  it("MINUTE timeframe spanning minutes prepopulates each minute bucket inclusive", () => {
+    const start = new Date("2025-11-01T10:15:20Z");
+    const end = new Date("2025-11-01T10:17:45Z");
 
-    const map = (controller as any).prepopulateDates(start, end, 'MINUTE');
+    const map = (controller as any).prepopulateDates(start, end, "MINUTE");
     const keys = Object.keys(map).sort();
 
     const normalizeMinute = (d: Date) => {
@@ -67,7 +71,11 @@ describe('SessionEventsController.prepopulateDates (edge cases)', () => {
     const normEnd = normalizeMinute(end);
 
     let expectedMinutes = 0;
-    for (let cur = new Date(normStart); cur <= normEnd; cur.setMinutes(cur.getMinutes() + 1)) {
+    for (
+      let cur = new Date(normStart);
+      cur <= normEnd;
+      cur.setMinutes(cur.getMinutes() + 1)
+    ) {
       expectedMinutes++;
     }
 
@@ -77,11 +85,11 @@ describe('SessionEventsController.prepopulateDates (edge cases)', () => {
     keys.forEach((k) => expect(map[k]).toBe(0));
   });
 
-  it('returns single minute bucket when start is only seconds before end', () => {
-    const start = new Date('2025-11-01T10:00:00Z');
-    const end = new Date('2025-11-01T10:00:05Z');
+  it("returns single minute bucket when start is only seconds before end", () => {
+    const start = new Date("2025-11-01T10:00:00Z");
+    const end = new Date("2025-11-01T10:00:05Z");
 
-    const map = (controller as any).prepopulateDates(start, end, 'MINUTE');
+    const map = (controller as any).prepopulateDates(start, end, "MINUTE");
     const keys = Object.keys(map).sort();
 
     const expected = new Date(start);
@@ -92,11 +100,11 @@ describe('SessionEventsController.prepopulateDates (edge cases)', () => {
     expect(map[keys[0]]).toBe(0);
   });
 
-  it('returns single minute bucket when start equals end', () => {
-    const start = new Date('2025-11-01T10:00:30Z');
-    const end = new Date('2025-11-01T10:00:30Z');
+  it("returns single minute bucket when start equals end", () => {
+    const start = new Date("2025-11-01T10:00:30Z");
+    const end = new Date("2025-11-01T10:00:30Z");
 
-    const map = (controller as any).prepopulateDates(start, end, 'MINUTE');
+    const map = (controller as any).prepopulateDates(start, end, "MINUTE");
     const keys = Object.keys(map).sort();
 
     const expected = new Date(start);
@@ -107,11 +115,11 @@ describe('SessionEventsController.prepopulateDates (edge cases)', () => {
     expect(map[keys[0]]).toBe(0);
   });
 
-  it('returns empty map when start is after end', () => {
-    const start = new Date('2025-11-01T10:00:10Z');
-    const end = new Date('2025-11-01T10:00:05Z');
+  it("returns empty map when start is after end", () => {
+    const start = new Date("2025-11-01T10:00:10Z");
+    const end = new Date("2025-11-01T10:00:05Z");
 
-    const map = (controller as any).prepopulateDates(start, end, 'MINUTE');
+    const map = (controller as any).prepopulateDates(start, end, "MINUTE");
     expect(Object.keys(map).length).toBe(0);
   });
 });

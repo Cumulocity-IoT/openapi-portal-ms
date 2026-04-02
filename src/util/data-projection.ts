@@ -1,12 +1,12 @@
-import { get } from 'lodash'; // Using lodash.get makes deep access safe & easy
+import { get } from "lodash"; // Using lodash.get makes deep access safe & easy
 
 export function projectData(event: any, fields: string[]): any {
   // If no fields requested, return everything
   if (!fields || fields.length === 0) return event;
 
   const result: any = {};
-  
-  fields.forEach(field => {
+
+  fields.forEach((field) => {
     const value = get(event, field.trim());
     if (value !== undefined) {
       // We flatten the result key to avoid deep nesting in the response

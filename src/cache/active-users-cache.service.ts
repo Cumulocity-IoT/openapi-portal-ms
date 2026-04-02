@@ -1,7 +1,12 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { PXParams, User, UserFilter, UserSort } from '../model/gainsight-px.model';
-import { GainsightPxService } from '../service/gainsight-px.service';
-import { TreeCache } from './tree-cache.service';
+import { Injectable, Logger } from "@nestjs/common";
+import {
+  PXParams,
+  User,
+  UserFilter,
+  UserSort,
+} from "../model/gainsight-px.model";
+import { GainsightPxService } from "../service/gainsight-px.service";
+import { TreeCache } from "./tree-cache.service";
 
 @Injectable()
 export class ActiveUsersCacheService extends TreeCache<User> {
@@ -11,9 +16,15 @@ export class ActiveUsersCacheService extends TreeCache<User> {
 
   private readonly logger = new Logger(ActiveUsersCacheService.name);
 
-  createOrUpdateCache(start: string, end: string, domain: { id: string; url: string }): Promise<void> {
+  createOrUpdateCache(
+    start: string,
+    end: string,
+    domain: { id: string; url: string },
+  ): Promise<void> {
     const startDate = this.getStartDate(start, domain.id);
-    return this.getActiveUserMetricsDateRange(startDate, end, domain.url).then((users) => this.setCache(users, domain.id));
+    return this.getActiveUserMetricsDateRange(startDate, end, domain.url).then(
+      (users) => this.setCache(users, domain.id),
+    );
   }
 
   getDate(item: User): number {
@@ -43,7 +54,11 @@ export class ActiveUsersCacheService extends TreeCache<User> {
     return users;
   }
 
-  private async getActiveUserMetricsDateRange(start: string, end: string, url: string) {
+  private async getActiveUserMetricsDateRange(
+    start: string,
+    end: string,
+    url: string,
+  ) {
     let filter = `customAttributes.domainName==${url};`;
 
     const dateFrom = new Date(start);
@@ -52,9 +67,15 @@ export class ActiveUsersCacheService extends TreeCache<User> {
     const dateTo = new Date(end);
     filter += `lastSeenDate<${dateTo.getTime()};`;
 
-    const params: PXParams<UserFilter, UserSort> = { filter: filter as UserFilter, sort: 'lastSeenDate', pageSize: 1000 };
+    const params: PXParams<UserFilter, UserSort> = {
+      filter: filter as UserFilter,
+      sort: "lastSeenDate",
+      pageSize: 1000,
+    };
     const { users } = await this.api.getUsers(params);
-    this.logger.log(`Fetched ${users.length} active users for domain ${url} from ${start} to ${end}.`);
+    this.logger.log(
+      `Fetched ${users.length} active users for domain ${url} from ${start} to ${end}.`,
+    );
     return users;
   }
 }

@@ -21,7 +21,7 @@ export type ReducedEvent = {
   date: number;
   userId: string;
   sessionId: string;
-}
+};
 
 export type CustomEventsResponse = {
   customEvents: CustomEvent[];
@@ -38,7 +38,7 @@ export type SessionEvent = {
   globalContext: object[];
   remoteHost: string;
   inferredLocation: PXLocation;
-  userType: 'LEAD' | 'USER' | 'VISITOR' | 'EMPTY_USER_TYPE';
+  userType: "LEAD" | "USER" | "VISITOR" | "EMPTY_USER_TYPE";
 };
 
 export type SessionEventsResponse = {
@@ -120,7 +120,7 @@ export type User = {
   lastSeenDate: number;
   createDate: number;
   lastModifiedDate: number;
-  type: 'LEAD' | 'USER' | 'VISITOR' | 'EMPTY_USER_TYPE';
+  type: "LEAD" | "USER" | "VISITOR" | "EMPTY_USER_TYPE";
   title: string;
   phone: string;
   role: string;
@@ -159,13 +159,19 @@ export type Pagination = {
   scrollId: string;
   totalHits: number;
 };
-export type Operator = '==' | '!=' | '>' | '<' | '>=' | '<=' | '~' | '!~';
+export type Operator = "==" | "!=" | ">" | "<" | ">=" | "<=" | "~" | "!~";
 
-export type CustomEventFilter = `identifyId${Operator}${string}` | `eventName${Operator}${string}` | `date${Operator}${string}`;
-export type CustomEventSort = 'accountId' | '-accountId' | 'date' | '-date';
+export type CustomEventFilter =
+  | `identifyId${Operator}${string}`
+  | `eventName${Operator}${string}`
+  | `date${Operator}${string}`;
+export type CustomEventSort = "accountId" | "-accountId" | "date" | "-date";
 
-export type SessionEventFilter = `identifyId${Operator}${string}` | `accountId${Operator}${string}` | `date${Operator}${string}`;
-export type SessionEventSort = 'accountId' | '-accountId' | 'date' | '-date';
+export type SessionEventFilter =
+  | `identifyId${Operator}${string}`
+  | `accountId${Operator}${string}`
+  | `date${Operator}${string}`;
+export type SessionEventSort = "accountId" | "-accountId" | "date" | "-date";
 
 export type PageViewFilter =
   | `identifyId${Operator}${string}`
@@ -175,12 +181,22 @@ export type PageViewFilter =
   | `queryString${Operator}${string}`
   | `pageTitle${Operator}${string}`
   | `host${Operator}${string}`;
-export type PageViewSort = 'accountId' | '-accountId' | 'date' | '-date';
+export type PageViewSort = "accountId" | "-accountId" | "date" | "-date";
 
-export type IdentifyEventFilter = `identifyId${Operator}${string}` | `email${Operator}${string}` | `date${Operator}${string}`;
-export type IdentifyEventSort = 'accountId' | '-accountId' | 'date' | '-date';
+export type IdentifyEventFilter =
+  | `identifyId${Operator}${string}`
+  | `email${Operator}${string}`
+  | `date${Operator}${string}`;
+export type IdentifyEventSort = "accountId" | "-accountId" | "date" | "-date";
 
-export type CustomAttributes = 'userRoles' | 'instanceId' | 'domainName' | 'versionBE' | 'userName' | 'versionUI' | 'userLanguage';
+export type CustomAttributes =
+  | "userRoles"
+  | "instanceId"
+  | "domainName"
+  | "versionBE"
+  | "userName"
+  | "versionUI"
+  | "userLanguage";
 export type UserFilter =
   | `firstName${Operator}${string}`
   | `lastName${Operator}${string}`
@@ -189,7 +205,15 @@ export type UserFilter =
   | `location.${string}${Operator}${string}`
   | `lastInferredLocation.${string}${Operator}${string}`
   | `lastVisitedUserAgentData.${string}${Operator}${string}`;
-export type UserSort = 'firstName' | '-firstName' | 'lastName' | '-lastName' | 'createDate' | '-createDate' | 'lastSeenDate' | '-lastSeenDate';
+export type UserSort =
+  | "firstName"
+  | "-firstName"
+  | "lastName"
+  | "-lastName"
+  | "createDate"
+  | "-createDate"
+  | "lastSeenDate"
+  | "-lastSeenDate";
 
 export type PXParams<A, B> = {
   filter?: A;
@@ -204,10 +228,10 @@ export class Feature implements FeatureJSON {
   hierarchyPath?: string;
   id: string;
   name: string;
-  type: 'FEATURE' | 'MODULE';
+  type: "FEATURE" | "MODULE";
   parentFeatureId?: string;
   propertyKey: string;
-  status: 'ACTIVATED' | 'DELETED';
+  status: "ACTIVATED" | "DELETED";
   featureLabels: { id: string; name: string; color: string }[];
 
   constructor(feature: FeatureJSON) {
@@ -224,10 +248,10 @@ export class Feature implements FeatureJSON {
 export type FeatureJSON = {
   id: string;
   name: string;
-  type: 'FEATURE' | 'MODULE';
+  type: "FEATURE" | "MODULE";
   parentFeatureId?: string;
   propertyKey: string;
-  status: 'ACTIVATED' | 'DELETED';
+  status: "ACTIVATED" | "DELETED";
   featureLabels: { id: string; name: string; color: string }[];
 };
 

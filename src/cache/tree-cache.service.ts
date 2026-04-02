@@ -1,5 +1,5 @@
-import { Logger } from '@nestjs/common';
-import { Interval, IntervalTree } from 'node-interval-tree';
+import { Logger } from "@nestjs/common";
+import { Interval, IntervalTree } from "node-interval-tree";
 
 interface GenericInterval<T> extends Interval {
   item: T;
@@ -24,7 +24,7 @@ export abstract class TreeCache<T> {
   setCache(items: T[], tenantId: string) {
     const length = items?.length ?? 0;
     if (length === 0) {
-      this.getLogger().verbose('No items to add.');
+      this.getLogger().verbose("No items to add.");
       return;
     }
 
@@ -33,7 +33,9 @@ export abstract class TreeCache<T> {
     for (let i = 1; i < length; i++) {
       if (this.getDate(items[i]) < this.getDate(items[i - 1])) {
         isSorted = false;
-        this.getLogger().warn('Cache items must be sorted by date in ascending order!');
+        this.getLogger().warn(
+          "Cache items must be sorted by date in ascending order!",
+        );
         break;
       }
     }
@@ -45,7 +47,7 @@ export abstract class TreeCache<T> {
 
     this.setBounds(items, length, tenantId);
 
-    this.getLogger().log('Cache items count: ' + length);
+    this.getLogger().log("Cache items count: " + length);
     if (!this.cache.has(tenantId)) {
       this.cache.set(tenantId, new IntervalTree<GenericInterval<T>>());
     }
@@ -74,23 +76,29 @@ export abstract class TreeCache<T> {
   getCache(start: number, end: number, tenantId: string): T[] {
     // Check if range is completely outside cache bounds
     if (!tenantId || !this.bounds.has(tenantId)) {
-      this.getLogger().log('No cache for tenantId ' + tenantId);
+      this.getLogger().log("No cache for tenantId " + tenantId);
       return [];
     }
     const bounds = this.bounds.get(tenantId);
     if (start > this.getDate(bounds.newest)) {
-      this.getLogger().warn(`Start date param is more recent than the newest lastSeenDate in the cache. ${start} > ${this.getDate(bounds.newest)}`);
+      this.getLogger().warn(
+        `Start date param is more recent than the newest lastSeenDate in the cache. ${start} > ${this.getDate(bounds.newest)}`,
+      );
       return [];
     }
 
     if (end < this.getDate(bounds.oldest)) {
-      this.getLogger().warn(`End date param is older than the oldest lastSeenDate in the cache. ${end} < ${this.getDate(bounds.oldest)}`);
+      this.getLogger().warn(
+        `End date param is older than the oldest lastSeenDate in the cache. ${end} < ${this.getDate(bounds.oldest)}`,
+      );
       return [];
     }
 
     const tree = this.cache.get(tenantId);
     const results = tree.search(start, end);
-    this.getLogger().verbose(`Cache query from ${new Date(start).toISOString()} to ${new Date(end).toISOString()} returned ${results.length} items.`);
+    this.getLogger().verbose(
+      `Cache query from ${new Date(start).toISOString()} to ${new Date(end).toISOString()} returned ${results.length} items.`,
+    );
     return results.map((interval) => interval.item);
   }
 }

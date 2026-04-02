@@ -1,7 +1,12 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { PageView, PageViewFilter, PageViewSort, PXParams } from '../model/gainsight-px.model';
-import { GainsightPxService } from '../service/gainsight-px.service';
-import { TreeCache } from './tree-cache.service';
+import { Injectable, Logger } from "@nestjs/common";
+import {
+  PageView,
+  PageViewFilter,
+  PageViewSort,
+  PXParams,
+} from "../model/gainsight-px.model";
+import { GainsightPxService } from "../service/gainsight-px.service";
+import { TreeCache } from "./tree-cache.service";
 
 @Injectable()
 export class PageViewCacheService extends TreeCache<PageView> {
@@ -11,9 +16,15 @@ export class PageViewCacheService extends TreeCache<PageView> {
     super();
   }
 
-  createOrUpdateCache(start: string, end: string, domain: { id: string; url: string }): Promise<void> {
+  createOrUpdateCache(
+    start: string,
+    end: string,
+    domain: { id: string; url: string },
+  ): Promise<void> {
     const startDate = this.getStartDate(start, domain.id);
-    return this.getPageViews(startDate, end, domain.url).then((pageViews) => this.setCache(pageViews, domain.id));
+    return this.getPageViews(startDate, end, domain.url).then((pageViews) =>
+      this.setCache(pageViews, domain.id),
+    );
   }
 
   queryCache(start: string, end: string, tenantId: string): PageView[] {
@@ -32,17 +43,24 @@ export class PageViewCacheService extends TreeCache<PageView> {
   private async getPageViews(start: string, end: string, host: string) {
     const dateFrom = new Date(start);
     const dateTo = new Date(end);
-    const filter = `host==${host};date>${dateFrom.getTime()};date<${dateTo.getTime()};` as PageViewFilter;
+    const filter =
+      `host==${host};date>${dateFrom.getTime()};date<${dateTo.getTime()};` as PageViewFilter;
     const allPageViews = await this.getPageViewEventsWithPagination(filter, []);
-    this.logger.log(`Fetched ${allPageViews.length} page views for host ${host} from ${start} to ${end}.`);
+    this.logger.log(
+      `Fetched ${allPageViews.length} page views for host ${host} from ${start} to ${end}.`,
+    );
 
     return allPageViews;
   }
 
-  private async getPageViewEventsWithPagination(filter: PageViewFilter, sum: PageView[], scrollId?: string): Promise<PageView[]> {
+  private async getPageViewEventsWithPagination(
+    filter: PageViewFilter,
+    sum: PageView[],
+    scrollId?: string,
+  ): Promise<PageView[]> {
     const params = {
       filter,
-      sort: 'date',
+      sort: "date",
       pageSize: 1000,
       scrollId,
     } as PXParams<PageViewFilter, PageViewSort>;

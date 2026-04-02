@@ -135,18 +135,7 @@
         "responses": { "200": { "description": "Mail domain counts", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/MetricItem" } } } } } }
       }
     },
-    "/customEvents": {
-      "get": {
-        "tags": ["Events"],
-        "summary": "Custom events (service)",
-        "parameters": [
-          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
-          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
-          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" }
-        ],
-        "responses": { "200": { "description": "Custom events", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CustomEvent" } } } } } }
-      }
-    },
+
     "/eventCounts": {
       "get": {
         "tags": ["Events"],
@@ -196,18 +185,7 @@
         "responses": { "200": { "description": "Aggregated buckets", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Bucket" } } } } } }
       }
     },
-    "/pageViews": {
-      "get": {
-        "tags": ["PageView"],
-        "summary": "Page view events",
-        "parameters": [
-          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
-          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
-          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" }
-        ],
-        "responses": { "200": { "description": "Page view events", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/PageView" } } } } } }
-      }
-    },
+
     "/popularDevices": {
       "get": {
         "tags": ["PageView"],
@@ -230,6 +208,19 @@
           { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" }
         ],
         "responses": { "200": { "description": "Page view counts", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/SimpleCount" } } } } } }
+      }
+    },
+    "/countByType": {
+      "get": {
+        "tags": ["PageView"],
+        "summary": "Counts filtered by group/device/reports id",
+        "parameters": [
+          { "name": "type", "in": "query", "schema": { "type": "string", "enum": ["group","device","reports"] }, "required": true, "description": "Type of element to count" },
+          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
+          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
+          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" }
+        ],
+        "responses": { "200": { "description": "Counts for specified type", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/SimpleCount" } } } } } }
       }
     },
     "/events": {
