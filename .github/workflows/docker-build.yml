@@ -28,7 +28,7 @@ jobs:
         run: echo "BUILD_VERSION=$(jq -r .version package.json)" >> $GITHUB_ENV
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
         with:
           run_install: false
 
@@ -42,7 +42,7 @@ jobs:
           cat cumulocity.json | jq --arg version "${{ env.BUILD_VERSION }}" '.version = $version' > .tmp.json && mv .tmp.json cumulocity.json
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Build Docker image
         run: |

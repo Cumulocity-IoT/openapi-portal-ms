@@ -1,0 +1,9 @@
+Dockerfile
+.dockerignore
+node_modules
+npm-debug.log
+jest.config.js
+dist
+.tmp, mn
+*.zip
+*.tar
