@@ -13,7 +13,6 @@ on:
 
 env:
   NODE_VERSION: ${{ '24' }}
-  BUILD_VERSION: ${{ inputs.version || (startsWith(github.ref, 'refs/heads/release') && 'release') || github.sha }}
 
 jobs:
   build-microservices:
@@ -25,6 +24,9 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v6
 
+      - name: Resolve build version
+        run: echo "BUILD_VERSION=$(jq -r .version package.json)" >> $GITHUB_ENV
+
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
@@ -35,10 +37,6 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
-
-      - name: Set version
-        run: |
-          jq --arg version "${{ env.BUILD_VERSION }}" '.version = $version' package.json > .tmp.json && mv .tmp.json package.json
 
       - name: Align version in cumulocity.json
         run: |
