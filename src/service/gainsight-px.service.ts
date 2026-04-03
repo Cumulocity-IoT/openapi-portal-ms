@@ -1,6 +1,6 @@
-import { Injectable, Logger } from '@nestjs/common';
-import axios, { AxiosInstance } from 'axios';
-import { isNil, uniqBy } from 'lodash';
+import { Injectable, Logger } from "@nestjs/common";
+import axios, { AxiosInstance } from "axios";
+import { isNil, uniqBy } from "lodash";
 import {
   CustomEventsResponse,
   CustomEvent,
@@ -23,8 +23,8 @@ import {
   SessionEventFilter,
   SessionEventSort,
   SessionEventsResponse,
-} from '../model/gainsight-px.model';
-import { createHash } from 'crypto';
+} from "../model/gainsight-px.model";
+import { createHash } from "crypto";
 
 @Injectable()
 export class GainsightPxService {
@@ -33,21 +33,23 @@ export class GainsightPxService {
   readonly logger = new Logger(GainsightPxService.name);
 
   constructor(private apiKey: string) {
-    this.baseUrl = 'https://api.aptrinsic.com/v1/'; // Adjust if using a different data center
+    this.baseUrl = "https://api.aptrinsic.com/v1/"; // Adjust if using a different data center
     this.apiClient = axios.create({
       baseURL: this.baseUrl,
       headers: {
-        'X-APTRINSIC-API-KEY': this.apiKey,
-        Accept: 'application/json',
+        "X-APTRINSIC-API-KEY": this.apiKey,
+        Accept: "application/json",
       },
     });
   }
 
-  async getSessionEvents(parameters?: PXParams<SessionEventFilter, SessionEventSort>): Promise<SessionEventsResponse> {
+  async getSessionEvents(
+    parameters?: PXParams<SessionEventFilter, SessionEventSort>,
+  ): Promise<SessionEventsResponse> {
     try {
       const params = this.applyParams(parameters);
       this.logger.log(`GET /events/session, query: ${JSON.stringify(params)}`);
-      const response = await this.apiClient.get('/events/session', { params });
+      const response = await this.apiClient.get("/events/session", { params });
       return response.data;
     } catch (error) {
       this.logger.log(`ERROR: ${JSON.stringify(error)}`);
@@ -55,11 +57,13 @@ export class GainsightPxService {
     }
   }
 
-  async getCustomEvents(parameters?: PXParams<CustomEventFilter, CustomEventSort>): Promise<CustomEventsResponse> {
+  async getCustomEvents(
+    parameters?: PXParams<CustomEventFilter, CustomEventSort>,
+  ): Promise<CustomEventsResponse> {
     try {
       const params = this.applyParams(parameters);
       this.logger.log(`GET /events/custom, query: ${JSON.stringify(params)}`);
-      const response = await this.apiClient.get('/events/custom', { params });
+      const response = await this.apiClient.get("/events/custom", { params });
       return response.data;
     } catch (error) {
       this.logger.log(`ERROR: ${JSON.stringify(error)}`);
@@ -67,11 +71,13 @@ export class GainsightPxService {
     }
   }
 
-  async getPageViews(parameters?: PXParams<PageViewFilter, PageViewSort>): Promise<PageViewEventResponse> {
+  async getPageViews(
+    parameters?: PXParams<PageViewFilter, PageViewSort>,
+  ): Promise<PageViewEventResponse> {
     try {
       const params = this.applyParams(parameters);
       this.logger.log(`GET /events/pageView, query: ${JSON.stringify(params)}`);
-      const response = await this.apiClient.get('/events/pageView', { params });
+      const response = await this.apiClient.get("/events/pageView", { params });
       return response.data;
     } catch (error) {
       this.logger.log(`ERROR: ${JSON.stringify(error)}`);
@@ -79,11 +85,13 @@ export class GainsightPxService {
     }
   }
 
-  async getIdentifyId(parameters?: PXParams<IdentifyEventFilter, IdentifyEventSort>): Promise<IdentifyEventResponse> {
+  async getIdentifyId(
+    parameters?: PXParams<IdentifyEventFilter, IdentifyEventSort>,
+  ): Promise<IdentifyEventResponse> {
     try {
       const params = this.applyParams(parameters);
       this.logger.log(`GET /events/identify, query: ${JSON.stringify(params)}`);
-      const response = await this.apiClient.get('/events/identify', { params });
+      const response = await this.apiClient.get("/events/identify", { params });
       return response.data;
     } catch (error) {
       this.logger.log(`ERROR: ${JSON.stringify(error)}`);
@@ -93,17 +101,19 @@ export class GainsightPxService {
 
   async getFeatures(parameters?: FeaturePagination): Promise<FeaturesResponse> {
     const params = this.applyParams(parameters);
-    const response = await this.apiClient.get('/feature', { params });
+    const response = await this.apiClient.get("/feature", { params });
     return response.data;
   }
 
-  async getFeaturesV2(parameters?: FeaturePagination): Promise<FeaturesResponse> {
+  async getFeaturesV2(
+    parameters?: FeaturePagination,
+  ): Promise<FeaturesResponse> {
     const params = this.applyParams(parameters);
     const api = axios.create({
-      baseURL: 'https://api.aptrinsic.com/v2',
+      baseURL: "https://api.aptrinsic.com/v2",
       headers: {
-        'X-APTRINSIC-API-KEY': this.apiKey,
-        Accept: 'application/json',
+        "X-APTRINSIC-API-KEY": this.apiKey,
+        Accept: "application/json",
       },
     });
     const response = await api.get(`/feature_ext`, { params });
@@ -132,11 +142,13 @@ export class GainsightPxService {
     }
   }
 
-  async getUsers(parameters?: PXParams<UserFilter, UserSort>): Promise<UsersResponse> {
+  async getUsers(
+    parameters?: PXParams<UserFilter, UserSort>,
+  ): Promise<UsersResponse> {
     try {
       const params = this.applyParams(parameters);
       this.logger.log(`GET /users, query: ${JSON.stringify(params)}`);
-      const response = await this.apiClient.get('/users', { params });
+      const response = await this.apiClient.get("/users", { params });
       return response.data;
     } catch (error) {
       this.logger.log(`ERROR: ${JSON.stringify(error)}`);
@@ -169,7 +181,9 @@ export class GainsightPxService {
 
     for (const feature of featureClasses) {
       if (feature.parentFeatureId) {
-        const parent = featureClasses.find((f) => f.id === feature.parentFeatureId);
+        const parent = featureClasses.find(
+          (f) => f.id === feature.parentFeatureId,
+        );
         if (parent) {
           parent.children.push(feature);
           feature.parent = parent;
@@ -178,7 +192,7 @@ export class GainsightPxService {
     }
     for (const feature of featureClasses) {
       if (feature.parent) {
-        feature.hierarchyPath = this.calculateFeatureHierarchyPath(feature, featureClasses);
+        feature.hierarchyPath = this.calculateFeatureHierarchyPath(feature);
       }
     }
 
@@ -186,15 +200,27 @@ export class GainsightPxService {
     // filter out inactive features
     // workaround: allowlist of Tree data
     // make allow list configurable
-    const allowList = ['Header', 'Cockpit', 'Device Management', 'Administration'];
-    const rootModules = featureClasses.filter((feature) => feature.parentFeatureId == null && allowList.includes(feature.name));
-    const childFeatures = rootModules.flatMap((feature) => this.getActiveFeatures(feature));
+    const allowList = [
+      "Header",
+      "Cockpit",
+      "Device Management",
+      "Administration",
+    ];
+    const rootModules = featureClasses.filter(
+      (feature) =>
+        feature.parentFeatureId == null && allowList.includes(feature.name),
+    );
+    const childFeatures = rootModules.flatMap((feature) =>
+      this.getActiveFeatures(feature),
+    );
     for (const feature of childFeatures) {
       if (feature.parent) {
-        feature.hierarchyPath = this.calculateFeatureHierarchyPath(feature, featureClasses);
+        feature.hierarchyPath = this.calculateFeatureHierarchyPath(feature);
       }
     }
-    const names = childFeatures.map((feature) => `${this.shortHash(feature.hierarchyPath)}_${feature.name}`);
+    const names = childFeatures.map(
+      (feature) => `${this.shortHash(feature.hierarchyPath)}_${feature.name}`,
+    );
     // console.log('Child paths:', paths);
     // console.log('Too long names:', paths.filter((path) => path?.length > 40));
     const nameCounts = names.reduce(
@@ -202,10 +228,10 @@ export class GainsightPxService {
         acc[name] = (acc[name] || 0) + 1;
         return acc;
       },
-      {} as Record<string, number>
+      {} as Record<string, number>,
     );
 
-    console.log('Name counts:', nameCounts);
+    console.log("Name counts:", nameCounts);
     return res;
   }
 
@@ -216,14 +242,14 @@ export class GainsightPxService {
       if (child.children.length > 0) {
         features.push(...this.getActiveFeatures(child));
       }
-      if (child.type === 'FEATURE' && child.status === 'ACTIVATED') {
+      if (child.type === "FEATURE" && child.status === "ACTIVATED") {
         features.push(child);
       }
     }
     return features;
   }
 
-  private calculateFeatureHierarchyPath(feature: Feature, features: Feature[]) {
+  private calculateFeatureHierarchyPath(feature: Feature) {
     if (feature.parent) {
       feature.hierarchyPath = `${feature.parent}.${feature.name}`;
     } else {
@@ -233,7 +259,7 @@ export class GainsightPxService {
   }
 
   shortHash(input: string, length = 4): string {
-    const hash = createHash('sha256').update(input).digest(); // Strong, fast hash
+    const hash = createHash("sha256").update(input).digest(); // Strong, fast hash
     const num = hash.readUInt32BE(0); // Read first 4 bytes as a number
     return num.toString(36).slice(0, length); // Base36 for shorter output
   }
@@ -243,13 +269,15 @@ export class GainsightPxService {
     return response.data;
   }
 
-  async getAllCustomEvents(params: PXParams<CustomEventFilter, CustomEventSort>) {
+  async getAllCustomEvents(
+    params: PXParams<CustomEventFilter, CustomEventSort>,
+  ) {
     params.pageSize = 1000;
     const results: CustomEvent[] = [];
     let res = await this.getCustomEvents(params);
     results.push(...res.customEvents);
     let scrollId = res.scrollId;
-    console.log('First batch');
+    console.log("First batch");
     let page = 1;
     let hits = 1000;
     while (hits === 1000) {
@@ -261,12 +289,12 @@ export class GainsightPxService {
       hits = res.customEvents.length;
       console.log(`Hits ${hits}`);
     }
-    const ids = uniqBy(results, 'accountId').map((e) => e.accountId);
-    const match = ids.find((e) => e.includes('t140168379'));
+    const ids = uniqBy(results, "accountId").map((e) => e.accountId);
+    const match = ids.find((e) => e.includes("t140168379"));
     if (match) {
-      console.log('Found match:', match);
+      console.log("Found match:", match);
     } else {
-      console.log('No match found');
+      console.log("No match found");
     }
   }
 
@@ -282,7 +310,14 @@ export class GainsightPxService {
    * @param scrollId - (Optional) The scroll identifier for pagination.
    * @returns A promise that resolves to an array of filtered items accumulated from all pages.
    */
-  async getWithPagination<T>(fetchPage: (scrollId?: string) => Promise<{ items: T[]; scrollId?: string; pageSize?: number }>, sum: T[], rule: (item: T) => boolean, scrollId?: string): Promise<T[]> {
+  async getWithPagination<T>(
+    fetchPage: (
+      scrollId?: string,
+    ) => Promise<{ items: T[]; scrollId?: string; pageSize?: number }>,
+    sum: T[],
+    rule: (item: T) => boolean,
+    scrollId?: string,
+  ): Promise<T[]> {
     const res = await fetchPage(scrollId);
     const pageSize = res.pageSize ?? 100;
 

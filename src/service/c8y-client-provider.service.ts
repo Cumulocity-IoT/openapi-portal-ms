@@ -1,6 +1,8 @@
-import { BasicAuth, Client, ICredentials } from '@c8y/client';
-import { Injectable, Logger } from '@nestjs/common';
-import 'dotenv/config';
+import { BasicAuth, Client, ICredentials } from "@c8y/client";
+import { Injectable, Logger } from "@nestjs/common";
+import "dotenv/config";
+import { DevModeService } from "./dev-mode.service";
+import { C8yBootstrapService } from "./c8y-bootstrap.service";
 
 @Injectable()
 export class C8yClientProviderService {
@@ -16,7 +18,10 @@ export class C8yClientProviderService {
 
   private readonly logger = new Logger(C8yClientProviderService.name);
 
-  constructor() {
+  constructor(
+    private devModeService: DevModeService,
+    private bootstrapService: C8yBootstrapService,
+  ) {
     this.baseUrl = process.env.C8Y_BASEURL;
 
     this.tenant = process.env.C8Y_TENANT;
@@ -30,7 +35,7 @@ export class C8yClientProviderService {
 
   get client() {
     if (!this.user || !this.password) {
-      this.logger.error('No credentials available!');
+      this.logger.error("No credentials available!");
     }
 
     const tenant = this.tenant;
@@ -51,35 +56,61 @@ export class C8yClientProviderService {
   }
 
   getBootstrapClient() {
-    if (!this.bootstrapUser || !this.bootstrapPassword) {
-      this.logger.error('No Bootstrap credentials available!');
-    }
-    return Client.getMicroserviceSubscriptions(
-      {
-        tenant: this.bootstrapTenant,
-        user: this.bootstrapUser,
-        password: this.bootstrapPassword,
-      },
-      this.baseUrl,
-    ).then(
-      (users) => {
-        if (!users.length) {
-          return Promise.reject(
-            'Microservice gainsight-sync-ms is not subscribed!',
+    if (this.bootstrapUser && this.bootstrapPassword) {
+      return Client.getMicroserviceSubscriptions(
+        {
+          tenant: this.bootstrapTenant,
+          user: this.bootstrapUser,
+          password: this.bootstrapPassword,
+        },
+        this.baseUrl,
+      ).then(
+        (users) => {
+          if (!users.length) {
+            return Promise.reject(
+              "Microservice gainsight-sync-ms is not subscribed!",
+            );
+          }
+          const [user] = users;
+          return Client.authenticate(user, this.baseUrl);
+        },
+        (error) => {
+          this.logger.error(
+            "Failed to fetch microservice subscriptions",
+            error,
           );
-        }
-        const [user] = users;
-        return Client.authenticate(user, this.baseUrl);
-      },
-      (error) => {
-        this.logger.error('Failed to fetch microservice subscriptions', error);
-        return Promise.reject();
-      },
-    );
+          return Promise.reject();
+        },
+      );
+    } else if (this.devModeService.isDevModeEnabled()) {
+      return this.bootstrapService
+        .resolveBootstrapCredentials()
+        .then((ms) =>
+          Client.getMicroserviceSubscriptions(
+            {
+              tenant: ms.tenant,
+              user: ms.name,
+              password: ms.password,
+            },
+            this.baseUrl,
+          ),
+        )
+        .then((users) => {
+          if (!users.length) {
+            return Promise.reject(
+              "Microservice gainsight-sync-ms is not subscribed!",
+            );
+          }
+          const [user] = users;
+          return Client.authenticate(user, this.baseUrl);
+        });
+    } else {
+      return Promise.reject("No Bootstrap credentials available");
+    }
   }
 
   getUserClient(username: string, password: string): Promise<Client> {
-    const user:ICredentials = {
+    const user: ICredentials = {
       user: username,
       password: password,
       tenant: this.tenant,

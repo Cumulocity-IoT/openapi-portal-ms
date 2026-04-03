@@ -1,21 +1,23 @@
-import { Module } from '@nestjs/common';
-import { ScheduleModule } from '@nestjs/schedule';
-import { AppController } from './app.controller';
-import { C8yClientProviderService } from './service/c8y-client-provider.service';
-import { SettingsService } from './service/settings.service';
-import { GainsightPxService } from './service/gainsight-px.service';
-import { BootstrapModule } from './bootstrap.module';
-import { UserUtilityService } from './service/user-utility.service';
-import { ActiveUserController } from './api/active-users.controller';
-import { EventsController } from './api/custom-events.controller';
-import { SessionEventsController } from './api/session-events.controller';
-import { PageViewController } from './api/page-view.controller';
-import { SchedulerService } from './service/scheduler.service';
-import { ActiveUsersCacheService } from './cache/active-users-cache.service';
-import { CustomEventsCacheService } from './cache/custom-events-cache.service';
-import { PageViewCacheService } from './cache/page-view-cache.service';
-import { SessionEventsCacheService } from './cache/session-events-cache.service';
-import { ConfigurationService } from './service/configuration.service';
+import { Module } from "@nestjs/common";
+import { ScheduleModule } from "@nestjs/schedule";
+import { AppController } from "./app.controller";
+import { C8yClientProviderService } from "./service/c8y-client-provider.service";
+import { SettingsService } from "./service/settings.service";
+import { GainsightPxService } from "./service/gainsight-px.service";
+import { BootstrapModule } from "./bootstrap.module";
+import { UserUtilityService } from "./service/user-utility.service";
+import { ActiveUserController } from "./api/active-users.controller";
+import { EventsController } from "./api/custom-events.controller";
+import { SessionEventsController } from "./api/session-events.controller";
+import { PageViewController } from "./api/page-view.controller";
+import { SchedulerService } from "./service/scheduler.service";
+import { ActiveUsersCacheService } from "./cache/active-users-cache.service";
+import { CustomEventsCacheService } from "./cache/custom-events-cache.service";
+import { PageViewCacheService } from "./cache/page-view-cache.service";
+import { SessionEventsCacheService } from "./cache/session-events-cache.service";
+import { ConfigurationService } from "./service/configuration.service";
+import { FilterService } from "./service/filter.service";
+import { DevModeService } from "./service/dev-mode.service";
 
 @Module({
   imports: [BootstrapModule, ScheduleModule.forRoot()],
@@ -23,12 +25,20 @@ import { ConfigurationService } from './service/configuration.service';
     UserUtilityService,
     {
       provide: GainsightPxService,
-      useFactory: async (c8yClientProvider: C8yClientProviderService, settings: SettingsService) => {
+      useFactory: async (
+        c8yClientProvider: C8yClientProviderService,
+        settings: SettingsService,
+      ) => {
         const client = await c8yClientProvider.getBootstrapClient();
         settings.setClient(client);
-        const { data } = await settings.getTenantOption({ category: 'gainsight', key: 'api.key' });
+        const { data } = await settings.getTenantOption({
+          category: "gainsight",
+          key: "api.key",
+        });
         if (!data || !data.value) {
-          throw new Error('Gainsight PX API key is not configured. Please set the tenant option gainsight/api.key');
+          throw new Error(
+            "Gainsight PX API key is not configured. Please set the tenant option gainsight/api.key",
+          );
         }
         const service = new GainsightPxService(data.value!);
         return service;
@@ -41,8 +51,16 @@ import { ConfigurationService } from './service/configuration.service';
     SessionEventsCacheService,
     SchedulerService,
     ConfigurationService,
-    SettingsService
+    SettingsService,
+    FilterService,
+    DevModeService,
   ],
-  controllers: [AppController, ActiveUserController, EventsController, SessionEventsController, PageViewController],
+  controllers: [
+    AppController,
+    ActiveUserController,
+    EventsController,
+    SessionEventsController,
+    PageViewController,
+  ],
 })
 export class AppModule {}

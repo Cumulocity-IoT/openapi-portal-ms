@@ -1,9 +1,8 @@
-import { Injectable } from '@nestjs/common';
-import { User } from '../model/gainsight-px.model';
+import { Injectable } from "@nestjs/common";
+import { User } from "../model/gainsight-px.model";
 
 @Injectable()
 export class UserUtilityService {
-
   numberOfNewSignups(users: User[], startDate: string) {
     const start = new Date(startDate).getTime();
     const newSignups = users.filter((user) => user.signUpDate >= start);
@@ -17,7 +16,7 @@ export class UserUtilityService {
   topLanguages(users: User[]) {
     const counts: Record<string, number> = {};
     for (const user of users) {
-      const lang = user.customAttributes?.userLanguage || 'unknown';
+      const lang = user.customAttributes?.userLanguage || "unknown";
       counts[lang] = (counts[lang] ?? 0) + 1;
     }
     const total = users.length;
@@ -35,8 +34,8 @@ export class UserUtilityService {
     const counts: Record<string, number> = {};
     let allRolesCount = 0;
     for (const user of users) {
-      const roleString = user.customAttributes?.userRoles || 'unknown';
-      const roles = roleString.split(',').map((r) => r.trim());
+      const roleString = user.customAttributes?.userRoles || "unknown";
+      const roles = roleString.split(",").map((r) => r.trim());
       for (const role of roles) {
         counts[role] = (counts[role] ?? 0) + 1;
         allRolesCount++;
@@ -47,7 +46,10 @@ export class UserUtilityService {
       .map(([value, count]) => ({
         value,
         count,
-        percentage: allRolesCount > 0 ? Math.round((count / allRolesCount) * 10000) / 100 : 0,
+        percentage:
+          allRolesCount > 0
+            ? Math.round((count / allRolesCount) * 10000) / 100
+            : 0,
       }))
       .sort((a, b) => b.count - a.count);
     return roleCounts;
@@ -56,7 +58,7 @@ export class UserUtilityService {
   topCountries(users: User[]) {
     const counts: Record<string, number> = {};
     for (const user of users) {
-      const country = user.lastInferredLocation?.countryName || 'unknown';
+      const country = user.lastInferredLocation?.countryName || "unknown";
       counts[country] = (counts[country] ?? 0) + 1;
     }
     const total = users.length;
@@ -78,7 +80,7 @@ export class UserUtilityService {
         continue;
       }
       const [first] = lastVisitedUserAgentData;
-      const platform = first.userAgent?.platformType || 'unknown';
+      const platform = first.userAgent?.platformType || "unknown";
       counts[platform] = (counts[platform] ?? 0) + 1;
     }
     const total = users.length;
@@ -100,7 +102,7 @@ export class UserUtilityService {
         continue;
       }
       const [first] = lastVisitedUserAgentData;
-      const browser = first.userAgent?.browserType || 'unknown';
+      const browser = first.userAgent?.browserType || "unknown";
       counts[browser] = (counts[browser] ?? 0) + 1;
     }
     const total = users.length;
@@ -122,7 +124,7 @@ export class UserUtilityService {
         continue;
       }
       const [first] = lastVisitedUserAgentData;
-      const device = first.userAgent?.device || 'unknown';
+      const device = first.userAgent?.device || "unknown";
       counts[device] = (counts[device] ?? 0) + 1;
     }
     const total = users.length;
@@ -138,9 +140,9 @@ export class UserUtilityService {
 
   mailDomainNames(users: User[]) {
     const counts: Record<string, number> = {};
-    const usersWithDomain = users.filter((u) => u.email?.includes('@'));
+    const usersWithDomain = users.filter((u) => u.email?.includes("@"));
     for (const user of usersWithDomain) {
-      const domain = user.email.split('@')[1];
+      const domain = user.email.split("@")[1];
       counts[domain] = (counts[domain] ?? 0) + 1;
     }
     const total = usersWithDomain.length;

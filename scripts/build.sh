@@ -1,7 +1,7 @@
 #!/bin/bash
-docker build -t gainsight-sync-ms --platform linux/amd64 .
+DOCKER_BUILDKIT=1 docker buildx build --progress=plain --provenance=false --platform linux/amd64 --tag gainsight-sync-ms:local --load --target=production -f ./Dockerfile .
 rm -rf .tmp
 mkdir .tmp
-docker save gainsight-sync-ms > "image.tar"
+docker save gainsight-sync-ms:local > "image.tar"
 zip .tmp/gainsight-sync-ms cumulocity.json image.tar
 rm image.tar

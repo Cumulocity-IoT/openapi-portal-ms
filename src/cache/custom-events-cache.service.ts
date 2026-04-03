@@ -1,17 +1,27 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { GainsightPxService } from '../service/gainsight-px.service';
-import { CustomEvent, CustomEventFilter, CustomEventSort, PXParams, ReducedEvent } from '../model/gainsight-px.model';
-import { TreeCache } from './tree-cache.service';
+import { Injectable, Logger } from "@nestjs/common";
+import { GainsightPxService } from "../service/gainsight-px.service";
+import {
+  CustomEvent,
+  CustomEventFilter,
+  CustomEventSort,
+  PXParams,
+  ReducedEvent,
+} from "../model/gainsight-px.model";
+import { ChronoArrayCache } from "./chrono-array-cache.service";
 
 @Injectable()
-export class CustomEventsCacheService extends TreeCache<ReducedEvent> {
+export class CustomEventsCacheService extends ChronoArrayCache<ReducedEvent> {
   private logger: Logger = new Logger(CustomEventsCacheService.name);
 
   constructor(private api: GainsightPxService) {
     super();
   }
 
-  createOrUpdateCache(start: string, end: string, domain: { id: string; url: string }): Promise<void> {
+  createOrUpdateCache(
+    start: string,
+    end: string,
+    domain: { id: string; url: string },
+  ): Promise<void> {
     const startDate = this.getStartDate(start, domain.id);
     return this.getCustomEvents(startDate, end, domain.id).then((events) => {
       const reduced: ReducedEvent[] = events.map((e) => ({
@@ -38,7 +48,11 @@ export class CustomEventsCacheService extends TreeCache<ReducedEvent> {
     return this.getCache(startStamp, endStamp, tenantId);
   }
 
-  private async getCustomEvents(start: string, end: string, tenantId: string): Promise<CustomEvent[]> {
+  private async getCustomEvents(
+    start: string,
+    end: string,
+    tenantId: string,
+  ): Promise<CustomEvent[]> {
     let filter = `accountId~${tenantId}*;` as CustomEventFilter; // `accountId~t2700*;eventName==${eventName};` as CustomEventFilter;
     if (start) {
       const date = new Date(start);
@@ -49,12 +63,23 @@ export class CustomEventsCacheService extends TreeCache<ReducedEvent> {
       filter += `date<${date.getTime()};`;
     }
     const events = await this.getEventWithPagination(filter, []);
-    this.logger.log(`Fetched ${events.length} custom events for tenant ${tenantId} from ${start} to ${end}.`);
+    this.logger.log(
+      `Fetched ${events.length} custom events for tenant ${tenantId} from ${start} to ${end}.`,
+    );
     return events;
   }
 
-  private async getEventWithPagination(filter: CustomEventFilter, sum: CustomEvent[], scrollId?: string): Promise<CustomEvent[]> {
-    const params = { filter, sort: 'date', pageSize: 1000, scrollId } as PXParams<CustomEventFilter, CustomEventSort>;
+  private async getEventWithPagination(
+    filter: CustomEventFilter,
+    sum: CustomEvent[],
+    scrollId?: string,
+  ): Promise<CustomEvent[]> {
+    const params = {
+      filter,
+      sort: "date",
+      pageSize: 1000,
+      scrollId,
+    } as PXParams<CustomEventFilter, CustomEventSort>;
     const res = await this.api.getCustomEvents(params);
     sum.push(...res.customEvents);
     if (res.customEvents.length < 1000) {

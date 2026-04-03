@@ -1,19 +1,30 @@
-import { GainsightPxService } from '../service/gainsight-px.service';
-import { PXParams, SessionEvent, SessionEventFilter, SessionEventSort } from '../model/gainsight-px.model';
-import { Injectable, Logger } from '@nestjs/common';
-import { TreeCache } from './tree-cache.service';
+import { GainsightPxService } from "../service/gainsight-px.service";
+import {
+  PXParams,
+  SessionEvent,
+  SessionEventFilter,
+  SessionEventSort,
+} from "../model/gainsight-px.model";
+import { Injectable, Logger } from "@nestjs/common";
+import { ChronoArrayCache } from "./chrono-array-cache.service";
 
 @Injectable()
-export class SessionEventsCacheService extends TreeCache<SessionEvent> {
+export class SessionEventsCacheService extends ChronoArrayCache<SessionEvent> {
   private readonly logger = new Logger(SessionEventsCacheService.name);
 
   constructor(private api: GainsightPxService) {
     super();
   }
 
-  createOrUpdateCache(start: string, end: string, domain: { id: string, url: string}): Promise<void> {
+  createOrUpdateCache(
+    start: string,
+    end: string,
+    domain: { id: string; url: string },
+  ): Promise<void> {
     const startDate = this.getStartDate(start, domain.id);
-    return this.getSessionEvents(startDate, end, domain.id).then((events) => this.setCache(events, domain.id));
+    return this.getSessionEvents(startDate, end, domain.id).then((events) =>
+      this.setCache(events, domain.id),
+    );
   }
 
   queryCache(start: string, end: string, tenantId: string): SessionEvent[] {
@@ -33,14 +44,26 @@ export class SessionEventsCacheService extends TreeCache<SessionEvent> {
     const startDate = new Date(start);
     const endDate = end ? new Date(end) : new Date();
 
-    const filter = `accountId~${tenantId}*;date>${startDate.getTime()};date<${endDate.getTime()}` as SessionEventFilter;
+    const filter =
+      `accountId~${tenantId}*;date>${startDate.getTime()};date<${endDate.getTime()}` as SessionEventFilter;
     const allEvents = await this.getSessionEventsWithPagination(filter, []);
-    this.logger.log(`Fetched ${allEvents.length} session events for tenant ${tenantId} from ${start} to ${end}.`);
+    this.logger.log(
+      `Fetched ${allEvents.length} session events for tenant ${tenantId} from ${start} to ${end}.`,
+    );
     return allEvents;
   }
 
-  private async getSessionEventsWithPagination(filter: SessionEventFilter, sum: SessionEvent[], scrollId?: string): Promise<SessionEvent[]> {
-    const params = { filter, sort: 'date', pageSize: 1000, scrollId } as PXParams<SessionEventFilter, SessionEventSort>;
+  private async getSessionEventsWithPagination(
+    filter: SessionEventFilter,
+    sum: SessionEvent[],
+    scrollId?: string,
+  ): Promise<SessionEvent[]> {
+    const params = {
+      filter,
+      sort: "date",
+      pageSize: 1000,
+      scrollId,
+    } as PXParams<SessionEventFilter, SessionEventSort>;
     const res = await this.api.getSessionEvents(params);
 
     const events = res.sessionInitializedEvents;
