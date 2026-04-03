@@ -38,7 +38,7 @@ jobs:
 
       - name: Set version
         run: |
-          pnpm version "${{ env.BUILD_VERSION }}" --no-git-tag-version
+          jq --arg version "${{ env.BUILD_VERSION }}" '.version = $version' package.json > .tmp.json && mv .tmp.json package.json
 
       - name: Align version in cumulocity.json
         run: |
