@@ -1,5 +1,5 @@
 import { Logger } from "@nestjs/common";
-import { TTL_DAYS } from "src/app.model";
+import { TTL_DAYS } from "../app.model";
 
 export abstract class ChronoArrayCache<T> {
   cache = new Map<string, T[]>();

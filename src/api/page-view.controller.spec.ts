@@ -55,7 +55,7 @@ describe("PageViewController (empty input)", () => {
   });
 
   it("getPageViewCounts returns empty array and calls cache when cache resolves empty", async () => {
-    mockCacheService.queryCache.mockResolvedValue([]);
+    mockCacheService.queryCache.mockReturnValue([]);
     const res = await controller.getPageViewCounts(
       "2020-01-01",
       "2020-01-02",

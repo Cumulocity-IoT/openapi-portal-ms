@@ -151,12 +151,12 @@ describe("TreeCache – date range queries", () => {
 
   // ── TTL eviction (mocked time) ───────────────────────────────────────────────
 
-  it("evicts items older than 30 days on the next setCache call", () => {
-    const thirtyOneDaysMs = 31 * 24 * 60 * 60 * 1000;
+  it("evicts items older than 60 days on the next setCache call", () => {
+    const sixtyOneDaysMs = 61 * 24 * 60 * 60 * 1000;
     const now = Date.now();
 
     // Backfill a cache with one stale item and one fresh item
-    const staleTs = now - thirtyOneDaysMs;
+    const staleTs = now - sixtyOneDaysMs;
     const freshTs = now - 60_000;
     const staleTenant = "evict-test";
     cache.setCache(

@@ -30,7 +30,12 @@ jobs:
         run: |
           npm run build
 
-      # Step 5: Run test
+      # Step 5: Lint check
+      - name: Run Lint
+        run: |
+          npm run lint:ci
+
+      # Step 6: Run test
       - name: Run Tests
         run: |
           npm run test:ci
