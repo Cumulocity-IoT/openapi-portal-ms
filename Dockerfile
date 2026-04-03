@@ -72,7 +72,7 @@ COPY --chown=node:node --from=build /usr/src/app/dist ./dist
 
 ENV NODE_ENV=production
 ENV NO_COLOR=true
-ENV NODE_OPTIONS="--max-old-space-size=2048 --max-http-header-size=16384000"
+ENV NODE_OPTIONS="--max-old-space-size=3600 --max-http-header-size=16384000"
 USER node
 
 # Start the server using the production build
