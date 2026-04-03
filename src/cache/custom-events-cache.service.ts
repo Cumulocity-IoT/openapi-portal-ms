@@ -7,10 +7,10 @@ import {
   PXParams,
   ReducedEvent,
 } from "../model/gainsight-px.model";
-import { TreeCache } from "./tree-cache.service";
+import { ChronoArrayCache } from "./chrono-array-cache.service";
 
 @Injectable()
-export class CustomEventsCacheService extends TreeCache<ReducedEvent> {
+export class CustomEventsCacheService extends ChronoArrayCache<ReducedEvent> {
   private logger: Logger = new Logger(CustomEventsCacheService.name);
 
   constructor(private api: GainsightPxService) {

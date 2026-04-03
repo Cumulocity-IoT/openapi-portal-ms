@@ -6,10 +6,10 @@ import {
   SessionEventSort,
 } from "../model/gainsight-px.model";
 import { Injectable, Logger } from "@nestjs/common";
-import { TreeCache } from "./tree-cache.service";
+import { ChronoArrayCache } from "./chrono-array-cache.service";
 
 @Injectable()
-export class SessionEventsCacheService extends TreeCache<SessionEvent> {
+export class SessionEventsCacheService extends ChronoArrayCache<SessionEvent> {
   private readonly logger = new Logger(SessionEventsCacheService.name);
 
   constructor(private api: GainsightPxService) {

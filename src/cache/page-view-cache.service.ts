@@ -6,10 +6,10 @@ import {
   PXParams,
 } from "../model/gainsight-px.model";
 import { GainsightPxService } from "../service/gainsight-px.service";
-import { TreeCache } from "./tree-cache.service";
+import { ChronoArrayCache } from "./chrono-array-cache.service";
 
 @Injectable()
-export class PageViewCacheService extends TreeCache<PageView> {
+export class PageViewCacheService extends ChronoArrayCache<PageView> {
   private readonly logger = new Logger(PageViewCacheService.name);
 
   constructor(private api: GainsightPxService) {

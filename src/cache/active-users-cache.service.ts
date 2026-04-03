@@ -6,10 +6,10 @@ import {
   UserSort,
 } from "../model/gainsight-px.model";
 import { GainsightPxService } from "../service/gainsight-px.service";
-import { TreeCache } from "./tree-cache.service";
+import { ChronoArrayCache } from "./chrono-array-cache.service";
 
 @Injectable()
-export class ActiveUsersCacheService extends TreeCache<User> {
+export class ActiveUsersCacheService extends ChronoArrayCache<User> {
   constructor(private api: GainsightPxService) {
     super();
   }

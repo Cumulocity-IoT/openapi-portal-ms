@@ -1,5 +1,7 @@
 export const REQUIRED_PERMISSION = "ROLE_GAINSIGHT_READ";
 
+export const TTL_DAYS = 60; // 60 days
+
 import { z } from "zod";
 
 // Define the schema for the `value` field

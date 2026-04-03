@@ -12,10 +12,10 @@ import { PageViewCacheService } from "../cache/page-view-cache.service";
 import { SessionEventsCacheService } from "../cache/session-events-cache.service";
 import { ConfigurationService } from "./configuration.service";
 import { DevModeService } from "./dev-mode.service";
+import { TTL_DAYS } from "src/app.model";
 
 const EVERY_10_MINUTES = "*/10 * * * *";
 // const EVERY_HOUR = '0 * * * *';
-const TIMESPAN_DAYS = 60;
 @Injectable()
 export class SchedulerService {
   private readonly logger = new Logger(SchedulerService.name);
@@ -62,7 +62,7 @@ export class SchedulerService {
       };
     } else {
       timeRange = {
-        start: subDays(new Date(), TIMESPAN_DAYS).toISOString(),
+        start: subDays(new Date(), TTL_DAYS).toISOString(),
         end: new Date().toISOString(),
       };
     }
