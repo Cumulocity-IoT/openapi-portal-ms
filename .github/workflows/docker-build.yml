@@ -47,19 +47,15 @@ jobs:
 
       - name: Build Docker image
         run: |
-          DOCKER_BUILDKIT=1 docker buildx build --progress=plain --provenance=false \
-            --platform linux/amd64,linux/arm64 \
+          mkdir -p .tmp
+          DOCKER_BUILDKIT=1 docker build --squash --progress=plain \
             --tag gainsight-sync-ms:${{ env.BUILD_VERSION }} \
             --tag gainsight-sync-ms:latest \
-            --cache-from=type=local,src=/tmp/.buildx-cache \
-            --cache-to=type=local,dest=/tmp/.buildx-cache,mode=max \
-            --load \
             --target=production \
             -f ./Dockerfile .
 
       - name: Package image artifact
         run: |
-          mkdir -p .tmp
           docker save gainsight-sync-ms:${{ env.BUILD_VERSION }} > .tmp/image.tar
           cp cumulocity.json .tmp/cumulocity.json
           zip -j .tmp/gainsight-sync-ms-${{ env.BUILD_VERSION }}.zip .tmp/image.tar .tmp/cumulocity.json
