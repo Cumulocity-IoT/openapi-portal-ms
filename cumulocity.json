@@ -1,10 +1,12 @@
 {
   "apiVersion": "2",
   "name": "gainsight-sync-ms",
+  "description": "NestJS microservice that periodically pulls Gainsight PX data (every 10 mins), keeps that data in memory per tenant, and exposes simple GET endpoints to consume via e.g. Grafana.",
   "version": "0.1.18",
   "provider": {
     "name": "Cumulocity"
   },
+  "type": "MICROSERVICE",
   "isolation": "PER_TENANT",
   "roles": [
     "ROLE_GAINSIGHT_READ"
