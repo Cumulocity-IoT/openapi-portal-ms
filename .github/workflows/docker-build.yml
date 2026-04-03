@@ -36,7 +36,6 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
 
       - name: Align version in cumulocity.json
         run: |
@@ -47,18 +46,15 @@ jobs:
 
       - name: Build Docker image
         run: |
-          mkdir -p .tmp
           DOCKER_BUILDKIT=1 docker build --squash --progress=plain \
             --tag gainsight-sync-ms:${{ env.BUILD_VERSION }} \
             --tag gainsight-sync-ms:latest \
             --target=production \
             -f ./Dockerfile .
-
-      - name: Package image artifact
-        run: |
-          docker save gainsight-sync-ms:${{ env.BUILD_VERSION }} > .tmp/image.tar
-          cp cumulocity.json .tmp/cumulocity.json
-          zip -j .tmp/gainsight-sync-ms-${{ env.BUILD_VERSION }}.zip .tmp/image.tar .tmp/cumulocity.json
+          mkdir -p .tmp
+          docker save gainsight-sync-ms:${{ env.BUILD_VERSION }} > image.tar
+          zip .tmp/gainsight-sync-ms-${{ env.BUILD_VERSION }}.zip cumulocity.json image.tar
+          rm image.tar
 
       - name: Upload microservice artifact
         uses: actions/upload-artifact@v6
