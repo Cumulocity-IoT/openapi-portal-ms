@@ -15,14 +15,6 @@ export type CustomEvent = {
   globalContext: Record<string, any>;
 };
 
-export type ReducedEvent = {
-  name: string;
-  data: Record<string, any>;
-  date: number;
-  userId: string;
-  sessionId: string;
-};
-
 export type CustomEventsResponse = {
   customEvents: CustomEvent[];
 } & Pagination;
@@ -126,15 +118,17 @@ export type User = {
   role: string;
   accountId: string;
   customAttributes: CustomUserAttributes;
-  lastVisitedUserAgentData?: {
-    propertyKey: string;
-    userAgent: {
-      device: string;
-      platformType: string;
-      browserType: string;
-    };
-  }[];
+  lastVisitedUserAgentData?: LastVisitedUserAgentData[];
   lastInferredLocation: PXLocation;
+};
+
+export type LastVisitedUserAgentData = {
+  propertyKey: string;
+  userAgent: {
+    device: string;
+    platformType: string;
+    browserType: string;
+  };
 };
 
 export type CustomUserAttributes = {

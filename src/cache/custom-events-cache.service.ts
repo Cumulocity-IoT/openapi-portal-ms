@@ -5,12 +5,15 @@ import {
   CustomEventFilter,
   CustomEventSort,
   PXParams,
-  ReducedEvent,
 } from "../model/gainsight-px.model";
 import { ChronoArrayCache } from "./chrono-array-cache.service";
+import {
+  CachedEvent,
+  mapCustomEventsToCachedEvents,
+} from "../model/cache-model";
 
 @Injectable()
-export class CustomEventsCacheService extends ChronoArrayCache<ReducedEvent> {
+export class CustomEventsCacheService extends ChronoArrayCache<CachedEvent> {
   private logger: Logger = new Logger(CustomEventsCacheService.name);
 
   constructor(private api: GainsightPxService) {
@@ -24,25 +27,19 @@ export class CustomEventsCacheService extends ChronoArrayCache<ReducedEvent> {
   ): Promise<void> {
     const startDate = this.getStartDate(start, domain.id);
     return this.getCustomEvents(startDate, end, domain.id).then((events) => {
-      const reduced: ReducedEvent[] = events.map((e) => ({
-        name: e.eventName,
-        data: e.attributes,
-        date: e.date,
-        userId: e.identifyId,
-        sessionId: e.sessionId,
-      }));
-      this.setCache(reduced, domain.id);
+      const cachedEvents = mapCustomEventsToCachedEvents(events);
+      this.setCache(cachedEvents, domain.id);
     });
   }
 
-  getDate(item: ReducedEvent): number {
+  getDate(item: CachedEvent): number {
     return item.date;
   }
   getLogger(): Logger {
     return this.logger;
   }
 
-  queryCache(start: string, end: string, tenantId: string): ReducedEvent[] {
+  queryCache(start: string, end: string, tenantId: string): CachedEvent[] {
     const startStamp = new Date(start).getTime();
     const endStamp = new Date(end).getTime();
     return this.getCache(startStamp, endStamp, tenantId);
@@ -53,7 +50,7 @@ export class CustomEventsCacheService extends ChronoArrayCache<ReducedEvent> {
     end: string,
     tenantId: string,
   ): Promise<CustomEvent[]> {
-    let filter = `accountId~${tenantId}*;` as CustomEventFilter; // `accountId~t2700*;eventName==${eventName};` as CustomEventFilter;
+    let filter = `accountId~${tenantId}*;` as CustomEventFilter; // `accountId~t1234*;eventName==${eventName};` as CustomEventFilter;
     if (start) {
       const date = new Date(start);
       filter += `date>${date.getTime()};`;

@@ -6,18 +6,23 @@ import { SettingsService } from "./service/settings.service";
 import { GainsightPxService } from "./service/gainsight-px.service";
 import { BootstrapModule } from "./bootstrap.module";
 import { UserUtilityService } from "./service/user-utility.service";
-import { ActiveUserController } from "./api/active-users.controller";
-import { EventsController } from "./api/custom-events.controller";
-import { SessionEventsController } from "./api/session-events.controller";
-import { PageViewController } from "./api/page-view.controller";
+import { ActiveUserController } from "./api/v1/active-users.controller";
+import { EventsController } from "./api/v1/custom-events.controller";
+import { SessionEventsController } from "./api/v1/session-events.controller";
+import { PageViewController } from "./api/v1/page-view.controller";
+import { ActiveUserControllerV2 } from "./api/v2/active-users-v2.controller";
+import { EventsControllerV2 } from "./api/v2/custom-events-v2.controller";
+import { PageViewControllerV2 } from "./api/v2/page-view-v2.controller";
+import { SessionEventsControllerV2 } from "./api/v2/session-events-v2.controller";
 import { SchedulerService } from "./service/scheduler.service";
 import { ActiveUsersCacheService } from "./cache/active-users-cache.service";
 import { CustomEventsCacheService } from "./cache/custom-events-cache.service";
 import { PageViewCacheService } from "./cache/page-view-cache.service";
 import { SessionEventsCacheService } from "./cache/session-events-cache.service";
 import { ConfigurationService } from "./service/configuration.service";
-import { FilterService } from "./service/filter.service";
 import { DevModeService } from "./service/dev-mode.service";
+import { LlmController } from "./api/ai/llm.controller";
+import { OpenApiDocumentService } from "./api/ai/openapi-document.service";
 
 @Module({
   imports: [BootstrapModule, ScheduleModule.forRoot()],
@@ -52,8 +57,8 @@ import { DevModeService } from "./service/dev-mode.service";
     SchedulerService,
     ConfigurationService,
     SettingsService,
-    FilterService,
     DevModeService,
+    OpenApiDocumentService,
   ],
   controllers: [
     AppController,
@@ -61,6 +66,11 @@ import { DevModeService } from "./service/dev-mode.service";
     EventsController,
     SessionEventsController,
     PageViewController,
+    ActiveUserControllerV2,
+    EventsControllerV2,
+    PageViewControllerV2,
+    SessionEventsControllerV2,
+    LlmController,
   ],
 })
 export class AppModule {}

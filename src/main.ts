@@ -1,6 +1,10 @@
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import { NoColorLogger } from "./logger/no-color.logger";
+import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+import * as fs from "fs";
+import { version } from "../package.json";
+import { OpenApiDocumentService } from "./api/ai/openapi-document.service";
 
 async function bootstrap() {
   // Use a logger that strips ANSI colors so logs are plain text (no color codes).
@@ -38,8 +42,38 @@ async function bootstrap() {
     }
   }
 
+  if (process.env.GENERATE_API_DOCS === "true") {
+    const config = new DocumentBuilder()
+      .setTitle("Gainsight Sync Microservice API")
+      .setDescription(
+        "A NestJS microservice that periodically pulls Gainsight PX telemetry " +
+          "(custom events, session events, page views, active-user metrics) from configured tenant domains, " +
+          "caches the data in memory per tenant using a date-sorted array with binary-search range queries, " +
+          "and exposes REST endpoints consumed by dashboards such as Grafana.\n\n" +
+          "All data endpoints require `Authorization: Basic <base64(user:password)>` and a `tenantId` query parameter. " +
+          "Public endpoints: `/health`, `/lastRun`, `/llms.txt`, `/llms-full.txt`.\n\n" +
+          "Interactive docs: https://gainsight.eu-latest.cumulocity.com/apps/gainsight-c8y-openapi/index.html",
+      )
+      .setVersion(version)
+      .addBearerAuth()
+      .build();
+
+    const document = SwaggerModule.createDocument(app, config);
+
+    fs.writeFileSync("./docs/openapi.json", JSON.stringify(document, null, 2));
+    console.log("✅ OpenAPI JSON generated successfully at ./openapi.json");
+
+    await app.close();
+    process.exit(0); // Exit the process immediately
+  }
+
   const isDevMode = process.env.DEV_MODE === "true";
   const port = process.env.PORT || (isDevMode ? 8080 : 80);
+
+  // Wire the live app instance into the service so /openapi.json can be
+  // generated lazily on first request and cached thereafter.
+  const openApiDocument = app.get(OpenApiDocumentService);
+  openApiDocument.setApp(app);
 
   // Ensure common levels are enabled
   app.useLogger(["log", "error", "warn", "debug", "verbose"]);

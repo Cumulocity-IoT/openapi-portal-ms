@@ -1,22 +1,22 @@
 import { Injectable } from "@nestjs/common";
-import { User } from "../model/gainsight-px.model";
+import { CachedUser } from "../model/cache-model";
 
 @Injectable()
 export class UserUtilityService {
-  numberOfNewSignups(users: User[], startDate: string) {
+  numberOfNewSignups(users: CachedUser[], startDate: string) {
     const start = new Date(startDate).getTime();
     const newSignups = users.filter((user) => user.signUpDate >= start);
     return { count: newSignups.length };
   }
 
-  numberOfUsers(users: User[]) {
+  numberOfUsers(users: CachedUser[]) {
     return { count: users.length };
   }
 
-  topLanguages(users: User[]) {
+  topLanguages(users: CachedUser[]) {
     const counts: Record<string, number> = {};
     for (const user of users) {
-      const lang = user.customAttributes?.userLanguage || "unknown";
+      const lang = user.attrs?.userLanguage || "unknown";
       counts[lang] = (counts[lang] ?? 0) + 1;
     }
     const total = users.length;
@@ -30,11 +30,11 @@ export class UserUtilityService {
     return languageCounts;
   }
 
-  topUserRoles(users: User[]) {
+  topUserRoles(users: CachedUser[]) {
     const counts: Record<string, number> = {};
     let allRolesCount = 0;
     for (const user of users) {
-      const roleString = user.customAttributes?.userRoles || "unknown";
+      const roleString = user.attrs?.userRoles || "unknown";
       const roles = roleString.split(",").map((r) => r.trim());
       for (const role of roles) {
         counts[role] = (counts[role] ?? 0) + 1;
@@ -55,10 +55,10 @@ export class UserUtilityService {
     return roleCounts;
   }
 
-  topCountries(users: User[]) {
+  topCountries(users: CachedUser[]) {
     const counts: Record<string, number> = {};
     for (const user of users) {
-      const country = user.lastInferredLocation?.countryName || "unknown";
+      const country = user.location?.countryName || "unknown";
       counts[country] = (counts[country] ?? 0) + 1;
     }
     const total = users.length;
@@ -72,14 +72,14 @@ export class UserUtilityService {
     return countryCounts;
   }
 
-  topPlatforms(users: User[]) {
+  topPlatforms(users: CachedUser[]) {
     const counts: Record<string, number> = {};
     for (const user of users) {
-      const lastVisitedUserAgentData = user.lastVisitedUserAgentData;
-      if (!lastVisitedUserAgentData || lastVisitedUserAgentData.length === 0) {
+      const agent = user.agent;
+      if (!agent || agent.length === 0) {
         continue;
       }
-      const [first] = lastVisitedUserAgentData;
+      const [first] = agent;
       const platform = first.userAgent?.platformType || "unknown";
       counts[platform] = (counts[platform] ?? 0) + 1;
     }
@@ -94,14 +94,14 @@ export class UserUtilityService {
     return platformCounts;
   }
 
-  topBrowsers(users: User[]) {
+  topBrowsers(users: CachedUser[]) {
     const counts: Record<string, number> = {};
     for (const user of users) {
-      const lastVisitedUserAgentData = user.lastVisitedUserAgentData;
-      if (!lastVisitedUserAgentData || lastVisitedUserAgentData.length === 0) {
+      const agent = user.agent;
+      if (!agent || agent.length === 0) {
         continue;
       }
-      const [first] = lastVisitedUserAgentData;
+      const [first] = agent;
       const browser = first.userAgent?.browserType || "unknown";
       counts[browser] = (counts[browser] ?? 0) + 1;
     }
@@ -116,14 +116,14 @@ export class UserUtilityService {
     return browserCounts;
   }
 
-  topDeviceTypes(users: User[]) {
+  topDeviceTypes(users: CachedUser[]) {
     const counts: Record<string, number> = {};
     for (const user of users) {
-      const lastVisitedUserAgentData = user.lastVisitedUserAgentData;
-      if (!lastVisitedUserAgentData || lastVisitedUserAgentData.length === 0) {
+      const agent = user.agent;
+      if (!agent || agent.length === 0) {
         continue;
       }
-      const [first] = lastVisitedUserAgentData;
+      const [first] = agent;
       const device = first.userAgent?.device || "unknown";
       counts[device] = (counts[device] ?? 0) + 1;
     }
@@ -138,7 +138,7 @@ export class UserUtilityService {
     return deviceCounts;
   }
 
-  mailDomainNames(users: User[]) {
+  mailDomainNames(users: CachedUser[]) {
     const counts: Record<string, number> = {};
     const usersWithDomain = users.filter((u) => u.email?.includes("@"));
     for (const user of usersWithDomain) {

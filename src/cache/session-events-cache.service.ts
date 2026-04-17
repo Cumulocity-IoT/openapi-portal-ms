@@ -7,9 +7,13 @@ import {
 } from "../model/gainsight-px.model";
 import { Injectable, Logger } from "@nestjs/common";
 import { ChronoArrayCache } from "./chrono-array-cache.service";
+import {
+  CachedSessionEvent,
+  mapSessionEventsToCachedSessionEvents,
+} from "../model/cache-model";
 
 @Injectable()
-export class SessionEventsCacheService extends ChronoArrayCache<SessionEvent> {
+export class SessionEventsCacheService extends ChronoArrayCache<CachedSessionEvent> {
   private readonly logger = new Logger(SessionEventsCacheService.name);
 
   constructor(private api: GainsightPxService) {
@@ -22,18 +26,23 @@ export class SessionEventsCacheService extends ChronoArrayCache<SessionEvent> {
     domain: { id: string; url: string },
   ): Promise<void> {
     const startDate = this.getStartDate(start, domain.id);
-    return this.getSessionEvents(startDate, end, domain.id).then((events) =>
-      this.setCache(events, domain.id),
-    );
+    return this.getSessionEvents(startDate, end, domain.id).then((events) => {
+      const cachedEvents = mapSessionEventsToCachedSessionEvents(events);
+      this.setCache(cachedEvents, domain.id);
+    });
   }
 
-  queryCache(start: string, end: string, tenantId: string): SessionEvent[] {
+  queryCache(
+    start: string,
+    end: string,
+    tenantId: string,
+  ): CachedSessionEvent[] {
     const startStamp = new Date(start).getTime();
     const endStamp = new Date(end).getTime();
     return this.getCache(startStamp, endStamp, tenantId);
   }
 
-  getDate(item: SessionEvent): number {
+  getDate(item: CachedSessionEvent): number {
     return item.date;
   }
   getLogger(): Logger {
