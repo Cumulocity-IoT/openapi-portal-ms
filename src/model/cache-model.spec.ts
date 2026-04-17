@@ -58,7 +58,11 @@ describe("mapCustomEventsToCachedEvents", () => {
   });
 
   it("maps multiple events", () => {
-    const second: CustomEvent = { ...event, eventName: "PageLoad", identifyId: "iid-002" };
+    const second: CustomEvent = {
+      ...event,
+      eventName: "PageLoad",
+      identifyId: "iid-002",
+    };
     const result = mapCustomEventsToCachedEvents([event, second]);
     expect(result).toHaveLength(2);
     expect(result[1].name).toBe("PageLoad");
@@ -100,7 +104,11 @@ describe("mapUsersToCachedUsers", () => {
     lastVisitedUserAgentData: [
       {
         propertyKey: "prop-key",
-        userAgent: { device: "desktop", platformType: "web", browserType: "chrome" },
+        userAgent: {
+          device: "desktop",
+          platformType: "web",
+          browserType: "chrome",
+        },
       },
     ],
     lastInferredLocation: location,
@@ -167,12 +175,12 @@ describe("mapPageViewsToCachedPageViews", () => {
     expect(result.screenWidth).toBe(1440);
     expect(result.languages).toEqual(["en-US"]);
     expect(result.pageTitle).toBe("Dashboard");
-    expect(result.id).toBe("evt-pv-001");       // eventId → id
-    expect(result.iId).toBe("iid-001");          // identifyId → iId
+    expect(result.id).toBe("evt-pv-001"); // eventId → id
+    expect(result.iId).toBe("iid-001"); // identifyId → iId
     expect(result.propertyKey).toBe("prop-key");
     expect(result.date).toBe(1_700_000_000_000);
     expect(result.eventType).toBe("PAGE_VIEW");
-    expect(result.sId).toBe("sid-001");          // sessionId → sId
+    expect(result.sId).toBe("sid-001"); // sessionId → sId
     expect(result.userType).toBe("USER");
     expect(result.accountId).toBe("acc-001");
     expect(result.globalContext).toEqual([{ key: "value" }]);
@@ -200,16 +208,16 @@ describe("mapSessionEventsToCachedSessionEvents", () => {
 
   it("maps all fields correctly", () => {
     const [result] = mapSessionEventsToCachedSessionEvents([sessionEvent]);
-    expect(result.id).toBe("evt-se-001");        // eventId → id
-    expect(result.iId).toBe("iid-001");          // identifyId → iId
+    expect(result.id).toBe("evt-se-001"); // eventId → id
+    expect(result.iId).toBe("iid-001"); // identifyId → iId
     expect(result.propertyKey).toBe("prop-key");
     expect(result.date).toBe(1_700_000_000_000);
     expect(result.eventType).toBe("SESSION_STARTED");
-    expect(result.sId).toBe("sid-001");          // sessionId → sId
-    expect(result.aId).toBe("acc-001");          // accountId → aId
+    expect(result.sId).toBe("sid-001"); // sessionId → sId
+    expect(result.aId).toBe("acc-001"); // accountId → aId
     expect(result.globalContext).toEqual([{ ctx: true }]);
     expect(result.remoteHost).toBe("10.0.0.3");
-    expect(result.location).toEqual(location);   // inferredLocation → location
+    expect(result.location).toEqual(location); // inferredLocation → location
     expect(result.userType).toBe("VISITOR");
   });
 
@@ -218,8 +226,15 @@ describe("mapSessionEventsToCachedSessionEvents", () => {
   });
 
   it("maps multiple session events", () => {
-    const second: SessionEvent = { ...sessionEvent, eventId: "evt-se-002", identifyId: "iid-002" };
-    const result = mapSessionEventsToCachedSessionEvents([sessionEvent, second]);
+    const second: SessionEvent = {
+      ...sessionEvent,
+      eventId: "evt-se-002",
+      identifyId: "iid-002",
+    };
+    const result = mapSessionEventsToCachedSessionEvents([
+      sessionEvent,
+      second,
+    ]);
     expect(result).toHaveLength(2);
     expect(result[1].id).toBe("evt-se-002");
     expect(result[1].iId).toBe("iid-002");

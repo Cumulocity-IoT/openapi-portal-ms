@@ -1,7 +1,9 @@
 import { PageViewControllerV2 } from "./page-view-v2.controller";
 import { CachedPageView } from "../../model/cache-model";
 
-const makePageView = (overrides: Partial<CachedPageView> = {}): CachedPageView => ({
+const makePageView = (
+  overrides: Partial<CachedPageView> = {},
+): CachedPageView => ({
   id: "pv-1",
   iId: "identify-1",
   sId: "session-1",

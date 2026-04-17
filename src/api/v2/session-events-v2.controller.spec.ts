@@ -29,11 +29,7 @@ describe("SessionEventsControllerV2", () => {
 
   describe("getSessionsV2 — empty cache", () => {
     it("returns empty array and calls queryCache with correct args", () => {
-      const result = controller.getSessionsV2(
-        "2024-01-01",
-        "2024-01-02",
-        "t1",
-      );
+      const result = controller.getSessionsV2("2024-01-01", "2024-01-02", "t1");
       expect(result).toEqual([]);
       expect(mockCache.queryCache).toHaveBeenCalledWith(
         "2024-01-01",
@@ -126,11 +122,7 @@ describe("SessionEventsControllerV2", () => {
         makeSessionEvent({ id: "se-a" }),
         makeSessionEvent({ id: "se-b" }),
       ]);
-      const result = controller.getSessionsV2(
-        "2024-01-01",
-        "2024-01-02",
-        "t1",
-      );
+      const result = controller.getSessionsV2("2024-01-01", "2024-01-02", "t1");
       expect(result).toHaveLength(2);
     });
   });
@@ -140,11 +132,7 @@ describe("SessionEventsControllerV2", () => {
       mockCache.queryCache.mockImplementation(() => {
         throw new Error("cache failure");
       });
-      const result = controller.getSessionsV2(
-        "2024-01-01",
-        "2024-01-02",
-        "t1",
-      );
+      const result = controller.getSessionsV2("2024-01-01", "2024-01-02", "t1");
       expect(result).toEqual([]);
     });
   });

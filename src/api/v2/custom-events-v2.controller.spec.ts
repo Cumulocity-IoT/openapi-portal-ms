@@ -1,7 +1,9 @@
 import { EventsControllerV2 } from "./custom-events-v2.controller";
 import { CachedEvent } from "../../model/cache-model";
 
-const makeCachedEvent = (overrides: Partial<CachedEvent> = {}): CachedEvent => ({
+const makeCachedEvent = (
+  overrides: Partial<CachedEvent> = {},
+): CachedEvent => ({
   name: "buttonClick",
   data: { widgetName: "myWidget", attributes: { size: "large" } },
   date: new Date("2024-01-15T10:00:00Z").getTime(),
@@ -65,7 +67,10 @@ describe("EventsControllerV2", () => {
         );
         expect(result.name).toBe("buttonClick");
         expect(result.date).toBe("2024-01-15T10:00:00.000Z");
-        expect(result.data).toEqual({ widgetName: "myWidget", attributes: { size: "large" } });
+        expect(result.data).toEqual({
+          widgetName: "myWidget",
+          attributes: { size: "large" },
+        });
       });
 
       it("projects only requested top-level fields, always includes name", () => {
@@ -126,11 +131,7 @@ describe("EventsControllerV2", () => {
           makeCachedEvent({ name: "hover" }),
           makeCachedEvent({ name: "focus" }),
         ]);
-        const result = controller.getEventsV2(
-          "2024-01-01",
-          "2024-01-02",
-          "t1",
-        );
+        const result = controller.getEventsV2("2024-01-01", "2024-01-02", "t1");
         expect(result).toHaveLength(3);
       });
     });
@@ -140,11 +141,7 @@ describe("EventsControllerV2", () => {
         mockCache.queryCache.mockImplementation(() => {
           throw new Error("cache failure");
         });
-        const result = controller.getEventsV2(
-          "2024-01-01",
-          "2024-01-02",
-          "t1",
-        );
+        const result = controller.getEventsV2("2024-01-01", "2024-01-02", "t1");
         expect(result).toEqual([]);
       });
     });
@@ -188,7 +185,13 @@ describe("EventsControllerV2", () => {
       it("excludes events that start with 'customEvent' but lack required data fields", () => {
         mockCache.queryCache.mockReturnValue([
           makeCustomerEvent("customEventButtonClick"),
-          { name: "customEventBad", data: { foo: "bar" }, date: 0, iId: "x", sId: "y" },
+          {
+            name: "customEventBad",
+            data: { foo: "bar" },
+            date: 0,
+            iId: "x",
+            sId: "y",
+          },
         ]);
         const result = controller.getCustomerEventsV2(
           "2024-01-01",
