@@ -1,15 +1,11 @@
 import { Injectable, Logger } from "@nestjs/common";
-import {
-  PXParams,
-  User,
-  UserFilter,
-  UserSort,
-} from "../model/gainsight-px.model";
+import { PXParams, UserFilter, UserSort } from "../model/gainsight-px.model";
 import { GainsightPxService } from "../service/gainsight-px.service";
 import { ChronoArrayCache } from "./chrono-array-cache.service";
+import { CachedUser, mapUsersToCachedUsers } from "../model/cache-model";
 
 @Injectable()
-export class ActiveUsersCacheService extends ChronoArrayCache<User> {
+export class ActiveUsersCacheService extends ChronoArrayCache<CachedUser> {
   constructor(private api: GainsightPxService) {
     super();
   }
@@ -23,29 +19,32 @@ export class ActiveUsersCacheService extends ChronoArrayCache<User> {
   ): Promise<void> {
     const startDate = this.getStartDate(start, domain.id);
     return this.getActiveUserMetricsDateRange(startDate, end, domain.url).then(
-      (users) => this.setCache(users, domain.id),
+      (users) => {
+        const cachedUsers = mapUsersToCachedUsers(users);
+        this.setCache(cachedUsers, domain.id);
+      },
     );
   }
 
-  getDate(item: User): number {
-    return item.lastSeenDate;
+  getDate(item: CachedUser): number {
+    return item.date;
   }
 
   getLogger(): Logger {
     return this.logger;
   }
 
-  queryCache(start: string, end: string, tenantId: string): User[] {
+  queryCache(start: string, end: string, tenantId: string): CachedUser[] {
     const startStamp = new Date(start).getTime();
     const endStamp = new Date(end).getTime();
     const cached = this.getCache(startStamp, endStamp, tenantId);
 
     // dedupe by identifyId, keeping the entry with the newest lastSeenDate
-    const byIdentify = new Map<string, User>();
+    const byIdentify = new Map<string, CachedUser>();
     for (const u of cached) {
-      const key = u.identifyId;
+      const key = u.iId;
       const existing = byIdentify.get(key);
-      if (!existing || u.lastSeenDate > existing.lastSeenDate) {
+      if (!existing || u.date > existing.date) {
         byIdentify.set(key, u);
       }
     }

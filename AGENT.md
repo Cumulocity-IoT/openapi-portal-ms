@@ -42,6 +42,8 @@ pnpm run test           # Jest unit tests
 pnpm run test:cov       # Jest with coverage report
 pnpm run lint           # ESLint with auto-fix
 pnpm run docs:build     # Generate OpenAPI HTML docs
+pnpm run openapi:generate  # Start app in dev mode and emit docs/openapi.json
+pnpm run openapi:html      # Build single-file HTML docs from docs/openapi.json
 ```
 
 ---
@@ -139,11 +141,16 @@ AppModule
 │   ├── SettingsService
 │   └── FilterService
 └── controllers
-    ├── AppController        (/status)
-    ├── ActiveUserController
-    ├── EventsController
-    ├── SessionEventsController
-    └── PageViewController
+    ├── AppController                 (/health, /lastRun)
+    ├── LlmController                 (/llms.txt, /llms-full.txt)
+    ├── ActiveUserController          (V1 active users + metrics)
+    ├── ActiveUserControllerV2        (/v2/activeUsers)
+    ├── EventsController              (V1 events)
+    ├── EventsControllerV2            (/v2/events, /v2/customEvents)
+    ├── SessionEventsController       (V1 session events)
+    ├── SessionEventsControllerV2     (/v2/sessionEvents)
+    ├── PageViewController            (V1 page views)
+    └── PageViewControllerV2          (/v2/pageViews)
 ```
 
 ---

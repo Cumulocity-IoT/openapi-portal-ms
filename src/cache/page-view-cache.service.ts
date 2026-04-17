@@ -7,9 +7,13 @@ import {
 } from "../model/gainsight-px.model";
 import { GainsightPxService } from "../service/gainsight-px.service";
 import { ChronoArrayCache } from "./chrono-array-cache.service";
+import {
+  CachedPageView,
+  mapPageViewsToCachedPageViews,
+} from "../model/cache-model";
 
 @Injectable()
-export class PageViewCacheService extends ChronoArrayCache<PageView> {
+export class PageViewCacheService extends ChronoArrayCache<CachedPageView> {
   private readonly logger = new Logger(PageViewCacheService.name);
 
   constructor(private api: GainsightPxService) {
@@ -22,18 +26,19 @@ export class PageViewCacheService extends ChronoArrayCache<PageView> {
     domain: { id: string; url: string },
   ): Promise<void> {
     const startDate = this.getStartDate(start, domain.id);
-    return this.getPageViews(startDate, end, domain.url).then((pageViews) =>
-      this.setCache(pageViews, domain.id),
-    );
+    return this.getPageViews(startDate, end, domain.url).then((pageViews) => {
+      const cachedPageViews = mapPageViewsToCachedPageViews(pageViews);
+      this.setCache(cachedPageViews, domain.id);
+    });
   }
 
-  queryCache(start: string, end: string, tenantId: string): PageView[] {
+  queryCache(start: string, end: string, tenantId: string): CachedPageView[] {
     const startStamp = new Date(start).getTime();
     const endStamp = new Date(end).getTime();
     return this.getCache(startStamp, endStamp, tenantId);
   }
 
-  getDate(item: PageView): number {
+  getDate(item: CachedPageView): number {
     return item.date;
   }
   getLogger(): Logger {

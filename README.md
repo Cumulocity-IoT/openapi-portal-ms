@@ -19,28 +19,6 @@ Adding or removing customers is easy:
 
 On the next scheduled run, the MS will also crawl telemtry data for the newly configured tenant(s).
 
-# REST endpoints
-The following REST API endpoints are exposed by the microservice, detailling the query parameters each endpoint accepts.
-
-Table of contents
-- Overview
-- Common query parameters
-- Endpoints
-  - Custom Events
-  - Event Counts
-  - Event Counts By Name (widgets)
-  - Session Events
-  - Session Events Auto Aggregation
-  - Page Views
-  - Popular Devices
-  - Page View Counts
-  - Active User Metrics
-- Scheduling & Caching
-  - What is fetched
-  - How data is cached (TreeCache / IntervalTree)
-  - Cache behavior and guarantees
-- Notes & operational recommendations
-
 
 ## Overview
 This microservice periodically pulls Gainsight (PX) telemetry (custom events, session events, page views, user/profile metrics) and serves aggregated and filtered results through REST endpoints. Data is cached in memory per tenant to allow fast range queries.
@@ -74,24 +52,22 @@ You can generate or preview these locally; see the "OpenAPI / API docs" section 
   - Scheduler uses cron-like annotations and runs at configured intervals (see scheduler.service.ts). Typical configuration fetches updates every few minutes for telemetry and less frequently for user aggregates.
 
 ## How data is cached
-- The app uses per-tenant in-memory caches implemented by TreeCache<T> subclasses (e.g. SessionEventsCacheService, PageViewCacheService, CustomEventsCacheService).
-- Each tenant gets:
-  - An IntervalTree (interval-tree) populated with GenericInterval<T> nodes where low === high === timestamp for point-in-time events.
-  - A bounds map storing the newest/oldest items seen for that tenant.
-- setCache(items, tenantId)
-  - Validates the incoming items array.
-  - Warns and returns if empty.
-  - Verifies items are sorted by date (ascending). If not sorted, it sorts them by the date key returned from getDate(item).
-  - Calls setBounds(...) to update oldest/newest entries for the tenant.
-  - Inserts each item into the tenant's IntervalTree using the item timestamp as an interval point.
-- queryCache(start, end, tenantId)
-  - Accepts start/end ISO strings and returns the array of cached items for that tenant whose timestamps fall inside the requested interval (inclusive). IntervalTree enables efficient range queries.
+- The app uses per-tenant in-memory caches implemented by `ChronoArrayCache<T>` subclasses (e.g. `SessionEventsCacheService`, `PageViewCacheService`, `CustomEventsCacheService`).
+- Each tenant gets a date-sorted `T[]` array stored in a `Map<tenantId, T[]>`.
+- `setCache(items, tenantId)`
+  - Sorts the incoming batch by date ascending before appending.
+  - Appends to the tenant's array.
+  - Applies TTL eviction: items older than `TTL_DAYS` are dropped from the head.
+- `queryCache(start, end, tenantId)`
+  - Applies binary search (lower-bound for `start`, upper-bound for `end`) to find the slice in O(log n).
+  - Two O(1) fast paths: if `end` ≥ newest item, skip the upper-bound search; if `start` ≤ oldest item, skip the lower-bound search.
+  - Returns the matching slice.
 
 ## Cache behavior and guarantees
 - Per-tenant caches are in memory only (no persistence). A restart clears caches and scheduled fetchers must repopulate them.
-- setCache will sort input data and log warnings if input wasn't already sorted.
-- queryCache is synchronous/fast because it reads from in-memory structures. Controllers must call and await any promise-based cache implementations consistently.
-- The cache stores point-in-time events as intervals where low === high. Range queries use numeric timestamps derived via each cache's getDate(item) implementation.
+- `setCache` sorts incoming batches before appending and evicts records older than `TTL_DAYS` from the head of the array.
+- `queryCache` is synchronous and fast: binary search on a pre-sorted array gives O(log n) range lookups with O(1) fast paths for the common Grafana "up to now" and "all time" queries.
+- Each cache subclass implements `getDate(item)` to extract the numeric timestamp used for sorting and searching.
 
 ## Operational notes & recommendations
 - Ensure scheduled fetches are non-blocking (no sync fs/exec or CPU-heavy synchronous work) — they run on the Node event loop and can block controller request handling if they block CPU.

@@ -1,273 +1,1177 @@
 {
-  "openapi": "3.0.1",
-  "info": {
-    "title": "Gainsight Sync Microservice API",
-    "version": "0.1.0",
-    "description": "OpenAPI spec for the Gainsight Sync microservice (selected endpoints)."
-  },
-  "servers": [{ "url": "http://localhost:80", "description": "Local" }],
-  "tags": [
-    { "name": "Events", "description": "Endpoints from src/api/custom-events.controller.ts" },
-    { "name": "PageView", "description": "Endpoints from src/api/page-view.controller.ts" },
-    { "name": "SessionEvents", "description": "Endpoints from src/api/session-events.controller.ts" },
-    { "name": "ActiveUser", "description": "Endpoints from src/api/active-users.controller.ts" }
-  ],
+  "openapi": "3.0.0",
   "paths": {
+    "/health": {
+      "get": {
+        "operationId": "AppController_checkHealth",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    },
+    "/lastRun": {
+      "get": {
+        "operationId": "AppController_getLastRun",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    },
     "/activeUsers": {
       "get": {
-        "tags": ["ActiveUser"],
-        "summary": "Get active users",
+        "operationId": "ActiveUserController_getUsers",
         "parameters": [
-          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
-          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
-          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" }
+          {
+            "name": "start",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tenantId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Array of users", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ActiveUserList" } } } }
-        }
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "ActiveUser"
+        ]
       }
     },
     "/activeUserMetrics/numberOfUsers": {
       "get": {
-        "tags": ["ActiveUser"],
-        "summary": "Number of active users",
+        "operationId": "ActiveUserController_numberOfUsers",
         "parameters": [
-          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
-          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
-          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" }
+          {
+            "name": "start",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tenantId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
-        "responses": { "200": { "description": "Count", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Count" } } } } }
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "ActiveUser"
+        ]
       }
     },
     "/activeUserMetrics/newSignups": {
       "get": {
-        "tags": ["ActiveUser"],
-        "summary": "New signups",
+        "operationId": "ActiveUserController_numberOfNewSignups",
         "parameters": [
-          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
-          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
-          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" }
+          {
+            "name": "start",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tenantId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
-        "responses": { "200": { "description": "Count", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Count" } } } } }
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "ActiveUser"
+        ]
       }
     },
     "/activeUserMetrics/topLanguages": {
       "get": {
-        "tags": ["ActiveUser"],
-        "summary": "Top languages",
+        "operationId": "ActiveUserController_topLanguages",
         "parameters": [
-          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
-          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
-          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" }
+          {
+            "name": "start",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tenantId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
-        "responses": { "200": { "description": "Language counts", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/MetricItem" } } } } } }
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "ActiveUser"
+        ]
       }
     },
     "/activeUserMetrics/topUserRoles": {
       "get": {
-        "tags": ["ActiveUser"],
-        "summary": "Top user roles",
+        "operationId": "ActiveUserController_topUserRoles",
         "parameters": [
-          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
-          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
-          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" }
+          {
+            "name": "start",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tenantId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
-        "responses": { "200": { "description": "Role counts", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/MetricItem" } } } } } }
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "ActiveUser"
+        ]
       }
     },
     "/activeUserMetrics/topCountries": {
       "get": {
-        "tags": ["ActiveUser"],
-        "summary": "Top countries",
+        "operationId": "ActiveUserController_topCountries",
         "parameters": [
-          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
-          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
-          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" }
+          {
+            "name": "start",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tenantId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
-        "responses": { "200": { "description": "Country counts", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/MetricItem" } } } } } }
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "ActiveUser"
+        ]
       }
     },
     "/activeUserMetrics/topPlatforms": {
       "get": {
-        "tags": ["ActiveUser"],
-        "summary": "Top platforms",
+        "operationId": "ActiveUserController_topPlatforms",
         "parameters": [
-          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
-          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
-          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" }
+          {
+            "name": "start",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tenantId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
-        "responses": { "200": { "description": "Platform counts", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/MetricItem" } } } } } }
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "ActiveUser"
+        ]
       }
     },
     "/activeUserMetrics/topBrowsers": {
       "get": {
-        "tags": ["ActiveUser"],
-        "summary": "Top browsers",
+        "operationId": "ActiveUserController_topBrowsers",
         "parameters": [
-          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
-          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
-          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" }
+          {
+            "name": "start",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tenantId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
-        "responses": { "200": { "description": "Browser counts", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/MetricItem" } } } } } }
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "ActiveUser"
+        ]
       }
     },
     "/activeUserMetrics/topDeviceTypes": {
       "get": {
-        "tags": ["ActiveUser"],
-        "summary": "Top device types",
+        "operationId": "ActiveUserController_topDeviceTypes",
         "parameters": [
-          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
-          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
-          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" }
+          {
+            "name": "start",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tenantId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
-        "responses": { "200": { "description": "Device counts", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/MetricItem" } } } } } }
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "ActiveUser"
+        ]
       }
     },
     "/activeUserMetrics/mailDomainNames": {
       "get": {
-        "tags": ["ActiveUser"],
-        "summary": "Mail domain counts",
+        "operationId": "ActiveUserController_mailDomainNames",
         "parameters": [
-          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
-          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
-          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" }
+          {
+            "name": "start",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tenantId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
-        "responses": { "200": { "description": "Mail domain counts", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/MetricItem" } } } } } }
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "ActiveUser"
+        ]
       }
     },
-
     "/eventCounts": {
       "get": {
-        "tags": ["Events"],
-        "summary": "Event counts by name",
+        "operationId": "EventsController_getEventCounts",
         "parameters": [
-          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
-          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
-          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" }
+          {
+            "name": "start",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tenantId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
-        "responses": { "200": { "description": "Counts", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/SimpleCount" } } } } } }
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Events"
+        ]
       }
     },
     "/widgetsByName": {
       "get": {
-        "tags": ["Events"],
-        "summary": "Event counts grouped by widget name for an event",
+        "operationId": "EventsController_getEventCountsByName",
         "parameters": [
-          { "name": "eventName", "in": "query", "schema": { "type": "string" }, "required": true },
-          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
-          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
-          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" }
+          {
+            "name": "eventName",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "start",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tenantId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
-        "responses": { "200": { "description": "Widget counts", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/SimpleCount" } } } } } }
-      }
-    },
-    "/sessionEvents": {
-      "get": {
-        "tags": ["SessionEvents"],
-        "summary": "Session events",
-        "parameters": [
-          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
-          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
-          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" }
-        ],
-        "responses": { "200": { "description": "Session events", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/SessionEvent" } } } } } }
-      }
-    },
-    "/sessionEventsAutoAgg": {
-      "get": {
-        "tags": ["SessionEvents"],
-        "summary": "Auto-aggregated session events (minute/hour/day)",
-        "parameters": [
-          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
-          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
-          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" }
-        ],
-        "responses": { "200": { "description": "Aggregated buckets", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Bucket" } } } } } }
-      }
-    },
-
-    "/popularDevices": {
-      "get": {
-        "tags": ["PageView"],
-        "summary": "Popular devices (from page view hashes/paths)",
-        "parameters": [
-          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
-          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
-          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" }
-        ],
-        "responses": { "200": { "description": "Popular devices", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/SimpleCount" } } } } } }
-      }
-    },
-    "/pageViewCounts": {
-      "get": {
-        "tags": ["PageView"],
-        "summary": "Counts grouped by page path",
-        "parameters": [
-          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
-          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
-          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" }
-        ],
-        "responses": { "200": { "description": "Page view counts", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/SimpleCount" } } } } } }
-      }
-    },
-    "/countByType": {
-      "get": {
-        "tags": ["PageView"],
-        "summary": "Counts filtered by group/device/reports id",
-        "parameters": [
-          { "name": "type", "in": "query", "schema": { "type": "string", "enum": ["group","device","reports"] }, "required": true, "description": "Type of element to count" },
-          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
-          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
-          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" }
-        ],
-        "responses": { "200": { "description": "Counts for specified type", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/SimpleCount" } } } } } }
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Events"
+        ]
       }
     },
     "/events": {
       "get": {
-        "tags": ["Events"],
-        "summary": "Get events (base)",
+        "operationId": "EventsController_getEvents",
         "parameters": [
-          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
-          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
-          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" },
-          { "name": "withId", "in": "query", "schema": { "type": "boolean" } }
+          {
+            "name": "start",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tenantId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
-        "responses": { "200": { "description": "Events", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Event" } } } } } }
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Events"
+        ]
       }
     },
-    "/events-v2": {
+    "/sessionEventsAutoAgg": {
       "get": {
-        "tags": ["Events"],
-        "summary": "Get events V2 (filter + projection)",
-        "description": "Return events in the given time range. Supports a safe filter expression (using filtrex) and an optional comma-separated list of fields to project from event.data into the response.",
+        "operationId": "SessionEventsController_getSessionsAutoAgg",
         "parameters": [
-          { "name": "start", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "Start time as an ISO 8601 date-time string" },
-          { "name": "end", "in": "query", "schema": { "type": "string", "format": "date-time" }, "required": true, "description": "End time as an ISO 8601 date-time string" },
-          { "name": "tenantId", "in": "query", "schema": { "type": "string" }, "required": true, "description": "Tenant identifier (required)" },
-          { "name": "filter", "in": "query", "schema": { "type": "string" }, "description": "A safe filtrex expression evaluated against each event. You can use the following operations:\n\nx + y Add\nx - y Subtract\nx * y Multiply\nx / y Divide\nx ^ y Power\nx mod y Modulo\nx == y Equals\nx < y Less than\nx <= y Less than or equal to\nx > y Greater than\nx >= y Greater than or equal to\nx == y <= z Chained relation, equivalent to (x == y and y <= z)\nx of y Get property x of object y\nx in (a, b, c) Equivalent to (x == a or x == b or x == c)\nx not in (a, b, c) Equivalent to (x != a and x != b and x != c)\nx or y Boolean or\nx and y Boolean and\nnot x Boolean not\nif x then y else z If boolean x is true, return value y, else return z\n( x ) Explicity operator precedence\n( x, y, z ) Array of elements x, y and z\nabs(x) Absolute value\nceil(x) Round floating point up\nfloor(x) Round floating point down\nlog(x) Natural logarithm\nlog2(x) Binary logarithm\nlog10(x) Decadic logarithm\nmax(a, b, c...) Max value (variable length of args)\nmin(a, b, c...) Min value (variable length of args)\nround(x) Round floating point\nsqrt(x) Square root\nexists(x) True if x is neither undefined nor null\nempty(x) True if x doesn't exist, it is an empty string or empty array\nmyFooBarFunction(x) Custom function defined in options.extraFunctions", "example": "name == \"loadWidget\"" },
-          { "name": "fields", "in": "query", "schema": { "type": "string" }, "description": "Comma-separated list of fields to project from event.data (flattened keys). Examples: 'a', 'attributes.size,user.id'", "example": "attributes.size,user.id" }
+          {
+            "name": "start",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tenantId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
-        "responses": { "200": { "description": "Projected events", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/EventProjection" } } } } } }
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "SessionEvents"
+        ]
+      }
+    },
+    "/sessionEvents": {
+      "get": {
+        "operationId": "SessionEventsController_getSessions",
+        "parameters": [
+          {
+            "name": "start",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tenantId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "SessionEvents"
+        ]
+      }
+    },
+    "/popularDevices": {
+      "get": {
+        "operationId": "PageViewController_getDeviceCounts",
+        "parameters": [
+          {
+            "name": "start",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tenantId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "PageView"
+        ]
+      }
+    },
+    "/countByType": {
+      "get": {
+        "operationId": "PageViewController_getCountsForType",
+        "parameters": [
+          {
+            "name": "start",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tenantId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "PageView"
+        ]
+      }
+    },
+    "/pageViewCounts": {
+      "get": {
+        "operationId": "PageViewController_getPageViewCounts",
+        "parameters": [
+          {
+            "name": "start",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tenantId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "PageView"
+        ]
+      }
+    },
+    "/v2/activeUsers": {
+      "get": {
+        "operationId": "ActiveUserControllerV2_getUsersV2",
+        "parameters": [
+          {
+            "name": "start",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tenantId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fields",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Returns active users from the cache within the given time range, with\noptional server-side filtering and field projection.\n\n**`filter`** — a [`filtrex`](https://github.com/cshaa/filtrex) expression\nevaluated against each mapped user. Strings must be **double-quoted**.\n\n| Goal | Expression |\n|---|---|\n| Single country | `country == \"Germany\"` |\n| Exclude guests | `roles != \"guest\"` |\n| Platform filter | `platform == \"desktop\"` |\n| Compound condition | `country == \"USA\" and browser == \"Chrome\"` |\n| Multiple devices | `device in (\"mobile\", \"tablet\")` |\n\n**`fields`** — comma-separated top-level fields to return from the mapped\nuser. Valid values: `id`, `roles`, `country`, `sessionId`, `language`,\n`platform`, `browser`, `device`, `domain`.\nWhen omitted, all top-level fields are returned.\n\n| Goal | Value |\n|---|---|\n| Identity only | `id,sessionId` |\n| Location and browser | `id,country,browser,platform` |\n| Full user (default) | _(omit param)_ |",
+        "tags": [
+          "ActiveUserControllerV2"
+        ]
+      }
+    },
+    "/v2/events": {
+      "get": {
+        "operationId": "EventsControllerV2_getEventsV2",
+        "parameters": [
+          {
+            "name": "start",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tenantId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fields",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dataFields",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Returns events from the cache within the given time range, with optional\nserver-side filtering and field projection.\n\n**`filter`** — a [`filtrex`](https://github.com/cshaa/filtrex) expression\nevaluated against each mapped event (`name`, `date`, `data`, `identifyId`,\n`sessionId`). Strings must be **double-quoted**.\n\n| Goal | Expression |\n|---|---|\n| Single event type | `name == \"buttonClick\"` |\n| Exclude an event type | `name != \"pageView\"` |\n| Compound condition | `name == \"formSubmit\" and sessionId == \"abc123\"` |\n| Multiple allowed names | `name in (\"click\", \"hover\", \"focus\")` |\n\n**`fields`** — comma-separated top-level fields to return from the mapped\nevent. Valid values: `name`, `date`, `data`, `identifyId`, `sessionId`.\nWhen omitted, all top-level fields are returned.\n\n| Goal | Value |\n|---|---|\n| Name and date only | `name,date` |\n| Include identity info | `name,date,identifyId,sessionId` |\n| Full event (default) | _(omit param)_ |\n\n**`dataFields`** — comma-separated dot-notation paths to project from\n`event.data`. When omitted, the full `data` object is returned.\n\n| Goal | Value |\n|---|---|\n| Single top-level key | `widgetName` |\n| Nested key (flat output) | `attributes.size` |\n| Multiple keys | `widgetName,attributes.size,user.id` |\n| Full data payload (default) | _(omit param)_ |",
+        "tags": [
+          "EventsControllerV2"
+        ]
+      }
+    },
+    "/v2/customEvents": {
+      "get": {
+        "operationId": "EventsControllerV2_getCustomerEventsV2",
+        "parameters": [
+          {
+            "name": "start",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tenantId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fields",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dataFields",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Returns only customer-defined custom events (name prefix `customEvent*`)\nfrom the cache within the given time range. The `data` field always\nconforms to {@link CustomerCustomEventAttributes} (`action_type`, `category`,\n`label`, `metadata`).\n\nThis is a pre-filtered view of `v2/events` — only events whose `name`\nstarts with `customEvent` are included before any additional filtering\nor projection is applied.\n\n**`filter`** — a [`filtrex`](https://github.com/cshaa/filtrex) expression\nevaluated against each mapped event. Reference top-level fields or\nknown `data` sub-fields. Strings must be **double-quoted**.\n\n| Goal | Expression |\n|---|---|\n| Specific event name | `name == \"customEventButtonClick\"` |\n| By action type | `name == \"customEventTrack\"` |\n| Exclude a name | `name != \"customEventPageLoad\"` |\n| Multiple names | `name in (\"customEventClick\", \"customEventHover\")` |\n\n**`dataFields`** — comma-separated dot-notation paths to project from\n`event.data`. Valid values: `action_type`, `category`, `label`,\n`metadata`, or nested paths inside `metadata` (e.g. `metadata.size`).\nWhen omitted, the full `data` object is returned.\n\n| Goal | Value |\n|---|---|\n| Category and label only | `category,label` |\n| Action and nested metadata | `action_type,metadata.size` |\n| Full data payload (default) | _(omit param)_ |",
+        "tags": [
+          "EventsControllerV2"
+        ]
+      }
+    },
+    "/v2/pageViews": {
+      "get": {
+        "operationId": "PageViewControllerV2_getPageViewsV2",
+        "parameters": [
+          {
+            "name": "start",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tenantId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fields",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Returns page-view events from the cache within the given time range, with\noptional server-side filtering and field projection.\n\n**`filter`** — a [`filtrex`](https://github.com/cshaa/filtrex) expression\nevaluated against each mapped page-view. Strings must be **double-quoted**.\n\n| Goal | Expression |\n|---|---|\n| Specific host | `host == \"app.example.com\"` |\n| Specific path | `path == \"/dashboard\"` |\n| Mobile users only | `userType == \"mobile\"` |\n| Compound condition | `host == \"app.example.com\" and eventType == \"pageView\"` |\n| Multiple paths | `path in (\"/home\", \"/settings\", \"/profile\")` |\n\n**`fields`** — comma-separated top-level fields to return from the mapped\npage-view. Valid values match the keys of {@link ControllerPageView}:\n`id`, `identifyId`, `sessionId`, `date`, `scheme`, `host`, `path`,\n`queryString`, `hash`, `queryParams`, `remoteHost`, `referrer`,\n`screenHeight`, `screenWidth`, `languages`, `pageTitle`, `propertyKey`,\n`eventType`, `userType`, `accountId`, `globalContext`.\nWhen omitted, all top-level fields are returned.\n\n| Goal | Value |\n|---|---|\n| URL parts only | `host,path,queryString` |\n| Page identity | `id,date,pageTitle` |\n| User context | `id,identifyId,sessionId,userType` |\n| Full page view (default) | _(omit param)_ |",
+        "tags": [
+          "PageViewControllerV2"
+        ]
+      }
+    },
+    "/v2/sessionEvents": {
+      "get": {
+        "operationId": "SessionEventsControllerV2_getSessionsV2",
+        "parameters": [
+          {
+            "name": "start",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tenantId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fields",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Returns session-initialized events from the cache within the given time\nrange, with optional server-side filtering and field projection.\n\n**`filter`** — a [`filtrex`](https://github.com/cshaa/filtrex) expression\nevaluated against each mapped session event. Strings must be **double-quoted**.\n\n| Goal | Expression |\n|---|---|\n| Specific user type | `userType == \"USER\"` |\n| Exclude visitors | `userType != \"VISITOR\"` |\n| Specific property | `propertyKey == \"APX-XXXXX\"` |\n| Compound condition | `userType == \"USER\" and eventType == \"session_started\"` |\n| Multiple user types | `userType in (\"USER\", \"LEAD\")` |\n\n**`fields`** — comma-separated top-level fields to return from the mapped\nsession event. Valid values match the keys of {@link ControllerSessionEventFieldList}:\n`id`, `identifyId`, `sessionId`, `accountId`, `date`, `propertyKey`,\n`eventType`, `remoteHost`, `location`, `userType`, `globalContext`.\nWhen omitted, all top-level fields are returned.\n\n| Goal | Value |\n|---|---|\n| Identity only | `id,identifyId,sessionId` |\n| Time and location | `id,date,location` |\n| Full session event (default) | _(omit param)_ |",
+        "tags": [
+          "SessionEventsControllerV2"
+        ]
+      }
+    },
+    "/llms.txt": {
+      "get": {
+        "operationId": "LlmController_getLlmsTxt",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Llm"
+        ]
+      }
+    },
+    "/llms-full.txt": {
+      "get": {
+        "operationId": "LlmController_getLlmsFullTxt",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Llm"
+        ]
       }
     }
   },
+  "info": {
+    "title": "My API",
+    "description": "The API description",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
   "components": {
-    "schemas": {
-      "Count": { "type": "object", "properties": { "count": { "type": "integer", "format": "int32" } } },
-      "SimpleCount": { "type": "object", "properties": { "value": { "type": "string" }, "count": { "type": "integer" } } },
-      "MetricItem": { "type": "object", "properties": { "value": { "type": "string" }, "count": { "type": "integer" }, "percentage": { "type": "number", "format": "float" } } },
-      "ActiveUser": { "type": "object", "properties": { "id": { "type": "string" }, "roles": { "type": "array", "items": { "type": "string" } }, "country": { "type": "string" } } },
-      "ActiveUserList": { "type": "array", "items": { "$ref": "#/components/schemas/ActiveUser" } },
-      "CustomEvent": { "type": "object", "properties": { "date": { "type": "string", "format": "date-time" }, "widgetName": { "type": "string" }, "sessionId": { "type": "string" } } },
-      "Event": { "type": "object", "properties": { "name": { "type": "string" }, "date": { "type": "string", "format": "date-time" } }, "additionalProperties": true },
-      "EventProjection": { "type": "object", "properties": { "name": { "type": "string" }, "date": { "type": "string", "format": "date-time" } }, "additionalProperties": true },
-      "SessionEvent": { "type": "object", "properties": { "time": { "type": "string", "format": "date-time" }, "eventId": { "type": "string" }, "identifyId": { "type": "string" } } },
-      "Bucket": { "type": "object", "properties": { "time": { "type": "string", "format": "date-time" }, "count": { "type": "integer" } } },
-      "PageView": {
-        "type": "object",
-        "properties": { "scheme": { "type": "string" }, "host": { "type": "string" }, "path": { "type": "string" }, "hash": { "type": "string" }, "date": { "type": "string", "format": "date-time" } }
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
       }
-    }
+    },
+    "schemas": {}
   }
 }
