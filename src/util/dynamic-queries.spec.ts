@@ -150,12 +150,14 @@ describe("sortArray", () => {
       { name: undefined },
       { name: "Alice" as string | undefined },
     ];
-    expect(
-      sortArray(withUndefined, "name", "asc").map((i) => i.name),
-    ).toEqual(["Alice", "Bob", undefined]);
-    expect(
-      sortArray(withUndefined, "name", "desc").map((i) => i.name),
-    ).toEqual(["Bob", "Alice", undefined]);
+    expect(sortArray(withUndefined, "name", "asc").map((i) => i.name)).toEqual([
+      "Alice",
+      "Bob",
+      undefined,
+    ]);
+    expect(sortArray(withUndefined, "name", "desc").map((i) => i.name)).toEqual(
+      ["Bob", "Alice", undefined],
+    );
   });
 });
 

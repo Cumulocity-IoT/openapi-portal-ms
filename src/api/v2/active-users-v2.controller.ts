@@ -8,7 +8,13 @@ import {
   ControllerUserResponse,
   mapCachedUserToControllerUser,
 } from "../../model/controller-model";
-import { filterArray, parseFieldList, parseOrderBy, projectData, sortArray } from "../../util/dynamic-queries";
+import {
+  filterArray,
+  parseFieldList,
+  parseOrderBy,
+  projectData,
+  sortArray,
+} from "../../util/dynamic-queries";
 
 @UseGuards(TenantGuard)
 @Controller()
@@ -93,11 +99,18 @@ export class ActiveUserControllerV2 {
       const filtered = filterArray(mappedUsers, filter);
       const orderConfig = parseOrderBy(orderBy);
       const sorted = orderConfig
-        ? sortArray(filtered, orderConfig.field as keyof ControllerUser, orderConfig.direction)
+        ? sortArray(
+            filtered,
+            orderConfig.field as keyof ControllerUser,
+            orderConfig.direction,
+          )
         : filtered;
       const fieldList = parseFieldList(fields);
       return sorted.map((user) => {
-        const projectedData = projectData(user, fieldList as (keyof ControllerUser)[]);
+        const projectedData = projectData(
+          user,
+          fieldList as (keyof ControllerUser)[],
+        );
         return { id: user.id, ...projectedData };
       });
     } catch (e) {

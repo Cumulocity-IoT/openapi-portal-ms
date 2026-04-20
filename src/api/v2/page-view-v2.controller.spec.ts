@@ -154,8 +154,12 @@ describe("PageViewControllerV2", () => {
 
       it("sorts ascending by identifyId with 'identifyId:asc'", () => {
         const result = controller.getPageViewsV2(
-          "2024-01-01", "2024-02-01", "t1",
-          undefined, undefined, "identifyId:asc",
+          "2024-01-01",
+          "2024-02-01",
+          "t1",
+          undefined,
+          undefined,
+          "identifyId:asc",
         );
         expect(result[0].id).toBe("pv-b");
         expect(result[1].id).toBe("pv-a");
@@ -163,8 +167,12 @@ describe("PageViewControllerV2", () => {
 
       it("sorts descending by identifyId with 'identifyId:desc'", () => {
         const result = controller.getPageViewsV2(
-          "2024-01-01", "2024-02-01", "t1",
-          undefined, undefined, "identifyId:desc",
+          "2024-01-01",
+          "2024-02-01",
+          "t1",
+          undefined,
+          undefined,
+          "identifyId:desc",
         );
         expect(result[0].id).toBe("pv-a");
         expect(result[1].id).toBe("pv-b");
@@ -172,23 +180,33 @@ describe("PageViewControllerV2", () => {
 
       it("defaults to ascending when direction is omitted ('identifyId')", () => {
         const result = controller.getPageViewsV2(
-          "2024-01-01", "2024-02-01", "t1",
-          undefined, undefined, "identifyId",
+          "2024-01-01",
+          "2024-02-01",
+          "t1",
+          undefined,
+          undefined,
+          "identifyId",
         );
         expect(result[0].id).toBe("pv-b");
       });
 
       it("handles extra colon segments safely ('identifyId:desc:extra')", () => {
         const result = controller.getPageViewsV2(
-          "2024-01-01", "2024-02-01", "t1",
-          undefined, undefined, "identifyId:desc:extra",
+          "2024-01-01",
+          "2024-02-01",
+          "t1",
+          undefined,
+          undefined,
+          "identifyId:desc:extra",
         );
         expect(result[0].id).toBe("pv-a");
       });
 
       it("preserves original order when orderBy is omitted", () => {
         const result = controller.getPageViewsV2(
-          "2024-01-01", "2024-02-01", "t1",
+          "2024-01-01",
+          "2024-02-01",
+          "t1",
         );
         expect(result[0].id).toBe("pv-a");
         expect(result[1].id).toBe("pv-b");

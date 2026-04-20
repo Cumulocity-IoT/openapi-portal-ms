@@ -8,7 +8,13 @@ import {
   ControllerSessionEventResponse,
   mapCachedSessionEventToControllerSessionEvent,
 } from "../../model/controller-model";
-import { filterArray, parseFieldList, parseOrderBy, projectData, sortArray } from "../../util/dynamic-queries";
+import {
+  filterArray,
+  parseFieldList,
+  parseOrderBy,
+  projectData,
+  sortArray,
+} from "../../util/dynamic-queries";
 
 @UseGuards(TenantGuard)
 @Controller()
@@ -103,11 +109,18 @@ export class SessionEventsControllerV2 {
       const filtered = filterArray(mappedEvents, filter);
       const orderConfig = parseOrderBy(orderBy);
       const sorted = orderConfig
-        ? sortArray(filtered, orderConfig.field as keyof ControllerSessionEvent, orderConfig.direction)
+        ? sortArray(
+            filtered,
+            orderConfig.field as keyof ControllerSessionEvent,
+            orderConfig.direction,
+          )
         : filtered;
       const fieldList = parseFieldList(fields);
       return sorted.map((e) => {
-        const projected = projectData(e, fieldList as (keyof ControllerSessionEvent)[]);
+        const projected = projectData(
+          e,
+          fieldList as (keyof ControllerSessionEvent)[],
+        );
         return { id: e.id, ...projected };
       });
     } catch (e) {

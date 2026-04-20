@@ -8,7 +8,13 @@ import {
   ControllerEventResponse,
   mapCachedEventToControllerEventV2,
 } from "../../model/controller-model";
-import { filterArray, parseFieldList, parseOrderBy, projectData, sortArray } from "../../util/dynamic-queries";
+import {
+  filterArray,
+  parseFieldList,
+  parseOrderBy,
+  projectData,
+  sortArray,
+} from "../../util/dynamic-queries";
 import {
   CustomerCustomEventDataFieldList,
   CustomerCustomEventResponse,

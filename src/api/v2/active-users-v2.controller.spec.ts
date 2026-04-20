@@ -115,8 +115,12 @@ describe("ActiveUserControllerV2", () => {
 
       it("sorts ascending by country with 'country:asc'", () => {
         const result = controller.getUsersV2(
-          "2024-01-01", "2024-01-02", "t1",
-          undefined, undefined, "country:asc",
+          "2024-01-01",
+          "2024-01-02",
+          "t1",
+          undefined,
+          undefined,
+          "country:asc",
         );
         expect(result[0].id).toBe("u2"); // Austria < Germany
         expect(result[1].id).toBe("u1");
@@ -124,32 +128,42 @@ describe("ActiveUserControllerV2", () => {
 
       it("sorts descending by country with 'country:desc'", () => {
         const result = controller.getUsersV2(
-          "2024-01-01", "2024-01-02", "t1",
-          undefined, undefined, "country:desc",
+          "2024-01-01",
+          "2024-01-02",
+          "t1",
+          undefined,
+          undefined,
+          "country:desc",
         );
         expect(result[0].id).toBe("u1"); // Germany > Austria
       });
 
       it("defaults to ascending when direction is omitted", () => {
         const result = controller.getUsersV2(
-          "2024-01-01", "2024-01-02", "t1",
-          undefined, undefined, "country",
+          "2024-01-01",
+          "2024-01-02",
+          "t1",
+          undefined,
+          undefined,
+          "country",
         );
         expect(result[0].id).toBe("u2");
       });
 
       it("handles extra colon segments safely ('country:asc:extra')", () => {
         const result = controller.getUsersV2(
-          "2024-01-01", "2024-01-02", "t1",
-          undefined, undefined, "country:asc:extra",
+          "2024-01-01",
+          "2024-01-02",
+          "t1",
+          undefined,
+          undefined,
+          "country:asc:extra",
         );
         expect(result[0].id).toBe("u2");
       });
 
       it("preserves original order when orderBy is omitted", () => {
-        const result = controller.getUsersV2(
-          "2024-01-01", "2024-01-02", "t1",
-        );
+        const result = controller.getUsersV2("2024-01-01", "2024-01-02", "t1");
         expect(result[0].id).toBe("u1");
         expect(result[1].id).toBe("u2");
       });

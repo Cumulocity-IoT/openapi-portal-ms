@@ -140,7 +140,11 @@ export function parseOrderBy(orderBy?: string): OrderByConfig | null {
   }
   const field = orderBy.slice(0, colonIdx).trim();
   if (!field) return null;
-  const dir = orderBy.slice(colonIdx + 1).split(":")[0].trim().toLowerCase();
+  const dir = orderBy
+    .slice(colonIdx + 1)
+    .split(":")[0]
+    .trim()
+    .toLowerCase();
   return { field, direction: dir === "desc" ? "desc" : "asc" };
 }
 

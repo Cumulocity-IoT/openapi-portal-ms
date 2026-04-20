@@ -220,7 +220,13 @@ describe("TreeCache – date range queries", () => {
     );
 
     // Second call omits ttlDays — stored TTL (7 days) should still be used
-    cache.setCache([{ date: freshTs, value: "fresh" }, { date: now, value: "newest" }], tenantId);
+    cache.setCache(
+      [
+        { date: freshTs, value: "fresh" },
+        { date: now, value: "newest" },
+      ],
+      tenantId,
+    );
 
     const all = cache.getCache(0, now + 1, tenantId);
     expect(all.some((i) => i.value === "stale")).toBe(false);

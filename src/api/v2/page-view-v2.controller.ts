@@ -134,11 +134,18 @@ export class PageViewControllerV2 {
       const filtered = filterArray(mappedPageViews, filter);
       const orderConfig = parseOrderBy(orderBy);
       const sorted = orderConfig
-        ? sortArray(filtered, orderConfig.field as keyof ControllerPageView, orderConfig.direction)
+        ? sortArray(
+            filtered,
+            orderConfig.field as keyof ControllerPageView,
+            orderConfig.direction,
+          )
         : filtered;
       const fieldList = parseFieldList(fields);
       return sorted.map((pv) => {
-        const projected = projectData(pv, fieldList as (keyof ControllerPageView)[]);
+        const projected = projectData(
+          pv,
+          fieldList as (keyof ControllerPageView)[],
+        );
         return { id: pv.id, ...projected };
       });
     } catch (e) {

@@ -145,8 +145,13 @@ describe("EventsControllerV2", () => {
 
         it("sorts ascending by name with 'name:asc'", () => {
           const result = controller.getEventsV2(
-            "2024-01-01", "2024-01-02", "t1",
-            undefined, undefined, undefined, "name:asc",
+            "2024-01-01",
+            "2024-01-02",
+            "t1",
+            undefined,
+            undefined,
+            undefined,
+            "name:asc",
           );
           expect(result[0].name).toBe("alpha");
           expect(result[1].name).toBe("bravo");
@@ -154,8 +159,13 @@ describe("EventsControllerV2", () => {
 
         it("sorts descending by name with 'name:desc'", () => {
           const result = controller.getEventsV2(
-            "2024-01-01", "2024-01-02", "t1",
-            undefined, undefined, undefined, "name:desc",
+            "2024-01-01",
+            "2024-01-02",
+            "t1",
+            undefined,
+            undefined,
+            undefined,
+            "name:desc",
           );
           expect(result[0].name).toBe("bravo");
           expect(result[1].name).toBe("alpha");
@@ -163,23 +173,35 @@ describe("EventsControllerV2", () => {
 
         it("defaults to ascending when direction is omitted", () => {
           const result = controller.getEventsV2(
-            "2024-01-01", "2024-01-02", "t1",
-            undefined, undefined, undefined, "name",
+            "2024-01-01",
+            "2024-01-02",
+            "t1",
+            undefined,
+            undefined,
+            undefined,
+            "name",
           );
           expect(result[0].name).toBe("alpha");
         });
 
         it("handles extra colon segments safely ('name:asc:extra')", () => {
           const result = controller.getEventsV2(
-            "2024-01-01", "2024-01-02", "t1",
-            undefined, undefined, undefined, "name:asc:extra",
+            "2024-01-01",
+            "2024-01-02",
+            "t1",
+            undefined,
+            undefined,
+            undefined,
+            "name:asc:extra",
           );
           expect(result[0].name).toBe("alpha");
         });
 
         it("preserves original order when orderBy is omitted", () => {
           const result = controller.getEventsV2(
-            "2024-01-01", "2024-01-02", "t1",
+            "2024-01-01",
+            "2024-01-02",
+            "t1",
           );
           expect(result[0].name).toBe("bravo");
           expect(result[1].name).toBe("alpha");
@@ -338,8 +360,13 @@ describe("EventsControllerV2", () => {
 
         it("sorts ascending by name with 'name:asc'", () => {
           const result = controller.getCustomerEventsV2(
-            "2024-01-01", "2024-01-02", "t1",
-            undefined, undefined, undefined, "name:asc",
+            "2024-01-01",
+            "2024-01-02",
+            "t1",
+            undefined,
+            undefined,
+            undefined,
+            "name:asc",
           );
           expect(result[0].name).toBe("customEventAlpha");
           expect(result[1].name).toBe("customEventBravo");
@@ -347,8 +374,13 @@ describe("EventsControllerV2", () => {
 
         it("sorts descending by name with 'name:desc'", () => {
           const result = controller.getCustomerEventsV2(
-            "2024-01-01", "2024-01-02", "t1",
-            undefined, undefined, undefined, "name:desc",
+            "2024-01-01",
+            "2024-01-02",
+            "t1",
+            undefined,
+            undefined,
+            undefined,
+            "name:desc",
           );
           expect(result[0].name).toBe("customEventBravo");
           expect(result[1].name).toBe("customEventAlpha");
@@ -356,23 +388,35 @@ describe("EventsControllerV2", () => {
 
         it("defaults to ascending when direction is omitted", () => {
           const result = controller.getCustomerEventsV2(
-            "2024-01-01", "2024-01-02", "t1",
-            undefined, undefined, undefined, "name",
+            "2024-01-01",
+            "2024-01-02",
+            "t1",
+            undefined,
+            undefined,
+            undefined,
+            "name",
           );
           expect(result[0].name).toBe("customEventAlpha");
         });
 
         it("handles extra colon segments safely ('name:asc:extra')", () => {
           const result = controller.getCustomerEventsV2(
-            "2024-01-01", "2024-01-02", "t1",
-            undefined, undefined, undefined, "name:asc:extra",
+            "2024-01-01",
+            "2024-01-02",
+            "t1",
+            undefined,
+            undefined,
+            undefined,
+            "name:asc:extra",
           );
           expect(result[0].name).toBe("customEventAlpha");
         });
 
         it("preserves original order when orderBy is omitted", () => {
           const result = controller.getCustomerEventsV2(
-            "2024-01-01", "2024-01-02", "t1",
+            "2024-01-01",
+            "2024-01-02",
+            "t1",
           );
           expect(result[0].name).toBe("customEventBravo");
           expect(result[1].name).toBe("customEventAlpha");
