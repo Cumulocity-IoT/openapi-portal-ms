@@ -82,6 +82,12 @@ export class CustomEventsCacheService extends ChronoArrayCache<CachedEvent> {
     if (res.customEvents.length < 1000) {
       return sum;
     } else {
+      if (!res.scrollId) {
+        this.logger.warn(
+          `Received a full page of 1000 events but scrollId is missing; pagination cannot continue. Total so far: ${sum.length}. Filter: ${filter}`,
+        );
+        return sum;
+      }
       return this.getEventWithPagination(filter, sum, res.scrollId);
     }
   }

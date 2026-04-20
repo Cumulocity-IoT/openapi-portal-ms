@@ -121,7 +121,10 @@ export class SchedulerService {
             ],
           );
         }
-        return Promise.all(promises);
+        return Promise.allSettled(promises);
+      })
+      .catch((error) => {
+        this.logger.error("Scheduled cache run failed.", error);
       })
       .finally(() => {
         const runEnd = new Date();

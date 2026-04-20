@@ -15,7 +15,7 @@ Synchronise Gainsight PX analytics (custom events, session events, page views, a
 - **Active Users** — \`/activeUsers\`, \`/activeUserMetrics/*\`, \`/v2/activeUsers\` (filter + projection)
 - **Custom Events** — \`/events\`, \`/eventCounts\`, \`/widgetsByName\`, \`/v2/events\` (filter + projection), \`/v2/customEvents\` (customer events only, filter + projection)
 - **Session Events** — \`/sessionEvents\`, \`/sessionEventsAutoAgg\`, \`/v2/sessionEvents\` (filter + projection)
-- **Page Views** — \`/popularDevices\`, \`/pageViewCounts\`, \`/countByType\`, \`/v2/pageViews\` (filter + projection)
+- **Page Views** — \`/popularDevices\`, \`/pageViewCounts\`, \`/countByType\`, \`/v2/pageViews\` (filter + projection), \`/v2/pageViewCounts\` (filter + group-by aggregation)
 - **System** — \`/health\`, \`/lastRun\`
 
 ## Common query parameters
@@ -307,7 +307,7 @@ Returns the most visited device IDs (extracted from page-view URL paths), ranked
 #### GET /countByType
 Returns view counts grouped by navigation type.
 
-**Query parameters:** \`start\`, \`end\`, \`tenantId\`, \`type\` (\`"group"\` | \`"device"\` | \`"reports"\`)
+**Query parameters:** \`start\`, \`end\`, \`tenantId\`, \`type\` (\`"group"\` | \`"device"\` | \`"reports"\` | \`"dashboard"\`)
 
 **Response** — array of \`{ path: "#<id>", count: number }\` sorted by count descending.
 
@@ -323,23 +323,37 @@ Returns time-bucketed page view counts.
 #### GET /v2/pageViews
 Returns filtered and projected page-view events (V2).
 
-**Query parameters:** \`start\`, \`end\`, \`tenantId\`, \`filter\` (optional filtrex expression), \`fields\` (optional comma-separated)
+**Query parameters:** \`start\`, \`end\`, \`tenantId\`, \`filter\` (optional filtrex expression), \`fields\` (optional comma-separated), \`orderBy\` (optional, e.g. \`date:desc\`)
 
 **Available fields:** \`id\`, \`identifyId\`, \`sessionId\`, \`date\`, \`scheme\`, \`host\`, \`path\`, \`queryString\`, \`hash\`, \`queryParams\`, \`remoteHost\`, \`referrer\`, \`screenHeight\`, \`screenWidth\`, \`languages\`, \`pageTitle\`, \`propertyKey\`, \`eventType\`, \`userType\`, \`accountId\`, \`globalContext\`
 
 **Filter examples:**
-- \`host == "app.example.com"\`
-- \`path == "/dashboard"\`
-- \`host == "app.example.com" and eventType == "pageView"\`
-- \`path in ("/home", "/settings", "/profile")\`
+- \`hash ~= "group/123/dashboard"\` — all dashboards inside group 123
+- \`hash ~= "device/456/dashboard"\` — all dashboards inside device 456
+- \`userType == "USER" and host == "app.example.com"\`
+- \`pageTitle ~= "Dashboard"\`
+
+---
+
+#### GET /v2/pageViewCounts
+Returns page-view counts aggregated by a chosen field (default: \`hash\`). Supports the same filtrex filter as \`/v2/pageViews\` for scoping before aggregation.
+
+**Query parameters:** \`start\`, \`end\`, \`tenantId\`, \`filter\` (optional filtrex expression), \`groupBy\` (optional field name, default \`hash\`), \`pathMask\` (optional \`"true"\` — replaces numeric segments with \`*\`), \`limit\` (optional integer — top-N results)
+
+**Filter + groupBy examples:**
+- Most visited dashboards in group 123: \`filter=hash ~= "group/123/dashboard"&groupBy=hash&limit=10\`
+- Most active accounts: \`groupBy=accountId&limit=5\`
+- Page-type popularity: \`groupBy=hash&pathMask=true\`
+
+**Response** — array of \`{ value: string, count: number }\` sorted by count descending.
 
 ---
 
 ## Caching internals
 
-- Each tenant has its own **IntervalTree** (interval-tree library) populated with point-in-time events (\`low === high === timestamp\`).
-- \`setCache(items, tenantId)\` validates, sorts by date, updates bounds, and inserts into the tree.
-- \`queryCache(start, end, tenantId)\` does a synchronous range query — O(log n + k).
+- Each tenant has its own **\`ChronoArrayCache<T>\`** — a date-sorted \`T[]\` stored in a \`Map<tenantId, T[]>\`.
+- \`setCache(items, tenantId)\` sorts the incoming batch by date ascending, appends it to the tenant array, and evicts items older than \`TTL_DAYS\` from the head.
+- \`queryCache(start, end, tenantId)\` uses binary search (lower-bound + upper-bound) for O(log n) range lookups, with O(1) fast paths when \`end\` ≥ newest item or \`start\` ≤ oldest item.
 - Caches are **in-memory only**; a restart clears all data and the scheduler repopulates them on the next run.
 
 ---

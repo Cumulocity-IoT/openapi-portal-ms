@@ -122,7 +122,7 @@ When dev mode is active, all requests to `http://localhost:8080/proxy/<path>` ar
 | `SchedulerService` | `src/service/scheduler.service.ts` | Cron-driven cache refresh coordinator |
 | `SettingsService` | `src/service/settings.service.ts` | Typed read/write wrapper for C8Y tenant options |
 | `GainsightPxService` | `src/service/gainsight-px.service.ts` | HTTP client for the Gainsight PX REST API |
-| `FilterService` | `src/service/filter.service.ts` | Compiles and applies `filtrex` filter expressions to arrays |
+| `UserUtilityService` | `src/service/user-utility.service.ts` | Computes active-user metric aggregations (top languages, countries, roles, etc.) |
 
 ---
 
@@ -150,7 +150,7 @@ AppModule
     ├── SessionEventsController       (V1 session events)
     ├── SessionEventsControllerV2     (/v2/sessionEvents)
     ├── PageViewController            (V1 page views)
-    └── PageViewControllerV2          (/v2/pageViews)
+    └── PageViewControllerV2          (/v2/pageViews, /v2/pageViewCounts)
 ```
 
 ---

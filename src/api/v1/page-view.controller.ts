@@ -1,8 +1,11 @@
 import { Controller, Get, Logger, Query, UseGuards } from "@nestjs/common";
+import { ApiBasicAuth, ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { PageViewCacheService } from "../../cache/page-view-cache.service";
 import { TenantGuard } from "../../guards/tenant.guard";
 import { CachedPageView } from "../../model/cache-model";
 @UseGuards(TenantGuard)
+@ApiBasicAuth()
+@ApiTags("v1")
 @Controller()
 export class PageViewController {
   private readonly logger = new Logger(PageViewController.name);
@@ -17,6 +20,30 @@ export class PageViewController {
    * @param tenantId - Tenant identifier used to scope the cache query.
    * @returns Array of path/count pairs sorted by count descending; empty array on error.
    */
+  @ApiQuery({
+    name: "start",
+    required: true,
+    description:
+      "Start of the time range (ISO 8601 string or epoch milliseconds).",
+  })
+  @ApiQuery({
+    name: "end",
+    required: true,
+    description:
+      "End of the time range (ISO 8601 string or epoch milliseconds).",
+  })
+  @ApiQuery({
+    name: "tenantId",
+    required: true,
+    description: "Tenant identifier used to scope the cache query.",
+  })
+  @ApiOperation({
+    summary: "/popularDevices",
+    description:
+      "Aggregates page views from the cache by device ID for the given tenant and time range. " +
+      "URLs matching the pattern `/device/{numericId}` are grouped by ID and counted. " +
+      "Returns an array of `{ path, count }` pairs sorted by count descending.",
+  })
   @Get("/popularDevices")
   async getDeviceCounts(
     @Query("start") start: string,
@@ -50,6 +77,30 @@ export class PageViewController {
    * @param type - The URL path segment type to aggregate by: "group", "device", "reports", or "dashboard".
    * @returns Array of path/count pairs sorted by count descending; empty array on error.
    */
+  @ApiQuery({
+    name: "start",
+    required: true,
+    description:
+      "Start of the time range (ISO 8601 string or epoch milliseconds).",
+  })
+  @ApiQuery({
+    name: "end",
+    required: true,
+    description:
+      "End of the time range (ISO 8601 string or epoch milliseconds).",
+  })
+  @ApiQuery({
+    name: "tenantId",
+    required: true,
+    description: "Tenant identifier used to scope the cache query.",
+  })
+  @ApiOperation({
+    summary: "/countByType",
+    description:
+      "Aggregates page views by a specific URL path segment type: `group`, `device`, `reports`, or `dashboard`. " +
+      "URLs containing `/{type}/{numericId}` are extracted and grouped by their numeric ID. " +
+      "Returns an array of `{ path, count }` pairs sorted by count descending.",
+  })
   @Get("/countByType")
   async getCountsForType(
     @Query("start") start: string,
@@ -108,6 +159,30 @@ export class PageViewController {
    * @param tenantId - Tenant identifier used to scope the cache query.
    * @returns Array of path/count pairs sorted by count descending; empty array on error.
    */
+  @ApiQuery({
+    name: "start",
+    required: true,
+    description:
+      "Start of the time range (ISO 8601 string or epoch milliseconds).",
+  })
+  @ApiQuery({
+    name: "end",
+    required: true,
+    description:
+      "End of the time range (ISO 8601 string or epoch milliseconds).",
+  })
+  @ApiQuery({
+    name: "tenantId",
+    required: true,
+    description: "Tenant identifier used to scope the cache query.",
+  })
+  @ApiOperation({
+    summary: "/pageViewCounts",
+    description:
+      "Aggregates page views by normalised URL pattern for the given tenant and time range. " +
+      "All numeric segments in the URL path are replaced with `*` before grouping, producing a count per page type rather than per specific entity. " +
+      "Returns an array of `{ path, count }` pairs sorted by count descending.",
+  })
   @Get("/pageViewCounts")
   async getPageViewCounts(
     @Query("start") start: string,

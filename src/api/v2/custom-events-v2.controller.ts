@@ -1,5 +1,11 @@
 import { Controller, Get, Logger, Query, UseGuards } from "@nestjs/common";
-import { ApiOperation, ApiQuery, ApiResponse } from "@nestjs/swagger";
+import {
+  ApiBasicAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from "@nestjs/swagger";
 import { CustomEventsCacheService } from "../../cache/custom-events-cache.service";
 import { TenantGuard } from "../../guards/tenant.guard";
 import {
@@ -22,6 +28,8 @@ import {
 } from "../../model/customer-custom-event.model";
 
 @UseGuards(TenantGuard)
+@ApiBasicAuth()
+@ApiTags("v2")
 @Controller()
 export class EventsControllerV2 {
   readonly logger = new Logger(EventsControllerV2.name);
@@ -40,7 +48,7 @@ export class EventsControllerV2 {
    * @returns Filtered, mapped, and projected event objects; empty array on error.
    */
   @ApiOperation({
-    summary: "Returns events from the cache within the given time range.",
+    summary: "v2/events",
     description:
       "Supports optional server-side filtering via filtrex (https://github.com/cshaa/filtrex), " +
       "field projection, and data sub-field projection. All string values in filter expressions must be double-quoted.",
@@ -49,19 +57,32 @@ export class EventsControllerV2 {
     name: "filter",
     required: false,
     description:
-      'filtrex filter expression. Strings must be double-quoted. Examples: name == "buttonClick", name != "pageView", name in ("click", "hover").',
+      "filtrex filter expression applied to mapped event objects. Strings must be double-quoted.\n\n" +
+      "**Examples**\n" +
+      '- `name == "buttonClick"` — button click events only\n' +
+      '- `name != "pageView"` — exclude page view events\n' +
+      '- `name in ("buttonClick", "formSubmit")` — clicks and form submissions\n' +
+      '- `identifyId == "user-001"` — events from a specific user',
   })
   @ApiQuery({
     name: "fields",
     required: false,
     description:
-      "Comma-separated top-level event fields to return. Valid values: name, date, data, identifyId, sessionId. Omit to return all fields.",
+      "Comma-separated top-level event fields to return. Valid values: name, date, data, identifyId, sessionId. Omit to return all fields.\n\n" +
+      "**Examples**\n" +
+      "- `name,date,identifyId` — event name, timestamp, and user\n" +
+      "- `name,data` — event name and raw payload only\n" +
+      "- `name,date,sessionId` — event name, timestamp, and session context",
   })
   @ApiQuery({
     name: "dataFields",
     required: false,
     description:
-      "Comma-separated dot-notation paths to project from event.data. Example: widgetName,attributes.size. Omit to return the full data object.",
+      "Comma-separated dot-notation paths to project from event.data. Omit to return the full data object.\n\n" +
+      "**Examples**\n" +
+      "- `widgetName` — widget name only\n" +
+      "- `widgetName,widgetId` — widget name and identifier\n" +
+      "- `attributes.size,attributes.color` — specific nested attribute paths",
   })
   @ApiQuery({
     name: "orderBy",
@@ -89,6 +110,23 @@ export class EventsControllerV2 {
         },
       ],
     },
+  })
+  @ApiQuery({
+    name: "start",
+    required: true,
+    description:
+      "Start of the time range (ISO 8601 string or epoch milliseconds).",
+  })
+  @ApiQuery({
+    name: "end",
+    required: true,
+    description:
+      "End of the time range (ISO 8601 string or epoch milliseconds).",
+  })
+  @ApiQuery({
+    name: "tenantId",
+    required: true,
+    description: "Tenant identifier used to scope the cache query.",
   })
   @Get("v2/events")
   getEventsV2(
@@ -138,8 +176,7 @@ export class EventsControllerV2 {
    * @returns Filtered, mapped, and projected customer custom event objects; empty array on error.
    */
   @ApiOperation({
-    summary:
-      'Returns customer custom events (name prefixed with "customEvent") from the cache.',
+    summary: "v2/customEvents",
     description:
       'Pre-filtered to events whose name starts with "customEvent". ' +
       "The data field always conforms to CustomerCustomEventAttributes (action_type, category, label, metadata). " +
@@ -150,19 +187,31 @@ export class EventsControllerV2 {
     name: "filter",
     required: false,
     description:
-      'filtrex filter expression applied after the customEvent prefix pre-filter. Strings must be double-quoted. Examples: name == "customEventButtonClick", name in ("customEventClick", "customEventHover").',
+      "filtrex filter expression applied after the customEvent prefix pre-filter. Strings must be double-quoted.\n\n" +
+      "**Examples**\n" +
+      '- `name == "customEventButtonClick"` — specific customer event type\n' +
+      '- `name in ("customEventButtonClick", "customEventFormSubmit")` — multiple customer event types\n' +
+      '- `identifyId == "user-001"` — customer events from a specific user',
   })
   @ApiQuery({
     name: "fields",
     required: false,
     description:
-      "Comma-separated top-level event fields to return. Valid values: name, date, data, identifyId, sessionId. Omit to return all fields.",
+      "Comma-separated top-level event fields to return. Valid values: name, date, data, identifyId, sessionId. Omit to return all fields.\n\n" +
+      "**Examples**\n" +
+      "- `name,date,identifyId` — event name, timestamp, and user\n" +
+      "- `name,data` — event name and payload only\n" +
+      "- `name,date,sessionId` — event name, timestamp, and session context",
   })
   @ApiQuery({
     name: "dataFields",
     required: false,
     description:
-      "Comma-separated dot-notation paths to project from event.data. Valid root values: action_type, category, label, metadata. Example: category,label,metadata.size. Omit to return the full data object.",
+      "Comma-separated dot-notation paths to project from event.data. Valid root values: action_type, category, label, metadata. Omit to return the full data object.\n\n" +
+      "**Examples**\n" +
+      "- `category,label` — category and label only\n" +
+      "- `action_type,category` — action type with category\n" +
+      "- `label,metadata.size` — label with a specific metadata sub-field",
   })
   @ApiQuery({
     name: "orderBy",
@@ -195,6 +244,23 @@ export class EventsControllerV2 {
         },
       ],
     },
+  })
+  @ApiQuery({
+    name: "start",
+    required: true,
+    description:
+      "Start of the time range (ISO 8601 string or epoch milliseconds).",
+  })
+  @ApiQuery({
+    name: "end",
+    required: true,
+    description:
+      "End of the time range (ISO 8601 string or epoch milliseconds).",
+  })
+  @ApiQuery({
+    name: "tenantId",
+    required: true,
+    description: "Tenant identifier used to scope the cache query.",
   })
   @Get("v2/customEvents")
   getCustomerEventsV2(

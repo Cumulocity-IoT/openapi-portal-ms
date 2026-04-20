@@ -1,5 +1,11 @@
 import { Controller, Get, Logger, Query, UseGuards } from "@nestjs/common";
-import { ApiOperation, ApiQuery, ApiResponse } from "@nestjs/swagger";
+import {
+  ApiBasicAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from "@nestjs/swagger";
 import { PageViewCacheService } from "../../cache/page-view-cache.service";
 import { TenantGuard } from "../../guards/tenant.guard";
 import {
@@ -19,6 +25,8 @@ import {
 type PageViewCountResult = { value: string; count: number };
 
 @UseGuards(TenantGuard)
+@ApiBasicAuth()
+@ApiTags("v2")
 @Controller()
 export class PageViewControllerV2 {
   private readonly logger = new Logger(PageViewControllerV2.name);
@@ -35,8 +43,7 @@ export class PageViewControllerV2 {
    * @returns Filtered, mapped, and projected page-view objects; empty array on error.
    */
   @ApiOperation({
-    summary:
-      "Returns page-view events from the cache within the given time range.",
+    summary: "v2/pageViews",
     description:
       "Supports optional server-side filtering via filtrex (https://github.com/cshaa/filtrex), " +
       "field projection, and sorting. All string values in filter expressions must be double-quoted. " +
@@ -52,23 +59,30 @@ export class PageViewControllerV2 {
     name: "filter",
     required: false,
     description:
-      "filtrex filter expression. Strings must be double-quoted. " +
-      "Use ~= for regex matching. Examples:\n" +
-      '- `hash ~= "group/123/dashboard"` — all dashboard views inside group 123\n' +
-      '- `hash ~= "device/456/dashboard"` — all dashboard views inside device 456\n' +
-      '- `userType == "USER" and host == "app.example.com"`',
+      "filtrex filter expression applied to mapped page-view objects. Strings must be double-quoted. " +
+      "Use `~=` for regex matching.\n\n" +
+      "**Examples**\n" +
+      '- `hash ~= "group/123/dashboard"` — all dashboards inside group 123\n' +
+      '- `hash ~= "device/456/dashboard"` — all dashboards inside device 456\n' +
+      '- `userType == "USER" and host == "app.example.com"` — authenticated users on a specific host\n' +
+      '- `pageTitle ~= "Dashboard"` — all pages with "Dashboard" in the title\n' +
+      '- `accountId == "acc-001"` — page views from a specific account',
   })
   @ApiQuery({
     name: "fields",
     required: false,
     description:
-      "Comma-separated page-view fields to return. Valid values: id, identifyId, sessionId, date, scheme, host, path, queryString, hash, queryParams, remoteHost, referrer, screenHeight, screenWidth, languages, pageTitle, propertyKey, eventType, userType, accountId, globalContext. Omit to return all fields.",
+      "Comma-separated page-view fields to return. Valid values: id, identifyId, sessionId, date, scheme, host, path, queryString, hash, queryParams, remoteHost, referrer, screenHeight, screenWidth, languages, pageTitle, propertyKey, eventType, userType, accountId, globalContext. Omit to return all fields.\n\n" +
+      "**Examples**\n" +
+      "- `id,identifyId,hash,date` — minimal view with page path and user\n" +
+      "- `id,pageTitle,accountId,userType` — page title per account and user type\n" +
+      "- `id,hash,screenWidth,screenHeight` — page paths with screen resolution",
   })
   @ApiQuery({
     name: "orderBy",
     required: false,
     description:
-      "Field and optional direction to sort results by, in the format `field` or `field:asc` / `field:dir`. " +
+      "Field and optional direction to sort results by, in the format `field` or `field:asc` / `field:desc`. " +
       "Direction defaults to `asc` when omitted. Valid field values match those listed in `fields`.\n\n" +
       "**Examples**\n" +
       "- `date:desc` — most recent events first\n" +
@@ -109,6 +123,23 @@ export class PageViewControllerV2 {
         },
       ],
     },
+  })
+  @ApiQuery({
+    name: "start",
+    required: true,
+    description:
+      "Start of the time range (ISO 8601 string or epoch milliseconds).",
+  })
+  @ApiQuery({
+    name: "end",
+    required: true,
+    description:
+      "End of the time range (ISO 8601 string or epoch milliseconds).",
+  })
+  @ApiQuery({
+    name: "tenantId",
+    required: true,
+    description: "Tenant identifier used to scope the cache query.",
   })
   @Get("v2/pageViews")
   getPageViewsV2(
@@ -168,7 +199,7 @@ export class PageViewControllerV2 {
    * @returns Array of {value, count} pairs sorted by count descending.
    */
   @ApiOperation({
-    summary: "Returns page-view counts aggregated by a chosen field.",
+    summary: "v2/pageViewCounts",
     description:
       "Filters page-views using a filtrex expression (same syntax as `/v2/pageViews`), " +
       "then groups the matching records by the `groupBy` field and counts occurrences. " +
@@ -183,11 +214,12 @@ export class PageViewControllerV2 {
     name: "filter",
     required: false,
     description:
-      "filtrex filter expression to scope records before aggregation. Strings must be double-quoted. " +
-      "Examples:\n" +
+      "filtrex filter expression to scope page-view records before aggregation. Strings must be double-quoted. " +
+      "Use `~=` for regex matching.\n\n" +
+      "**Examples**\n" +
       '- `hash ~= "group/123/dashboard"` — dashboards inside group 123\n' +
       '- `hash ~= "device/456/dashboard"` — dashboards inside device 456\n' +
-      '- `userType == "USER"`',
+      '- `accountId == "acc-001"` — views from a specific account',
   })
   @ApiQuery({
     name: "groupBy",
@@ -223,6 +255,23 @@ export class PageViewControllerV2 {
         { value: "#/group/123/dashboard/11", count: 34 },
       ],
     },
+  })
+  @ApiQuery({
+    name: "start",
+    required: true,
+    description:
+      "Start of the time range (ISO 8601 string or epoch milliseconds).",
+  })
+  @ApiQuery({
+    name: "end",
+    required: true,
+    description:
+      "End of the time range (ISO 8601 string or epoch milliseconds).",
+  })
+  @ApiQuery({
+    name: "tenantId",
+    required: true,
+    description: "Tenant identifier used to scope the cache query.",
   })
   @Get("v2/pageViewCounts")
   getPageViewCountsV2(

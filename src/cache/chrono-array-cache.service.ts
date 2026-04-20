@@ -24,15 +24,15 @@ export abstract class ChronoArrayCache<T> {
       return;
     }
 
-    // Sort the incoming batch by date ascending before appending
-    const sorted = [...items].sort((a, b) => this.getDate(a) - this.getDate(b));
+    // Sort the incoming batch in-place by date ascending before merging.
+    items.sort((a, b) => this.getDate(a) - this.getDate(b));
 
-    if (!this.cache.has(tenantId)) {
-      this.cache.set(tenantId, []);
-    }
-    const arr = this.cache.get(tenantId);
-    arr.push(...sorted);
-    this.getLogger().log(`Cache items count: ${arr.length}`);
+    // Merge the sorted incoming batch with the existing sorted cache to guarantee
+    // chronological order regardless of any timestamp overlap at the boundary.
+    const existing = this.cache.get(tenantId) ?? [];
+    const merged = this.mergeSorted(existing, items);
+    this.cache.set(tenantId, merged);
+    this.getLogger().log(`Cache items count: ${merged.length}`);
 
     // Store or update the per-tenant TTL if provided
     if (ttlDays !== undefined) {
@@ -42,6 +42,7 @@ export abstract class ChronoArrayCache<T> {
     // TTL eviction: drop records older than the tenant's TTL (or the global default)
     const effectiveTtl = this.ttlMap.get(tenantId) ?? TTL_DAYS;
     const cutoff = Date.now() - effectiveTtl * 24 * 60 * 60 * 1000;
+    const arr = this.cache.get(tenantId);
     if (arr.length > 0 && this.getDate(arr[0]) < cutoff) {
       const cutoffIndex = arr.findIndex((item) => this.getDate(item) >= cutoff);
       if (cutoffIndex > 0) {
@@ -51,6 +52,41 @@ export abstract class ChronoArrayCache<T> {
         );
       }
     }
+  }
+
+  /** Merge two individually sorted arrays into a single sorted array (O(n+m)). */
+  private mergeSorted(a: T[], b: T[]): T[] {
+    if (a.length === 0) return b;
+    if (b.length === 0) return a;
+
+    // O(1) fast paths: no interleaving when the arrays don't overlap.
+    if (this.getDate(a[a.length - 1]) <= this.getDate(b[0])) {
+      // Common case: new batch is newer than all cached data.
+      // Append b to a in-place (O(m)) to avoid copying the entire n-element cache.
+      for (let k = 0; k < b.length; k++) a.push(b[k]);
+      return a;
+    }
+    if (this.getDate(b[b.length - 1]) <= this.getDate(a[0])) {
+      // Back-fill: new batch is entirely older; b must precede a.
+      const backfilled: T[] = new Array(b.length + a.length);
+      for (let k = 0; k < b.length; k++) backfilled[k] = b[k];
+      for (let k = 0; k < a.length; k++) backfilled[b.length + k] = a[k];
+      return backfilled;
+    }
+
+    const result: T[] = [];
+    let i = 0;
+    let j = 0;
+    while (i < a.length && j < b.length) {
+      if (this.getDate(a[i]) <= this.getDate(b[j])) {
+        result.push(a[i++]);
+      } else {
+        result.push(b[j++]);
+      }
+    }
+    while (i < a.length) result.push(a[i++]);
+    while (j < b.length) result.push(b[j++]);
+    return result;
   }
 
   /** Binary search: index of first element where date >= startDate (lower bound). */

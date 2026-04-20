@@ -1,6 +1,6 @@
 import { Injectable, INestApplication } from "@nestjs/common";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
-import { version } from "../../../package.json";
+import { name, version } from "../../../package.json";
 
 /**
  * Lazily generates the OpenAPI document the first time `getDocument()` is
@@ -36,6 +36,7 @@ export class OpenApiDocumentService {
           "Public endpoints: `/health`, `/lastRun`, `/llms.txt`, `/llms-full.txt`, `/openapi.json`, `/robots.txt`, `/.well-known/ai-plugin.json`.",
       )
       .setVersion(version)
+      .addServer(`https://gainsight.eu-latest.cumulocity.com/service/${name}`)
       .addBearerAuth()
       .build();
     this.cachedDocument = SwaggerModule.createDocument(

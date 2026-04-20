@@ -84,7 +84,7 @@ You can generate or preview these locally; see the "OpenAPI / API docs" section 
   - Bundle into a single-file HTML (example): `npx @redocly/cli build-docs docs/openapi.json -o docs/index.html`
   - Inspect available commands: `npx @redocly/cli --help`
 
-If you prefer to generate the OpenAPI spec from the running app (automatic DTO/schema extraction), you can integrate `@nestjs/swagger` and emit a runtime spec instead of (or in addition to) the static `docs/openapi.json`.
+The app already uses `@nestjs/swagger` to generate the OpenAPI spec at runtime. Run `pnpm run openapi:generate` to start the app in dev mode and write the live spec to `docs/openapi.json`.
 
 ---
 

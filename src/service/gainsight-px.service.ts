@@ -52,8 +52,10 @@ export class GainsightPxService {
       const response = await this.apiClient.get("/events/session", { params });
       return response.data;
     } catch (error) {
-      this.logger.log(`ERROR: ${JSON.stringify(error)}`);
-      throw new Error(`Error: ${JSON.stringify(error.message)}`);
+      this.logger.error(`GET /events/session failed`, error);
+      throw new Error(
+        `Error: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
@@ -66,8 +68,10 @@ export class GainsightPxService {
       const response = await this.apiClient.get("/events/custom", { params });
       return response.data;
     } catch (error) {
-      this.logger.log(`ERROR: ${JSON.stringify(error)}`);
-      throw new Error(`Error: ${JSON.stringify(error.message)}`);
+      this.logger.error(`GET /events/custom failed`, error);
+      throw new Error(
+        `Error: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
@@ -80,8 +84,10 @@ export class GainsightPxService {
       const response = await this.apiClient.get("/events/pageView", { params });
       return response.data;
     } catch (error) {
-      this.logger.log(`ERROR: ${JSON.stringify(error)}`);
-      throw new Error(`Error: ${JSON.stringify(error.message)}`);
+      this.logger.error(`GET /events/pageView failed`, error);
+      throw new Error(
+        `Error: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
@@ -94,30 +100,50 @@ export class GainsightPxService {
       const response = await this.apiClient.get("/events/identify", { params });
       return response.data;
     } catch (error) {
-      this.logger.log(`ERROR: ${JSON.stringify(error)}`);
-      throw new Error(`Error: ${JSON.stringify(error.message)}`);
+      this.logger.error(`GET /events/identify failed`, error);
+      throw new Error(
+        `Error: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
   async getFeatures(parameters?: FeaturePagination): Promise<FeaturesResponse> {
-    const params = this.applyParams(parameters);
-    const response = await this.apiClient.get("/feature", { params });
-    return response.data;
+    try {
+      const params = this.applyParams(parameters);
+      this.logger.log(`GET /feature, query: ${JSON.stringify(parameters)}`);
+      const response = await this.apiClient.get("/feature", { params });
+      return response.data;
+    } catch (error) {
+      this.logger.error(`GET /feature failed`, error);
+      throw new Error(
+        `Error: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
   }
 
   async getFeaturesV2(
     parameters?: FeaturePagination,
   ): Promise<FeaturesResponse> {
-    const params = this.applyParams(parameters);
-    const api = axios.create({
-      baseURL: "https://api.aptrinsic.com/v2",
-      headers: {
-        "X-APTRINSIC-API-KEY": this.apiKey,
-        Accept: "application/json",
-      },
-    });
-    const response = await api.get(`/feature_ext`, { params });
-    return response.data;
+    try {
+      const params = this.applyParams(parameters);
+      this.logger.log(
+        `GET /v2/feature_ext, query: ${JSON.stringify(parameters)}`,
+      );
+      const api = axios.create({
+        baseURL: "https://api.aptrinsic.com/v2",
+        headers: {
+          "X-APTRINSIC-API-KEY": this.apiKey,
+          Accept: "application/json",
+        },
+      });
+      const response = await api.get(`/feature_ext`, { params });
+      return response.data;
+    } catch (error) {
+      this.logger.error(`GET /v2/feature_ext failed`, error);
+      throw new Error(
+        `Error: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
   }
 
   private applyParams(parameters?: object) {
@@ -150,14 +176,24 @@ export class GainsightPxService {
       const response = await this.apiClient.get("/users", { params });
       return response.data;
     } catch (error) {
-      this.logger.log(`ERROR: ${JSON.stringify(error)}`);
-      throw new Error(`Error: ${JSON.stringify(error.message)}`);
+      this.logger.error(`GET /users failed`, error);
+      throw new Error(
+        `Error: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
   async getFeatureByKey(key: string): Promise<FeatureJSON> {
-    const response = await this.apiClient.get(`/feature/${key}`);
-    return response.data;
+    try {
+      this.logger.log(`GET /feature/${key}`);
+      const response = await this.apiClient.get(`/feature/${key}`);
+      return response.data;
+    } catch (error) {
+      this.logger.error(`GET /feature/${key} failed`, error);
+      throw new Error(
+        `Error: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
   }
 
   async getFeaturesHierarchy() {
