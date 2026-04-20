@@ -12,7 +12,7 @@ import { PageViewCacheService } from "../cache/page-view-cache.service";
 import { SessionEventsCacheService } from "../cache/session-events-cache.service";
 import { ConfigurationService } from "./configuration.service";
 import { DevModeService } from "./dev-mode.service";
-import { TTL_DAYS } from "src/app.model";
+import { TTL_DAYS } from "../app.model";
 
 const EVERY_10_MINUTES = "*/10 * * * *";
 // const EVERY_HOUR = '0 * * * *';
@@ -53,25 +53,30 @@ export class SchedulerService {
     delete this.runDuration;
     this.logger.log("Starting the scheduled task.");
 
-    let timeRange: { start: string; end: string };
-    if (this.devModeService.isDevModeEnabled()) {
-      const randomMs = Math.floor(Math.random() * 1000 * 60 * 60 * 24 * 3); // up to 3 days
-      timeRange = {
-        start: subMilliseconds(new Date(), randomMs).toISOString(),
-        end: new Date().toISOString(),
-      };
-    } else {
-      timeRange = {
-        start: subDays(new Date(), TTL_DAYS).toISOString(),
-        end: new Date().toISOString(),
-      };
-    }
+    const isDevMode = this.devModeService.isDevModeEnabled();
 
     this.configService
       .getAllDomains()
       .then((domains) => {
         const promises: Promise<void>[] = [];
         for (const domain of domains) {
+          let timeRange: { start: string; end: string };
+          if (isDevMode) {
+            const randomMs = Math.floor(
+              Math.random() * 1000 * 60 * 60 * 24 * 3,
+            ); // up to 3 days
+            timeRange = {
+              start: subMilliseconds(new Date(), randomMs).toISOString(),
+              end: new Date().toISOString(),
+            };
+          } else {
+            const ttlDays = domain.ttl ?? TTL_DAYS;
+            timeRange = {
+              start: subDays(new Date(), ttlDays).toISOString(),
+              end: new Date().toISOString(),
+            };
+          }
+
           this.logger.log(
             "Running cache update for domain: " +
               domain.url +

@@ -15,13 +15,13 @@ export class ActiveUsersCacheService extends ChronoArrayCache<CachedUser> {
   createOrUpdateCache(
     start: string,
     end: string,
-    domain: { id: string; url: string },
+    domain: { id: string; url: string; ttl?: number },
   ): Promise<void> {
     const startDate = this.getStartDate(start, domain.id);
     return this.getActiveUserMetricsDateRange(startDate, end, domain.url).then(
       (users) => {
         const cachedUsers = mapUsersToCachedUsers(users);
-        this.setCache(cachedUsers, domain.id);
+        this.setCache(cachedUsers, domain.id, domain.ttl);
       },
     );
   }

@@ -23,12 +23,12 @@ export class CustomEventsCacheService extends ChronoArrayCache<CachedEvent> {
   createOrUpdateCache(
     start: string,
     end: string,
-    domain: { id: string; url: string },
+    domain: { id: string; url: string; ttl?: number },
   ): Promise<void> {
     const startDate = this.getStartDate(start, domain.id);
     return this.getCustomEvents(startDate, end, domain.id).then((events) => {
       const cachedEvents = mapCustomEventsToCachedEvents(events);
-      this.setCache(cachedEvents, domain.id);
+      this.setCache(cachedEvents, domain.id, domain.ttl);
     });
   }
 

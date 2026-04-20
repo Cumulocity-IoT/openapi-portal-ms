@@ -175,4 +175,79 @@ describe("TreeCache – date range queries", () => {
     expect(all.some((i) => i.value === "fresh")).toBe(true);
     expect(all.some((i) => i.value === "newest")).toBe(true);
   });
+
+  it("uses a custom per-tenant TTL when provided", () => {
+    const now = Date.now();
+    const tenantId = "custom-ttl-test";
+    const customTtlDays = 7;
+
+    // Item within 7 days: 3 days ago
+    const freshTs = now - 3 * 24 * 60 * 60 * 1000;
+    // Item outside 7 days but within 60 days: 10 days ago
+    const staleTs = now - 10 * 24 * 60 * 60 * 1000;
+
+    cache.setCache(
+      [
+        { date: staleTs, value: "stale" },
+        { date: freshTs, value: "fresh" },
+      ],
+      tenantId,
+      customTtlDays,
+    );
+
+    // Trigger eviction with a new item using the same custom TTL
+    cache.setCache([{ date: now, value: "newest" }], tenantId, customTtlDays);
+
+    const all = cache.getCache(0, now + 1, tenantId);
+    expect(all.some((i) => i.value === "stale")).toBe(false);
+    expect(all.some((i) => i.value === "fresh")).toBe(true);
+    expect(all.some((i) => i.value === "newest")).toBe(true);
+  });
+
+  it("retains the custom TTL from the first call and applies it on subsequent calls without ttlDays", () => {
+    const now = Date.now();
+    const tenantId = "retained-ttl-test";
+    const customTtlDays = 7;
+
+    const staleTs = now - 10 * 24 * 60 * 60 * 1000; // 10 days ago → outside 7-day TTL
+    const freshTs = now - 3 * 24 * 60 * 60 * 1000; // 3 days ago → within 7-day TTL
+
+    // First call sets the custom TTL
+    cache.setCache(
+      [{ date: staleTs, value: "stale" }],
+      tenantId,
+      customTtlDays,
+    );
+
+    // Second call omits ttlDays — stored TTL (7 days) should still be used
+    cache.setCache([{ date: freshTs, value: "fresh" }, { date: now, value: "newest" }], tenantId);
+
+    const all = cache.getCache(0, now + 1, tenantId);
+    expect(all.some((i) => i.value === "stale")).toBe(false);
+    expect(all.some((i) => i.value === "fresh")).toBe(true);
+    expect(all.some((i) => i.value === "newest")).toBe(true);
+  });
+
+  it("falls back to default TTL_DAYS (60) when no custom TTL is set", () => {
+    const now = Date.now();
+    const tenantId = "default-ttl-test";
+
+    // 61 days ago → outside default 60-day TTL
+    const staleTs = now - 61 * 24 * 60 * 60 * 1000;
+    // 59 days ago → within default 60-day TTL
+    const freshTs = now - 59 * 24 * 60 * 60 * 1000;
+
+    cache.setCache(
+      [
+        { date: staleTs, value: "stale" },
+        { date: freshTs, value: "fresh" },
+      ],
+      tenantId,
+    );
+    cache.setCache([{ date: now, value: "newest" }], tenantId);
+
+    const all = cache.getCache(0, now + 1, tenantId);
+    expect(all.some((i) => i.value === "stale")).toBe(false);
+    expect(all.some((i) => i.value === "fresh")).toBe(true);
+  });
 });

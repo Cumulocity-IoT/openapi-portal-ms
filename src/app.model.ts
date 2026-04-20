@@ -12,6 +12,7 @@ export const GainsightConfigValueSchema = z.array(
       z.object({
         url: z.string(), // e.g., "main.dm-zz-q.ioee10-cloud.com"
         id: z.string(), // e.g., "t2700"
+        ttl: z.number().optional(), // optional TTL in days, overrides default TTL_DAYS
       }),
     ),
   }),
