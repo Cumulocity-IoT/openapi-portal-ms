@@ -73,6 +73,7 @@
             }
           }
         },
+        "summary": "Returns active users from the cache within the given time range.",
         "tags": [
           "ActiveUser"
         ]
@@ -112,6 +113,7 @@
             "description": ""
           }
         },
+        "summary": "Returns the total count of distinct active users within the given time range.",
         "tags": [
           "ActiveUser"
         ]
@@ -151,6 +153,7 @@
             "description": ""
           }
         },
+        "summary": "Returns the count of new user sign-ups since the start of the given time range.",
         "tags": [
           "ActiveUser"
         ]
@@ -190,6 +193,7 @@
             "description": ""
           }
         },
+        "summary": "Returns the most common browser languages among active users within the given\ntime range, sorted by frequency in descending order.",
         "tags": [
           "ActiveUser"
         ]
@@ -229,6 +233,7 @@
             "description": ""
           }
         },
+        "summary": "Returns the most common user roles among active users within the given time\nrange, sorted by frequency in descending order.",
         "tags": [
           "ActiveUser"
         ]
@@ -268,6 +273,7 @@
             "description": ""
           }
         },
+        "summary": "Returns the most common countries among active users within the given time\nrange, sorted by frequency in descending order.",
         "tags": [
           "ActiveUser"
         ]
@@ -307,6 +313,7 @@
             "description": ""
           }
         },
+        "summary": "Returns the most common platforms among active users within the given time\nrange, sorted by frequency in descending order.",
         "tags": [
           "ActiveUser"
         ]
@@ -346,6 +353,7 @@
             "description": ""
           }
         },
+        "summary": "Returns the most common browsers among active users within the given time\nrange, sorted by frequency in descending order.",
         "tags": [
           "ActiveUser"
         ]
@@ -385,6 +393,7 @@
             "description": ""
           }
         },
+        "summary": "Returns the most common device types among active users within the given\ntime range, sorted by frequency in descending order.",
         "tags": [
           "ActiveUser"
         ]
@@ -424,6 +433,7 @@
             "description": ""
           }
         },
+        "summary": "Returns the most common email domain names among active users within the\ngiven time range, sorted by frequency in descending order.",
         "tags": [
           "ActiveUser"
         ]
@@ -463,6 +473,7 @@
             "description": ""
           }
         },
+        "summary": "Returns the count of each custom event type within the given time range,\nsorted by frequency in descending order.",
         "tags": [
           "Events"
         ]
@@ -510,6 +521,7 @@
             "description": ""
           }
         },
+        "summary": "Returns widget counts grouped by widget name for a specific event type\nwithin the given time range.",
         "tags": [
           "Events"
         ]
@@ -542,6 +554,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "withId",
+            "required": false,
+            "in": "query",
+            "description": "When true, includes identifyId and sessionId in each event object. Defaults to false.",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
@@ -559,6 +580,7 @@
             }
           }
         },
+        "summary": "Returns all custom events within the given time range.",
         "tags": [
           "Events"
         ]
@@ -598,6 +620,7 @@
             "description": ""
           }
         },
+        "summary": "Returns session events aggregated over an automatically determined time\nresolution based on the given range. Ranges up to 1 hour are bucketed by\nminute, ranges up to 1 day by hour, and longer ranges by day.",
         "tags": [
           "SessionEvents"
         ]
@@ -637,6 +660,7 @@
             "description": ""
           }
         },
+        "summary": "Returns raw session events within the given time range.",
         "tags": [
           "SessionEvents"
         ]
@@ -676,6 +700,7 @@
             "description": ""
           }
         },
+        "summary": "Returns page-view counts aggregated by device ID within the given time\nrange, sorted by count in descending order.",
         "tags": [
           "PageView"
         ]
@@ -723,6 +748,7 @@
             "description": ""
           }
         },
+        "summary": "Returns page-view counts aggregated by a specific path segment type\nwithin the given time range. Counts page-view URLs that match the pattern\n\"/{type}/{numericId}\" and groups them by numeric ID.",
         "tags": [
           "PageView"
         ]
@@ -762,6 +788,7 @@
             "description": ""
           }
         },
+        "summary": "Returns page-view counts aggregated by masked URL pattern within the given\ntime range. Numeric segments in the URL path are replaced with wildcards\nbefore grouping, producing a count per page type.",
         "tags": [
           "PageView"
         ]
@@ -769,6 +796,7 @@
     },
     "/v2/activeUsers": {
       "get": {
+        "description": "Supports optional server-side filtering via filtrex (https://github.com/cshaa/filtrex) and field projection. All string values in filter expressions must be double-quoted.",
         "operationId": "ActiveUserControllerV2_getUsersV2",
         "parameters": [
           {
@@ -797,16 +825,27 @@
           },
           {
             "name": "filter",
-            "required": true,
+            "required": false,
             "in": "query",
+            "description": "filtrex filter expression. Strings must be double-quoted. Examples: country == \"Germany\", roles != \"guest\" and platform == \"desktop\", device in (\"mobile\", \"tablet\").",
             "schema": {
               "type": "string"
             }
           },
           {
             "name": "fields",
-            "required": true,
+            "required": false,
             "in": "query",
+            "description": "Comma-separated user fields to return. Valid values: id, roles, country, sessionId, language, platform, browser, device, domain. Omit to return all fields.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "orderBy",
+            "required": false,
+            "in": "query",
+            "description": "Field and optional direction to sort results by, in the format `field` or `field:asc` / `field:desc`. Direction defaults to `asc` when omitted. Valid field values match those listed in `fields`.\n\n**Examples**\n- `country:asc` — alphabetical by country\n- `domain:asc` — alphabetical by domain\n- `language:asc` — alphabetical by language\n- `platform:desc` — reverse-alphabetical by platform",
             "schema": {
               "type": "string"
             }
@@ -814,20 +853,32 @@
         ],
         "responses": {
           "200": {
-            "description": "",
+            "description": "Filtered and projected active user objects.",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object"
-                  }
+                  "example": [
+                    {
+                      "id": "user-001",
+                      "roles": [
+                        "admin",
+                        "developer"
+                      ],
+                      "country": "Germany",
+                      "sessionId": "sess-abc123",
+                      "language": "de",
+                      "platform": "desktop",
+                      "browser": "Chrome",
+                      "device": "desktop",
+                      "domain": "example.com"
+                    }
+                  ]
                 }
               }
             }
           }
         },
-        "summary": "Returns active users from the cache within the given time range, with\noptional server-side filtering and field projection.\n\n**`filter`** — a [`filtrex`](https://github.com/cshaa/filtrex) expression\nevaluated against each mapped user. Strings must be **double-quoted**.\n\n| Goal | Expression |\n|---|---|\n| Single country | `country == \"Germany\"` |\n| Exclude guests | `roles != \"guest\"` |\n| Platform filter | `platform == \"desktop\"` |\n| Compound condition | `country == \"USA\" and browser == \"Chrome\"` |\n| Multiple devices | `device in (\"mobile\", \"tablet\")` |\n\n**`fields`** — comma-separated top-level fields to return from the mapped\nuser. Valid values: `id`, `roles`, `country`, `sessionId`, `language`,\n`platform`, `browser`, `device`, `domain`.\nWhen omitted, all top-level fields are returned.\n\n| Goal | Value |\n|---|---|\n| Identity only | `id,sessionId` |\n| Location and browser | `id,country,browser,platform` |\n| Full user (default) | _(omit param)_ |",
+        "summary": "Returns active users from the cache within the given time range.",
         "tags": [
           "ActiveUserControllerV2"
         ]
@@ -835,6 +886,7 @@
     },
     "/v2/events": {
       "get": {
+        "description": "Supports optional server-side filtering via filtrex (https://github.com/cshaa/filtrex), field projection, and data sub-field projection. All string values in filter expressions must be double-quoted.",
         "operationId": "EventsControllerV2_getEventsV2",
         "parameters": [
           {
@@ -863,24 +915,36 @@
           },
           {
             "name": "filter",
-            "required": true,
+            "required": false,
             "in": "query",
+            "description": "filtrex filter expression. Strings must be double-quoted. Examples: name == \"buttonClick\", name != \"pageView\", name in (\"click\", \"hover\").",
             "schema": {
               "type": "string"
             }
           },
           {
             "name": "fields",
-            "required": true,
+            "required": false,
             "in": "query",
+            "description": "Comma-separated top-level event fields to return. Valid values: name, date, data, identifyId, sessionId. Omit to return all fields.",
             "schema": {
               "type": "string"
             }
           },
           {
             "name": "dataFields",
-            "required": true,
+            "required": false,
             "in": "query",
+            "description": "Comma-separated dot-notation paths to project from event.data. Example: widgetName,attributes.size. Omit to return the full data object.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "orderBy",
+            "required": false,
+            "in": "query",
+            "description": "Field and optional direction to sort results by, in the format `field` or `field:asc` / `field:desc`. Direction defaults to `asc` when omitted. Valid field values match those listed in `fields`.\n\n**Examples**\n- `date:desc` — most recent events first\n- `date:asc` — oldest events first\n- `name:asc` — alphabetical by event name\n- `identifyId:asc` — alphabetical by user",
             "schema": {
               "type": "string"
             }
@@ -888,20 +952,28 @@
         ],
         "responses": {
           "200": {
-            "description": "",
+            "description": "Filtered and projected event objects.",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object"
-                  }
+                  "example": [
+                    {
+                      "name": "buttonClick",
+                      "date": "2024-01-15T10:30:00.000Z",
+                      "data": {
+                        "widgetName": "SaveButton",
+                        "widgetId": "save-btn"
+                      },
+                      "identifyId": "user-001",
+                      "sessionId": "sess-abc123"
+                    }
+                  ]
                 }
               }
             }
           }
         },
-        "summary": "Returns events from the cache within the given time range, with optional\nserver-side filtering and field projection.\n\n**`filter`** — a [`filtrex`](https://github.com/cshaa/filtrex) expression\nevaluated against each mapped event (`name`, `date`, `data`, `identifyId`,\n`sessionId`). Strings must be **double-quoted**.\n\n| Goal | Expression |\n|---|---|\n| Single event type | `name == \"buttonClick\"` |\n| Exclude an event type | `name != \"pageView\"` |\n| Compound condition | `name == \"formSubmit\" and sessionId == \"abc123\"` |\n| Multiple allowed names | `name in (\"click\", \"hover\", \"focus\")` |\n\n**`fields`** — comma-separated top-level fields to return from the mapped\nevent. Valid values: `name`, `date`, `data`, `identifyId`, `sessionId`.\nWhen omitted, all top-level fields are returned.\n\n| Goal | Value |\n|---|---|\n| Name and date only | `name,date` |\n| Include identity info | `name,date,identifyId,sessionId` |\n| Full event (default) | _(omit param)_ |\n\n**`dataFields`** — comma-separated dot-notation paths to project from\n`event.data`. When omitted, the full `data` object is returned.\n\n| Goal | Value |\n|---|---|\n| Single top-level key | `widgetName` |\n| Nested key (flat output) | `attributes.size` |\n| Multiple keys | `widgetName,attributes.size,user.id` |\n| Full data payload (default) | _(omit param)_ |",
+        "summary": "Returns events from the cache within the given time range.",
         "tags": [
           "EventsControllerV2"
         ]
@@ -909,6 +981,7 @@
     },
     "/v2/customEvents": {
       "get": {
+        "description": "Pre-filtered to events whose name starts with \"customEvent\". The data field always conforms to CustomerCustomEventAttributes (action_type, category, label, metadata). Supports optional filtrex filtering (https://github.com/cshaa/filtrex) and data sub-field projection. All string values in filter expressions must be double-quoted.",
         "operationId": "EventsControllerV2_getCustomerEventsV2",
         "parameters": [
           {
@@ -937,24 +1010,36 @@
           },
           {
             "name": "filter",
-            "required": true,
+            "required": false,
             "in": "query",
+            "description": "filtrex filter expression applied after the customEvent prefix pre-filter. Strings must be double-quoted. Examples: name == \"customEventButtonClick\", name in (\"customEventClick\", \"customEventHover\").",
             "schema": {
               "type": "string"
             }
           },
           {
             "name": "fields",
-            "required": true,
+            "required": false,
             "in": "query",
+            "description": "Comma-separated top-level event fields to return. Valid values: name, date, data, identifyId, sessionId. Omit to return all fields.",
             "schema": {
               "type": "string"
             }
           },
           {
             "name": "dataFields",
-            "required": true,
+            "required": false,
             "in": "query",
+            "description": "Comma-separated dot-notation paths to project from event.data. Valid root values: action_type, category, label, metadata. Example: category,label,metadata.size. Omit to return the full data object.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "orderBy",
+            "required": false,
+            "in": "query",
+            "description": "Field and optional direction to sort results by, in the format `field` or `field:asc` / `field:desc`. Direction defaults to `asc` when omitted. Valid field values match those listed in `fields`.\n\n**Examples**\n- `date:desc` — most recent events first\n- `date:asc` — oldest events first\n- `name:asc` — alphabetical by event name\n- `identifyId:asc` — alphabetical by user",
             "schema": {
               "type": "string"
             }
@@ -962,20 +1047,30 @@
         ],
         "responses": {
           "200": {
-            "description": "",
+            "description": "Filtered and projected customer custom event objects.",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object"
-                  }
+                  "example": [
+                    {
+                      "name": "customEventButtonClick",
+                      "date": "2024-01-15T10:30:00.000Z",
+                      "data": {
+                        "action_type": "click",
+                        "category": "UI",
+                        "label": "SaveButton",
+                        "metadata": {}
+                      },
+                      "identifyId": "user-001",
+                      "sessionId": "sess-abc123"
+                    }
+                  ]
                 }
               }
             }
           }
         },
-        "summary": "Returns only customer-defined custom events (name prefix `customEvent*`)\nfrom the cache within the given time range. The `data` field always\nconforms to {@link CustomerCustomEventAttributes} (`action_type`, `category`,\n`label`, `metadata`).\n\nThis is a pre-filtered view of `v2/events` — only events whose `name`\nstarts with `customEvent` are included before any additional filtering\nor projection is applied.\n\n**`filter`** — a [`filtrex`](https://github.com/cshaa/filtrex) expression\nevaluated against each mapped event. Reference top-level fields or\nknown `data` sub-fields. Strings must be **double-quoted**.\n\n| Goal | Expression |\n|---|---|\n| Specific event name | `name == \"customEventButtonClick\"` |\n| By action type | `name == \"customEventTrack\"` |\n| Exclude a name | `name != \"customEventPageLoad\"` |\n| Multiple names | `name in (\"customEventClick\", \"customEventHover\")` |\n\n**`dataFields`** — comma-separated dot-notation paths to project from\n`event.data`. Valid values: `action_type`, `category`, `label`,\n`metadata`, or nested paths inside `metadata` (e.g. `metadata.size`).\nWhen omitted, the full `data` object is returned.\n\n| Goal | Value |\n|---|---|\n| Category and label only | `category,label` |\n| Action and nested metadata | `action_type,metadata.size` |\n| Full data payload (default) | _(omit param)_ |",
+        "summary": "Returns customer custom events (name prefixed with \"customEvent\") from the cache.",
         "tags": [
           "EventsControllerV2"
         ]
@@ -983,6 +1078,7 @@
     },
     "/v2/pageViews": {
       "get": {
+        "description": "Supports optional server-side filtering via filtrex (https://github.com/cshaa/filtrex), field projection, and sorting. All string values in filter expressions must be double-quoted. Use the `~=` operator for regex matching, e.g. to scope results to a specific group or device.\n\n**Filter examples**\n- All dashboards of group 123: `hash ~= \"group/123/dashboard\"`\n- All dashboards of device 456: `hash ~= \"device/456/dashboard\"`\n- Any dashboard across all groups or devices: `hash ~= \"(group|device)/[0-9]+/dashboard\"`\n- Specific user type: `userType == \"USER\"`\n- Multiple paths: `path in (\"/home\", \"/settings\")`",
         "operationId": "PageViewControllerV2_getPageViewsV2",
         "parameters": [
           {
@@ -1011,16 +1107,27 @@
           },
           {
             "name": "filter",
-            "required": true,
+            "required": false,
             "in": "query",
+            "description": "filtrex filter expression. Strings must be double-quoted. Use ~= for regex matching. Examples:\n- `hash ~= \"group/123/dashboard\"` — all dashboard views inside group 123\n- `hash ~= \"device/456/dashboard\"` — all dashboard views inside device 456\n- `userType == \"USER\" and host == \"app.example.com\"`",
             "schema": {
               "type": "string"
             }
           },
           {
             "name": "fields",
-            "required": true,
+            "required": false,
             "in": "query",
+            "description": "Comma-separated page-view fields to return. Valid values: id, identifyId, sessionId, date, scheme, host, path, queryString, hash, queryParams, remoteHost, referrer, screenHeight, screenWidth, languages, pageTitle, propertyKey, eventType, userType, accountId, globalContext. Omit to return all fields.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "orderBy",
+            "required": false,
+            "in": "query",
+            "description": "Field and optional direction to sort results by, in the format `field` or `field:asc` / `field:dir`. Direction defaults to `asc` when omitted. Valid field values match those listed in `fields`.\n\n**Examples**\n- `date:desc` — most recent events first\n- `date:asc` — oldest events first\n- `identifyId:asc` — alphabetical by user\n- `pageTitle:asc` — alphabetical by page title",
             "schema": {
               "type": "string"
             }
@@ -1028,20 +1135,145 @@
         ],
         "responses": {
           "200": {
-            "description": "",
+            "description": "Filtered, sorted, and projected page-view objects.",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object"
-                  }
+                  "example": [
+                    {
+                      "id": "pv-001",
+                      "identifyId": "user-001",
+                      "sessionId": "sess-abc123",
+                      "date": "2024-01-15T10:30:00.000Z",
+                      "scheme": "https",
+                      "host": "app.example.com",
+                      "hash": "#/group/123/dashboard/7",
+                      "pageTitle": "Dashboard Overview",
+                      "eventType": "pageView",
+                      "userType": "USER",
+                      "accountId": "acc-001"
+                    },
+                    {
+                      "id": "pv-002",
+                      "identifyId": "user-002",
+                      "sessionId": "sess-def456",
+                      "date": "2024-01-14T09:00:00.000Z",
+                      "scheme": "https",
+                      "host": "app.example.com",
+                      "hash": "#/device/456/dashboard/3",
+                      "pageTitle": "Device Dashboard",
+                      "eventType": "pageView",
+                      "userType": "USER",
+                      "accountId": "acc-001"
+                    }
+                  ]
                 }
               }
             }
           }
         },
-        "summary": "Returns page-view events from the cache within the given time range, with\noptional server-side filtering and field projection.\n\n**`filter`** — a [`filtrex`](https://github.com/cshaa/filtrex) expression\nevaluated against each mapped page-view. Strings must be **double-quoted**.\n\n| Goal | Expression |\n|---|---|\n| Specific host | `host == \"app.example.com\"` |\n| Specific path | `path == \"/dashboard\"` |\n| Mobile users only | `userType == \"mobile\"` |\n| Compound condition | `host == \"app.example.com\" and eventType == \"pageView\"` |\n| Multiple paths | `path in (\"/home\", \"/settings\", \"/profile\")` |\n\n**`fields`** — comma-separated top-level fields to return from the mapped\npage-view. Valid values match the keys of {@link ControllerPageView}:\n`id`, `identifyId`, `sessionId`, `date`, `scheme`, `host`, `path`,\n`queryString`, `hash`, `queryParams`, `remoteHost`, `referrer`,\n`screenHeight`, `screenWidth`, `languages`, `pageTitle`, `propertyKey`,\n`eventType`, `userType`, `accountId`, `globalContext`.\nWhen omitted, all top-level fields are returned.\n\n| Goal | Value |\n|---|---|\n| URL parts only | `host,path,queryString` |\n| Page identity | `id,date,pageTitle` |\n| User context | `id,identifyId,sessionId,userType` |\n| Full page view (default) | _(omit param)_ |",
+        "summary": "Returns page-view events from the cache within the given time range.",
+        "tags": [
+          "PageViewControllerV2"
+        ]
+      }
+    },
+    "/v2/pageViewCounts": {
+      "get": {
+        "description": "Filters page-views using a filtrex expression (same syntax as `/v2/pageViews`), then groups the matching records by the `groupBy` field and counts occurrences. Results are always returned sorted by `count` descending so the most-visited item is first.\n\n**Typical use cases**\n- Most popular dashboards within a group: `filter=hash ~= \"group/123/dashboard\"&groupBy=hash&limit=10`\n- Most popular dashboards within a device: `filter=hash ~= \"device/456/dashboard\"&groupBy=hash&limit=10`\n- Page-type popularity (collapse specific IDs into patterns): `groupBy=hash&pathMask=true`\n- Most active accounts: `groupBy=accountId&limit=5`",
+        "operationId": "PageViewControllerV2_getPageViewCountsV2",
+        "parameters": [
+          {
+            "name": "start",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tenantId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter",
+            "required": false,
+            "in": "query",
+            "description": "filtrex filter expression to scope records before aggregation. Strings must be double-quoted. Examples:\n- `hash ~= \"group/123/dashboard\"` — dashboards inside group 123\n- `hash ~= \"device/456/dashboard\"` — dashboards inside device 456\n- `userType == \"USER\"`",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "groupBy",
+            "required": false,
+            "in": "query",
+            "description": "Page-view field to aggregate by. Defaults to `hash`. Valid values: id, identifyId, sessionId, date, scheme, host, path, queryString, hash, remoteHost, referrer, pageTitle, propertyKey, eventType, userType, accountId.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pathMask",
+            "required": false,
+            "in": "query",
+            "description": "When set to `\"true\"`, all numeric segments in the grouped value are replaced with `*` before counting. This collapses individual IDs into page-type patterns. Example: `#/group/123/dashboard/7` → `#/group/*/dashboard/*`.",
+            "schema": {
+              "enum": [
+                "true",
+                "false"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of results to return. Applies after sorting, so you always get the top-N by count. Omit to return all groups.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Aggregated page-view counts sorted by count descending.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": [
+                    {
+                      "value": "#/group/123/dashboard/7",
+                      "count": 142
+                    },
+                    {
+                      "value": "#/group/123/dashboard/3",
+                      "count": 89
+                    },
+                    {
+                      "value": "#/group/123/dashboard/11",
+                      "count": 34
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "summary": "Returns page-view counts aggregated by a chosen field.",
         "tags": [
           "PageViewControllerV2"
         ]
@@ -1049,6 +1281,7 @@
     },
     "/v2/sessionEvents": {
       "get": {
+        "description": "Supports optional server-side filtering via filtrex (https://github.com/cshaa/filtrex) and field projection. All string values in filter expressions must be double-quoted.",
         "operationId": "SessionEventsControllerV2_getSessionsV2",
         "parameters": [
           {
@@ -1077,16 +1310,27 @@
           },
           {
             "name": "filter",
-            "required": true,
+            "required": false,
             "in": "query",
+            "description": "filtrex filter expression. Strings must be double-quoted. Examples: userType == \"USER\", userType != \"VISITOR\", userType in (\"USER\", \"LEAD\").",
             "schema": {
               "type": "string"
             }
           },
           {
             "name": "fields",
-            "required": true,
+            "required": false,
             "in": "query",
+            "description": "Comma-separated session event fields to return. Valid values: id, identifyId, sessionId, accountId, date, propertyKey, eventType, remoteHost, location, userType, globalContext. Omit to return all fields.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "orderBy",
+            "required": false,
+            "in": "query",
+            "description": "Field and optional direction to sort results by, in the format `field` or `field:asc` / `field:desc`. Direction defaults to `asc` when omitted. Valid field values match those listed in `fields`.\n\n**Examples**\n- `date:desc` — most recent sessions first\n- `date:asc` — oldest sessions first\n- `accountId:asc` — alphabetical by account\n- `userType:asc` — alphabetical by user type",
             "schema": {
               "type": "string"
             }
@@ -1094,20 +1338,34 @@
         ],
         "responses": {
           "200": {
-            "description": "",
+            "description": "Filtered and projected session event objects.",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object"
-                  }
+                  "example": [
+                    {
+                      "id": "se-001",
+                      "identifyId": "user-001",
+                      "sessionId": "sess-abc123",
+                      "accountId": "acc-001",
+                      "date": "2024-01-15T10:30:00.000Z",
+                      "propertyKey": "APX-12345",
+                      "eventType": "SESSION_STARTED",
+                      "remoteHost": "203.0.113.10",
+                      "userType": "USER",
+                      "location": {
+                        "countryName": "Germany",
+                        "regionName": "Bavaria"
+                      },
+                      "globalContext": []
+                    }
+                  ]
                 }
               }
             }
           }
         },
-        "summary": "Returns session-initialized events from the cache within the given time\nrange, with optional server-side filtering and field projection.\n\n**`filter`** — a [`filtrex`](https://github.com/cshaa/filtrex) expression\nevaluated against each mapped session event. Strings must be **double-quoted**.\n\n| Goal | Expression |\n|---|---|\n| Specific user type | `userType == \"USER\"` |\n| Exclude visitors | `userType != \"VISITOR\"` |\n| Specific property | `propertyKey == \"APX-XXXXX\"` |\n| Compound condition | `userType == \"USER\" and eventType == \"session_started\"` |\n| Multiple user types | `userType in (\"USER\", \"LEAD\")` |\n\n**`fields`** — comma-separated top-level fields to return from the mapped\nsession event. Valid values match the keys of {@link ControllerSessionEventFieldList}:\n`id`, `identifyId`, `sessionId`, `accountId`, `date`, `propertyKey`,\n`eventType`, `remoteHost`, `location`, `userType`, `globalContext`.\nWhen omitted, all top-level fields are returned.\n\n| Goal | Value |\n|---|---|\n| Identity only | `id,identifyId,sessionId` |\n| Time and location | `id,date,location` |\n| Full session event (default) | _(omit param)_ |",
+        "summary": "Returns session-initialized events from the cache within the given time range.",
         "tags": [
           "SessionEventsControllerV2"
         ]
@@ -1129,6 +1387,7 @@
             }
           }
         },
+        "summary": "Returns a concise LLM-readable summary of the API in plain text format.",
         "tags": [
           "Llm"
         ]
@@ -1150,6 +1409,66 @@
             }
           }
         },
+        "summary": "Returns the full LLM-readable API reference in plain text format.",
+        "tags": [
+          "Llm"
+        ]
+      }
+    },
+    "/openapi.json": {
+      "get": {
+        "operationId": "LlmController_getOpenApiSpec",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Returns the current OpenAPI specification document as JSON.",
+        "tags": [
+          "Llm"
+        ]
+      }
+    },
+    "/robots.txt": {
+      "get": {
+        "operationId": "LlmController_getRobotsTxt",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Returns the robots.txt file providing crawler guidance for search engines.",
+        "tags": [
+          "Llm"
+        ]
+      }
+    },
+    "/.well-known/ai-plugin.json": {
+      "get": {
+        "operationId": "LlmController_getAiPlugin",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Returns the AI plugin manifest conforming to the OpenAI plugin specification.",
         "tags": [
           "Llm"
         ]
@@ -1157,9 +1476,9 @@
     }
   },
   "info": {
-    "title": "My API",
-    "description": "The API description",
-    "version": "1.0",
+    "title": "Gainsight Sync Microservice API",
+    "description": "A NestJS microservice that periodically pulls Gainsight PX telemetry (custom events, session events, page views, active-user metrics) from configured tenant domains, caches the data in memory per tenant using a date-sorted array with binary-search range queries, and exposes REST endpoints consumed by dashboards such as Grafana.\n\nAll data endpoints require `Authorization: Basic <base64(user:password)>` and a `tenantId` query parameter. Public endpoints: `/health`, `/lastRun`, `/llms.txt`, `/llms-full.txt`.\n\nInteractive docs: https://gainsight.eu-latest.cumulocity.com/apps/gainsight-c8y-openapi/index.html",
+    "version": "0.2.0",
     "contact": {}
   },
   "tags": [],

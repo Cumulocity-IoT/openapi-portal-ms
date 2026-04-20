@@ -1,6 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import axios, { AxiosInstance } from "axios";
-import { isNil, uniqBy } from "lodash";
+import { isNil } from "lodash";
 import {
   CustomEventsResponse,
   CustomEvent,
@@ -134,7 +134,6 @@ export class GainsightPxService {
 
   async getCustomEventById(id: string): Promise<CustomEvent> {
     const res = await this.getCustomEvents({ filter: `identifyId==${id}` });
-    console.log(res);
     if (res.customEvents.length === 1) {
       return res.customEvents[0];
     } else {
@@ -171,12 +170,12 @@ export class GainsightPxService {
     results.push(res);
 
     while (!res.isLastPage) {
+      pagination.pageNumber++;
       res = await this.getFeaturesV2(pagination);
       results.push(res);
     }
 
     const features = results.flatMap((res) => res.features);
-    console.log(JSON.stringify(features));
     const featureClasses = features.map((feature) => new Feature(feature));
 
     for (const feature of featureClasses) {
@@ -231,7 +230,7 @@ export class GainsightPxService {
       {} as Record<string, number>,
     );
 
-    console.log("Name counts:", nameCounts);
+    this.logger.debug(`Name counts: ${JSON.stringify(nameCounts)}`);
     return res;
   }
 
@@ -277,24 +276,15 @@ export class GainsightPxService {
     let res = await this.getCustomEvents(params);
     results.push(...res.customEvents);
     let scrollId = res.scrollId;
-    console.log("First batch");
     let page = 1;
     let hits = 1000;
     while (hits === 1000) {
       params.scrollId = scrollId;
       res = await this.getCustomEvents(params);
-      console.log(`Page ${page++}`);
+      this.logger.log(`Fetched page ${page++}`);
       results.push(...res.customEvents);
       scrollId = res.scrollId;
       hits = res.customEvents.length;
-      console.log(`Hits ${hits}`);
-    }
-    const ids = uniqBy(results, "accountId").map((e) => e.accountId);
-    const match = ids.find((e) => e.includes("t140168379"));
-    if (match) {
-      console.log("Found match:", match);
-    } else {
-      console.log("No match found");
     }
   }
 

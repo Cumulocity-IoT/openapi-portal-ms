@@ -23,12 +23,12 @@ export class SessionEventsCacheService extends ChronoArrayCache<CachedSessionEve
   createOrUpdateCache(
     start: string,
     end: string,
-    domain: { id: string; url: string },
+    domain: { id: string; url: string; ttl?: number },
   ): Promise<void> {
     const startDate = this.getStartDate(start, domain.id);
     return this.getSessionEvents(startDate, end, domain.id).then((events) => {
       const cachedEvents = mapSessionEventsToCachedSessionEvents(events);
-      this.setCache(cachedEvents, domain.id);
+      this.setCache(cachedEvents, domain.id, domain.ttl);
     });
   }
 

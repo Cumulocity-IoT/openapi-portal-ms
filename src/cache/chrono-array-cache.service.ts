@@ -3,6 +3,7 @@ import { TTL_DAYS } from "../app.model";
 
 export abstract class ChronoArrayCache<T> {
   cache = new Map<string, T[]>();
+  private ttlMap = new Map<string, number>();
 
   abstract getDate(item: T): number;
   abstract queryCache(start: string, end: string, tenantId: string): T[];
@@ -16,7 +17,7 @@ export abstract class ChronoArrayCache<T> {
     return start;
   }
 
-  setCache(items: T[], tenantId: string): void {
+  setCache(items: T[], tenantId: string, ttlDays?: number): void {
     const length = items?.length ?? 0;
     if (length === 0) {
       this.getLogger().verbose("No items to add.");
@@ -33,14 +34,20 @@ export abstract class ChronoArrayCache<T> {
     arr.push(...sorted);
     this.getLogger().log(`Cache items count: ${arr.length}`);
 
-    // TTL eviction: drop records older than TTL_DAYS
-    const cutoff = Date.now() - TTL_DAYS * 24 * 60 * 60 * 1000;
+    // Store or update the per-tenant TTL if provided
+    if (ttlDays !== undefined) {
+      this.ttlMap.set(tenantId, ttlDays);
+    }
+
+    // TTL eviction: drop records older than the tenant's TTL (or the global default)
+    const effectiveTtl = this.ttlMap.get(tenantId) ?? TTL_DAYS;
+    const cutoff = Date.now() - effectiveTtl * 24 * 60 * 60 * 1000;
     if (arr.length > 0 && this.getDate(arr[0]) < cutoff) {
       const cutoffIndex = arr.findIndex((item) => this.getDate(item) >= cutoff);
       if (cutoffIndex > 0) {
         this.cache.set(tenantId, arr.slice(cutoffIndex));
         this.getLogger().log(
-          `Evicted ${cutoffIndex} items older than ${TTL_DAYS} days.`,
+          `Evicted ${cutoffIndex} items older than ${effectiveTtl} days.`,
         );
       }
     }

@@ -78,3 +78,91 @@ export function filterArray<T>(items: T[], ruleExpression?: string): T[] {
     throw new BadRequestException(`Invalid filter syntax: ${error}`);
   }
 }
+
+/**
+ * Returns a new array sorted by a single field, ascending or descending.
+ * Items where the field value is `undefined` are placed at the end regardless of direction.
+ * Does not mutate the original array.
+ *
+ * @param items - The array to sort.
+ * @param field - The field name to sort by.
+ * @param direction - Sort order: `"asc"` (default) or `"desc"`.
+ * @returns A new sorted array.
+ *
+ * @example
+ * // Returns [{ name: "Alice" }, { name: "Bob" }]
+ * sortArray([{ name: "Bob" }, { name: "Alice" }], "name", "asc");
+ *
+ * @example
+ * // Returns [{ count: 10 }, { count: 3 }]
+ * sortArray([{ count: 3 }, { count: 10 }], "count", "desc");
+ */
+export function sortArray<T>(
+  items: T[],
+  field: keyof T & string,
+  direction: "asc" | "desc" = "asc",
+): T[] {
+  if (!field || items.length === 0) return items;
+  const dir = direction === "desc" ? -1 : 1;
+  return [...items].sort((a, b) => {
+    const av = a[field];
+    const bv = b[field];
+    if (av === undefined) return 1;
+    if (bv === undefined) return -1;
+    if (av < bv) return -1 * dir;
+    if (av > bv) return 1 * dir;
+    return 0;
+  });
+}
+
+/**
+ * Parses an `orderBy` string of the form `field` or `field:direction` into a
+ * structured config object. Only the text before the **first** colon is used as
+ * the field name, so inputs like `"date:desc:extra"` are handled safely.
+ *
+ * @param orderBy - Raw query-parameter string, e.g. `"date:desc"` or `"name"`.
+ * @returns `{ field, direction }` or `null` when the input is absent or blank.
+ *
+ * @example parseOrderBy("date:desc")          // { field: "date", direction: "desc" }
+ * @example parseOrderBy("name")              // { field: "name", direction: "asc" }
+ * @example parseOrderBy("date:desc:extra")   // { field: "date", direction: "desc" }
+ * @example parseOrderBy(":desc")             // null — no field name
+ * @example parseOrderBy(undefined)           // null
+ */
+export type OrderByConfig = { field: string; direction: "asc" | "desc" };
+
+export function parseOrderBy(orderBy?: string): OrderByConfig | null {
+  if (!orderBy?.trim()) return null;
+  const colonIdx = orderBy.indexOf(":");
+  if (colonIdx === -1) {
+    const field = orderBy.trim();
+    return field ? { field, direction: "asc" } : null;
+  }
+  const field = orderBy.slice(0, colonIdx).trim();
+  if (!field) return null;
+  const dir = orderBy
+    .slice(colonIdx + 1)
+    .split(":")[0]
+    .trim()
+    .toLowerCase();
+  return { field, direction: dir === "desc" ? "desc" : "asc" };
+}
+
+/**
+ * Parses a comma-separated field-list string into a trimmed string array.
+ * Empty segments (e.g. from leading/trailing commas) are filtered out.
+ *
+ * @param fields - Comma-separated field names, e.g. `"host,path,pageTitle"`.
+ * @returns Trimmed, non-empty field names; empty array when input is absent or blank.
+ *
+ * @example parseFieldList("host,path")     // ["host", "path"]
+ * @example parseFieldList(" name , date ") // ["name", "date"]
+ * @example parseFieldList(undefined)       // []
+ */
+export function parseFieldList(fields?: string): string[] {
+  if (!fields?.trim()) return [];
+  return fields
+    .split(",")
+    .map((f) => f.trim())
+    .filter(Boolean);
+}

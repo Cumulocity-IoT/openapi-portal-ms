@@ -13,6 +13,14 @@ export class ActiveUserController {
     private userUtil: UserUtilityService,
   ) {}
 
+  /**
+   * Returns active users from the cache within the given time range.
+   *
+   * @param start - Start of the time range (ISO 8601 string or epoch ms).
+   * @param end - End of the time range (ISO 8601 string or epoch ms).
+   * @param tenantId - Tenant identifier used to scope the cache query.
+   * @returns Array of mapped user objects; empty array on error.
+   */
   @Get("/activeUsers")
   getUsers(
     @Query("start") start: string,
@@ -31,6 +39,14 @@ export class ActiveUserController {
     }
   }
 
+  /**
+   * Returns the total count of distinct active users within the given time range.
+   *
+   * @param start - Start of the time range (ISO 8601 string or epoch ms).
+   * @param end - End of the time range (ISO 8601 string or epoch ms).
+   * @param tenantId - Tenant identifier used to scope the cache query.
+   * @returns Object with a count property; count is 0 on error.
+   */
   @Get("/activeUserMetrics/numberOfUsers")
   numberOfUsers(
     @Query("start") start: string,
@@ -49,6 +65,14 @@ export class ActiveUserController {
     }
   }
 
+  /**
+   * Returns the count of new user sign-ups since the start of the given time range.
+   *
+   * @param start - Start of the time range (ISO 8601 string or epoch ms).
+   * @param end - End of the time range (ISO 8601 string or epoch ms).
+   * @param tenantId - Tenant identifier used to scope the cache query.
+   * @returns Object with a count property; count is 0 on error.
+   */
   @Get("/activeUserMetrics/newSignups")
   numberOfNewSignups(
     @Query("start") start: string,
@@ -67,6 +91,15 @@ export class ActiveUserController {
     }
   }
 
+  /**
+   * Returns the most common browser languages among active users within the given
+   * time range, sorted by frequency in descending order.
+   *
+   * @param start - Start of the time range (ISO 8601 string or epoch ms).
+   * @param end - End of the time range (ISO 8601 string or epoch ms).
+   * @param tenantId - Tenant identifier used to scope the cache query.
+   * @returns Array of value/count pairs sorted by count descending; empty array on error.
+   */
   @Get("/activeUserMetrics/topLanguages")
   topLanguages(
     @Query("start") start: string,
@@ -85,6 +118,15 @@ export class ActiveUserController {
     }
   }
 
+  /**
+   * Returns the most common user roles among active users within the given time
+   * range, sorted by frequency in descending order.
+   *
+   * @param start - Start of the time range (ISO 8601 string or epoch ms).
+   * @param end - End of the time range (ISO 8601 string or epoch ms).
+   * @param tenantId - Tenant identifier used to scope the cache query.
+   * @returns Array of value/count pairs sorted by count descending; empty array on error.
+   */
   @Get("/activeUserMetrics/topUserRoles")
   topUserRoles(
     @Query("start") start: string,
@@ -103,6 +145,15 @@ export class ActiveUserController {
     }
   }
 
+  /**
+   * Returns the most common countries among active users within the given time
+   * range, sorted by frequency in descending order.
+   *
+   * @param start - Start of the time range (ISO 8601 string or epoch ms).
+   * @param end - End of the time range (ISO 8601 string or epoch ms).
+   * @param tenantId - Tenant identifier used to scope the cache query.
+   * @returns Array of value/count pairs sorted by count descending; empty array on error.
+   */
   @Get("/activeUserMetrics/topCountries")
   topCountries(
     @Query("start") start: string,
@@ -121,6 +172,15 @@ export class ActiveUserController {
     }
   }
 
+  /**
+   * Returns the most common platforms among active users within the given time
+   * range, sorted by frequency in descending order.
+   *
+   * @param start - Start of the time range (ISO 8601 string or epoch ms).
+   * @param end - End of the time range (ISO 8601 string or epoch ms).
+   * @param tenantId - Tenant identifier used to scope the cache query.
+   * @returns Array of value/count pairs sorted by count descending; empty array on error.
+   */
   @Get("/activeUserMetrics/topPlatforms")
   topPlatforms(
     @Query("start") start: string,
@@ -139,6 +199,15 @@ export class ActiveUserController {
     }
   }
 
+  /**
+   * Returns the most common browsers among active users within the given time
+   * range, sorted by frequency in descending order.
+   *
+   * @param start - Start of the time range (ISO 8601 string or epoch ms).
+   * @param end - End of the time range (ISO 8601 string or epoch ms).
+   * @param tenantId - Tenant identifier used to scope the cache query.
+   * @returns Array of value/count pairs sorted by count descending; empty array on error.
+   */
   @Get("/activeUserMetrics/topBrowsers")
   topBrowsers(
     @Query("start") start: string,
@@ -157,6 +226,15 @@ export class ActiveUserController {
     }
   }
 
+  /**
+   * Returns the most common device types among active users within the given
+   * time range, sorted by frequency in descending order.
+   *
+   * @param start - Start of the time range (ISO 8601 string or epoch ms).
+   * @param end - End of the time range (ISO 8601 string or epoch ms).
+   * @param tenantId - Tenant identifier used to scope the cache query.
+   * @returns Array of value/count pairs sorted by count descending; empty array on error.
+   */
   @Get("/activeUserMetrics/topDeviceTypes")
   topDeviceTypes(
     @Query("start") start: string,
@@ -175,6 +253,15 @@ export class ActiveUserController {
     }
   }
 
+  /**
+   * Returns the most common email domain names among active users within the
+   * given time range, sorted by frequency in descending order.
+   *
+   * @param start - Start of the time range (ISO 8601 string or epoch ms).
+   * @param end - End of the time range (ISO 8601 string or epoch ms).
+   * @param tenantId - Tenant identifier used to scope the cache query.
+   * @returns Array of value/count pairs sorted by count descending; empty array on error.
+   */
   @Get("/activeUserMetrics/mailDomainNames")
   mailDomainNames(
     @Query("start") start: string,

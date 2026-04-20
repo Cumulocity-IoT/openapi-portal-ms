@@ -25,6 +25,10 @@ All data endpoints require:
 - \`end\` — ISO 8601 end of range
 - \`tenantId\` — tenant scoping key
 
+V2 endpoints additionally support:
+- \`filter\` (optional) — filtrex expression (https://github.com/cshaa/filtrex); strings must be double-quoted
+- \`fields\` (optional) — comma-separated list of top-level fields to return
+
 ## Authentication
 
 All data endpoints are protected by a \`TenantGuard\` (Basic Auth). Send \`Authorization: Basic <base64(user:password)>\`. \`/health\`, \`/lastRun\`, \`/llms.txt\`, \`/llms-full.txt\`, \`/openapi.json\`, \`/robots.txt\`, and \`/.well-known/ai-plugin.json\` are public.
@@ -195,7 +199,7 @@ Returns the top e-mail domain names by user count.
 ---
 
 #### GET /v2/activeUsers
-Returns filtered and projected active users (V2).
+Returns filtered and projected active users (V2). Filter syntax: filtrex (https://github.com/cshaa/filtrex).
 
 **Query parameters:** \`start\`, \`end\`, \`tenantId\`, \`filter\` (optional filtrex expression), \`fields\` (optional comma-separated)
 
@@ -213,7 +217,7 @@ Returns filtered and projected active users (V2).
 #### GET /events
 Returns raw custom events in the time range.
 
-**Query parameters:** \`start\`, \`end\`, \`tenantId\`
+**Query parameters:** \`start\`, \`end\`, \`tenantId\`, \`withId\` (optional boolean — includes \`identifyId\` and \`sessionId\` when true, defaults to false)
 
 ---
 
@@ -232,7 +236,7 @@ Returns event counts grouped by a specific event name.
 ---
 
 #### GET /v2/events
-Returns filtered and projected custom events (V2).
+Returns filtered and projected custom events (V2). Filter syntax: filtrex (https://github.com/cshaa/filtrex).
 
 **Query parameters:** \`start\`, \`end\`, \`tenantId\`, \`filter\` (optional filtrex expression), \`fields\` (optional, top-level fields), \`dataFields\` (optional, dot-notation paths inside \`data\`)
 
@@ -248,9 +252,11 @@ Returns filtered and projected custom events (V2).
 ---
 
 #### GET /v2/customEvents
-Returns only customer-defined events (name prefix \`customEvent*\`), filtered and projected.
+Returns only customer-defined events (name prefixed with "customEvent"), filtered and projected. Filter syntax: filtrex (https://github.com/cshaa/filtrex).
 
-**Query parameters:** \`start\`, \`end\`, \`tenantId\`, \`filter\` (optional filtrex expression), \`fields\` (optional), \`dataFields\` (optional)
+**Query parameters:** \`start\`, \`end\`, \`tenantId\`, \`filter\` (optional filtrex expression), \`fields\` (optional, top-level fields), \`dataFields\` (optional, dot-notation paths inside \`data\`)
+
+**Available top-level fields (\`fields\`):** \`name\`, \`date\`, \`data\`, \`identifyId\`, \`sessionId\`
 
 **\`data\` shape:** \`action_type\`, \`category\`, \`label\`, \`metadata\`
 
@@ -275,9 +281,15 @@ Returns session events automatically aggregated into time buckets (bucket size c
 ---
 
 #### GET /v2/sessionEvents
-Returns filtered and projected session events (V2).
+Returns filtered and projected session events (V2). Filter syntax: filtrex (https://github.com/cshaa/filtrex).
 
 **Query parameters:** \`start\`, \`end\`, \`tenantId\`, \`filter\` (optional filtrex expression), \`fields\` (optional comma-separated)
+
+**Available fields:** \`id\`, \`identifyId\`, \`sessionId\`, \`accountId\`, \`date\`, \`propertyKey\`, \`eventType\`, \`remoteHost\`, \`location\`, \`userType\`, \`globalContext\`
+
+**Filter examples:**
+- \`userType == "USER"\`
+- \`userType in ("USER", "LEAD")\`
 
 ---
 
@@ -384,18 +396,34 @@ const AI_PLUGIN = {
 export class LlmController {
   constructor(private readonly openApiDocument: OpenApiDocumentService) {}
 
+  /**
+   * Returns a concise LLM-readable summary of the API in plain text format.
+   *
+   * @returns Plain text overview of the API endpoints and authentication.
+   */
   @Get("llms.txt")
   @Header("Content-Type", "text/plain; charset=utf-8")
   getLlmsTxt(): string {
     return LLM_TXT;
   }
 
+  /**
+   * Returns the full LLM-readable API reference in plain text format.
+   *
+   * @returns Complete plain text API documentation for LLM consumption.
+   */
   @Get("llms-full.txt")
   @Header("Content-Type", "text/plain; charset=utf-8")
   getLlmsFullTxt(): string {
     return LLM_FULL_TXT;
   }
 
+  /**
+   * Returns the current OpenAPI specification document as JSON.
+   *
+   * @returns OpenAPI specification object.
+   * @throws NotFoundException if the document has not yet been generated.
+   */
   @Get("openapi.json")
   @Header("Content-Type", "application/json; charset=utf-8")
   getOpenApiSpec(): Record<string, unknown> {
@@ -406,12 +434,22 @@ export class LlmController {
     return doc;
   }
 
+  /**
+   * Returns the robots.txt file providing crawler guidance for search engines.
+   *
+   * @returns Plain text robots.txt content.
+   */
   @Get("robots.txt")
   @Header("Content-Type", "text/plain; charset=utf-8")
   getRobotsTxt(): string {
     return ROBOTS_TXT;
   }
 
+  /**
+   * Returns the AI plugin manifest conforming to the OpenAI plugin specification.
+   *
+   * @returns AI plugin manifest object.
+   */
   @Get(".well-known/ai-plugin.json")
   @Header("Content-Type", "application/json; charset=utf-8")
   getAiPlugin(): typeof AI_PLUGIN {

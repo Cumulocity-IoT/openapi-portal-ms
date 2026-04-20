@@ -134,6 +134,79 @@ describe("EventsControllerV2", () => {
         const result = controller.getEventsV2("2024-01-01", "2024-01-02", "t1");
         expect(result).toHaveLength(3);
       });
+
+      describe("orderBy", () => {
+        beforeEach(() => {
+          mockCache.queryCache.mockReturnValue([
+            makeCachedEvent({ name: "bravo", iId: "u1" }),
+            makeCachedEvent({ name: "alpha", iId: "u2" }),
+          ]);
+        });
+
+        it("sorts ascending by name with 'name:asc'", () => {
+          const result = controller.getEventsV2(
+            "2024-01-01",
+            "2024-01-02",
+            "t1",
+            undefined,
+            undefined,
+            undefined,
+            "name:asc",
+          );
+          expect(result[0].name).toBe("alpha");
+          expect(result[1].name).toBe("bravo");
+        });
+
+        it("sorts descending by name with 'name:desc'", () => {
+          const result = controller.getEventsV2(
+            "2024-01-01",
+            "2024-01-02",
+            "t1",
+            undefined,
+            undefined,
+            undefined,
+            "name:desc",
+          );
+          expect(result[0].name).toBe("bravo");
+          expect(result[1].name).toBe("alpha");
+        });
+
+        it("defaults to ascending when direction is omitted", () => {
+          const result = controller.getEventsV2(
+            "2024-01-01",
+            "2024-01-02",
+            "t1",
+            undefined,
+            undefined,
+            undefined,
+            "name",
+          );
+          expect(result[0].name).toBe("alpha");
+        });
+
+        it("handles extra colon segments safely ('name:asc:extra')", () => {
+          const result = controller.getEventsV2(
+            "2024-01-01",
+            "2024-01-02",
+            "t1",
+            undefined,
+            undefined,
+            undefined,
+            "name:asc:extra",
+          );
+          expect(result[0].name).toBe("alpha");
+        });
+
+        it("preserves original order when orderBy is omitted", () => {
+          const result = controller.getEventsV2(
+            "2024-01-01",
+            "2024-01-02",
+            "t1",
+          );
+          expect(result[0].name).toBe("bravo");
+          expect(result[1].name).toBe("alpha");
+        });
+      });
     });
 
     describe("error handling", () => {
@@ -275,6 +348,79 @@ describe("EventsControllerV2", () => {
           'name == "customEventNonExistent"',
         );
         expect(result).toEqual([]);
+      });
+
+      describe("orderBy", () => {
+        beforeEach(() => {
+          mockCache.queryCache.mockReturnValue([
+            makeCustomerEvent("customEventBravo"),
+            makeCustomerEvent("customEventAlpha"),
+          ]);
+        });
+
+        it("sorts ascending by name with 'name:asc'", () => {
+          const result = controller.getCustomerEventsV2(
+            "2024-01-01",
+            "2024-01-02",
+            "t1",
+            undefined,
+            undefined,
+            undefined,
+            "name:asc",
+          );
+          expect(result[0].name).toBe("customEventAlpha");
+          expect(result[1].name).toBe("customEventBravo");
+        });
+
+        it("sorts descending by name with 'name:desc'", () => {
+          const result = controller.getCustomerEventsV2(
+            "2024-01-01",
+            "2024-01-02",
+            "t1",
+            undefined,
+            undefined,
+            undefined,
+            "name:desc",
+          );
+          expect(result[0].name).toBe("customEventBravo");
+          expect(result[1].name).toBe("customEventAlpha");
+        });
+
+        it("defaults to ascending when direction is omitted", () => {
+          const result = controller.getCustomerEventsV2(
+            "2024-01-01",
+            "2024-01-02",
+            "t1",
+            undefined,
+            undefined,
+            undefined,
+            "name",
+          );
+          expect(result[0].name).toBe("customEventAlpha");
+        });
+
+        it("handles extra colon segments safely ('name:asc:extra')", () => {
+          const result = controller.getCustomerEventsV2(
+            "2024-01-01",
+            "2024-01-02",
+            "t1",
+            undefined,
+            undefined,
+            undefined,
+            "name:asc:extra",
+          );
+          expect(result[0].name).toBe("customEventAlpha");
+        });
+
+        it("preserves original order when orderBy is omitted", () => {
+          const result = controller.getCustomerEventsV2(
+            "2024-01-01",
+            "2024-01-02",
+            "t1",
+          );
+          expect(result[0].name).toBe("customEventBravo");
+          expect(result[1].name).toBe("customEventAlpha");
+        });
       });
     });
 

@@ -125,6 +125,74 @@ describe("SessionEventsControllerV2", () => {
       const result = controller.getSessionsV2("2024-01-01", "2024-01-02", "t1");
       expect(result).toHaveLength(2);
     });
+
+    describe("orderBy", () => {
+      beforeEach(() => {
+        mockCache.queryCache.mockReturnValue([
+          makeSessionEvent({ id: "se-a", aId: "acc-b" }),
+          makeSessionEvent({ id: "se-b", aId: "acc-a" }),
+        ]);
+      });
+
+      it("sorts ascending by accountId with 'accountId:asc'", () => {
+        const result = controller.getSessionsV2(
+          "2024-01-01",
+          "2024-01-02",
+          "t1",
+          undefined,
+          undefined,
+          "accountId:asc",
+        );
+        expect(result[0].id).toBe("se-b"); // acc-a < acc-b
+        expect(result[1].id).toBe("se-a");
+      });
+
+      it("sorts descending by accountId with 'accountId:desc'", () => {
+        const result = controller.getSessionsV2(
+          "2024-01-01",
+          "2024-01-02",
+          "t1",
+          undefined,
+          undefined,
+          "accountId:desc",
+        );
+        expect(result[0].id).toBe("se-a"); // acc-b > acc-a
+      });
+
+      it("defaults to ascending when direction is omitted", () => {
+        const result = controller.getSessionsV2(
+          "2024-01-01",
+          "2024-01-02",
+          "t1",
+          undefined,
+          undefined,
+          "accountId",
+        );
+        expect(result[0].id).toBe("se-b");
+      });
+
+      it("handles extra colon segments safely ('accountId:asc:extra')", () => {
+        const result = controller.getSessionsV2(
+          "2024-01-01",
+          "2024-01-02",
+          "t1",
+          undefined,
+          undefined,
+          "accountId:asc:extra",
+        );
+        expect(result[0].id).toBe("se-b");
+      });
+
+      it("preserves original order when orderBy is omitted", () => {
+        const result = controller.getSessionsV2(
+          "2024-01-01",
+          "2024-01-02",
+          "t1",
+        );
+        expect(result[0].id).toBe("se-a");
+        expect(result[1].id).toBe("se-b");
+      });
+    });
   });
 
   describe("getSessionsV2 — error handling", () => {

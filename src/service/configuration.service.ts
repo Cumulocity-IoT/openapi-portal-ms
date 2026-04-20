@@ -14,7 +14,7 @@ export class ConfigurationService {
     private devMode: DevModeService,
   ) {}
 
-  async getAllDomains(): Promise<{ url: string; id: string }[]> {
+  async getAllDomains(): Promise<{ url: string; id: string; ttl?: number }[]> {
     if (this.devMode.isDevModeEnabled()) {
       return [this.devMode.getDevModeDomain()];
     }
@@ -37,7 +37,7 @@ export class ConfigurationService {
 
   async getDomainsForUser(
     user: string,
-  ): Promise<{ url: string; id: string }[]> {
+  ): Promise<{ url: string; id: string; ttl?: number }[]> {
     if (this.devMode.isDevModeEnabled()) {
       return [this.devMode.getDevModeDomain()];
     }
@@ -49,7 +49,7 @@ export class ConfigurationService {
           category: "gainsight",
         })) ?? [];
       if (res && isValidGainsightConfigValue(res)) {
-        return res.find((cfg) => user.includes(cfg.mail))?.domains ?? [];
+        return res.find((cfg) => user.endsWith("@" + cfg.mail))?.domains ?? [];
       }
       return [];
     } catch (e) {

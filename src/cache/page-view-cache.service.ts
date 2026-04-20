@@ -23,12 +23,12 @@ export class PageViewCacheService extends ChronoArrayCache<CachedPageView> {
   createOrUpdateCache(
     start: string,
     end: string,
-    domain: { id: string; url: string },
+    domain: { id: string; url: string; ttl?: number },
   ): Promise<void> {
     const startDate = this.getStartDate(start, domain.id);
     return this.getPageViews(startDate, end, domain.url).then((pageViews) => {
       const cachedPageViews = mapPageViewsToCachedPageViews(pageViews);
-      this.setCache(cachedPageViews, domain.id);
+      this.setCache(cachedPageViews, domain.id, domain.ttl);
     });
   }
 
