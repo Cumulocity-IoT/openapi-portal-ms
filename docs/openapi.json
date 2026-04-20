@@ -31,12 +31,14 @@
     },
     "/activeUsers": {
       "get": {
+        "description": "Returns all active users from the in-memory cache for the specified tenant within the given time range. Each user object includes identity, browser, device, platform, country, language, and role information.",
         "operationId": "ActiveUserController_getUsers",
         "parameters": [
           {
             "name": "start",
             "required": true,
             "in": "query",
+            "description": "Start of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -45,6 +47,7 @@
             "name": "end",
             "required": true,
             "in": "query",
+            "description": "End of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -53,6 +56,7 @@
             "name": "tenantId",
             "required": true,
             "in": "query",
+            "description": "Tenant identifier used to scope the cache query.",
             "schema": {
               "type": "string"
             }
@@ -73,20 +77,27 @@
             }
           }
         },
-        "summary": "Returns active users from the cache within the given time range.",
+        "security": [
+          {
+            "basic": []
+          }
+        ],
+        "summary": "/activeUsers",
         "tags": [
-          "ActiveUser"
+          "v1"
         ]
       }
     },
     "/activeUserMetrics/numberOfUsers": {
       "get": {
+        "description": "Returns the total count of distinct active users recorded within the given time range for the specified tenant. Useful as a headline KPI on dashboards.",
         "operationId": "ActiveUserController_numberOfUsers",
         "parameters": [
           {
             "name": "start",
             "required": true,
             "in": "query",
+            "description": "Start of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -95,6 +106,7 @@
             "name": "end",
             "required": true,
             "in": "query",
+            "description": "End of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -103,6 +115,7 @@
             "name": "tenantId",
             "required": true,
             "in": "query",
+            "description": "Tenant identifier used to scope the cache query.",
             "schema": {
               "type": "string"
             }
@@ -113,20 +126,27 @@
             "description": ""
           }
         },
-        "summary": "Returns the total count of distinct active users within the given time range.",
+        "security": [
+          {
+            "basic": []
+          }
+        ],
+        "summary": "/activeUserMetrics/numberOfUsers",
         "tags": [
-          "ActiveUser"
+          "v1"
         ]
       }
     },
     "/activeUserMetrics/newSignups": {
       "get": {
+        "description": "Returns the count of users whose first recorded activity falls at or after the `start` boundary, i.e. users who are new within the queried window. Useful for tracking user acquisition over time.",
         "operationId": "ActiveUserController_numberOfNewSignups",
         "parameters": [
           {
             "name": "start",
             "required": true,
             "in": "query",
+            "description": "Start of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -135,6 +155,7 @@
             "name": "end",
             "required": true,
             "in": "query",
+            "description": "End of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -143,6 +164,7 @@
             "name": "tenantId",
             "required": true,
             "in": "query",
+            "description": "Tenant identifier used to scope the cache query.",
             "schema": {
               "type": "string"
             }
@@ -153,20 +175,27 @@
             "description": ""
           }
         },
-        "summary": "Returns the count of new user sign-ups since the start of the given time range.",
+        "security": [
+          {
+            "basic": []
+          }
+        ],
+        "summary": "/activeUserMetrics/newSignups",
         "tags": [
-          "ActiveUser"
+          "v1"
         ]
       }
     },
     "/activeUserMetrics/topLanguages": {
       "get": {
+        "description": "Returns the most common browser language codes among active users within the given time range, sorted by frequency descending. Each entry contains a `value` (language code) and a `count`.",
         "operationId": "ActiveUserController_topLanguages",
         "parameters": [
           {
             "name": "start",
             "required": true,
             "in": "query",
+            "description": "Start of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -175,6 +204,7 @@
             "name": "end",
             "required": true,
             "in": "query",
+            "description": "End of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -183,6 +213,7 @@
             "name": "tenantId",
             "required": true,
             "in": "query",
+            "description": "Tenant identifier used to scope the cache query.",
             "schema": {
               "type": "string"
             }
@@ -193,20 +224,27 @@
             "description": ""
           }
         },
-        "summary": "Returns the most common browser languages among active users within the given\ntime range, sorted by frequency in descending order.",
+        "security": [
+          {
+            "basic": []
+          }
+        ],
+        "summary": "/activeUserMetrics/topLanguages",
         "tags": [
-          "ActiveUser"
+          "v1"
         ]
       }
     },
     "/activeUserMetrics/topUserRoles": {
       "get": {
+        "description": "Returns the most common user roles among active users within the given time range, sorted by frequency descending. Each entry contains a `value` (role name) and a `count`.",
         "operationId": "ActiveUserController_topUserRoles",
         "parameters": [
           {
             "name": "start",
             "required": true,
             "in": "query",
+            "description": "Start of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -215,6 +253,7 @@
             "name": "end",
             "required": true,
             "in": "query",
+            "description": "End of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -223,6 +262,7 @@
             "name": "tenantId",
             "required": true,
             "in": "query",
+            "description": "Tenant identifier used to scope the cache query.",
             "schema": {
               "type": "string"
             }
@@ -233,20 +273,27 @@
             "description": ""
           }
         },
-        "summary": "Returns the most common user roles among active users within the given time\nrange, sorted by frequency in descending order.",
+        "security": [
+          {
+            "basic": []
+          }
+        ],
+        "summary": "/activeUserMetrics/topUserRoles",
         "tags": [
-          "ActiveUser"
+          "v1"
         ]
       }
     },
     "/activeUserMetrics/topCountries": {
       "get": {
+        "description": "Returns the most common countries among active users within the given time range, sorted by frequency descending. Each entry contains a `value` (country name) and a `count`.",
         "operationId": "ActiveUserController_topCountries",
         "parameters": [
           {
             "name": "start",
             "required": true,
             "in": "query",
+            "description": "Start of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -255,6 +302,7 @@
             "name": "end",
             "required": true,
             "in": "query",
+            "description": "End of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -263,6 +311,7 @@
             "name": "tenantId",
             "required": true,
             "in": "query",
+            "description": "Tenant identifier used to scope the cache query.",
             "schema": {
               "type": "string"
             }
@@ -273,20 +322,27 @@
             "description": ""
           }
         },
-        "summary": "Returns the most common countries among active users within the given time\nrange, sorted by frequency in descending order.",
+        "security": [
+          {
+            "basic": []
+          }
+        ],
+        "summary": "/activeUserMetrics/topCountries",
         "tags": [
-          "ActiveUser"
+          "v1"
         ]
       }
     },
     "/activeUserMetrics/topPlatforms": {
       "get": {
+        "description": "Returns the most common operating system platforms (e.g. Windows, macOS, Linux) among active users within the given time range, sorted by frequency descending. Each entry contains a `value` (platform name) and a `count`.",
         "operationId": "ActiveUserController_topPlatforms",
         "parameters": [
           {
             "name": "start",
             "required": true,
             "in": "query",
+            "description": "Start of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -295,6 +351,7 @@
             "name": "end",
             "required": true,
             "in": "query",
+            "description": "End of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -303,6 +360,7 @@
             "name": "tenantId",
             "required": true,
             "in": "query",
+            "description": "Tenant identifier used to scope the cache query.",
             "schema": {
               "type": "string"
             }
@@ -313,20 +371,27 @@
             "description": ""
           }
         },
-        "summary": "Returns the most common platforms among active users within the given time\nrange, sorted by frequency in descending order.",
+        "security": [
+          {
+            "basic": []
+          }
+        ],
+        "summary": "/activeUserMetrics/topPlatforms",
         "tags": [
-          "ActiveUser"
+          "v1"
         ]
       }
     },
     "/activeUserMetrics/topBrowsers": {
       "get": {
+        "description": "Returns the most common web browsers among active users within the given time range, sorted by frequency descending. Each entry contains a `value` (browser name) and a `count`.",
         "operationId": "ActiveUserController_topBrowsers",
         "parameters": [
           {
             "name": "start",
             "required": true,
             "in": "query",
+            "description": "Start of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -335,6 +400,7 @@
             "name": "end",
             "required": true,
             "in": "query",
+            "description": "End of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -343,6 +409,7 @@
             "name": "tenantId",
             "required": true,
             "in": "query",
+            "description": "Tenant identifier used to scope the cache query.",
             "schema": {
               "type": "string"
             }
@@ -353,20 +420,27 @@
             "description": ""
           }
         },
-        "summary": "Returns the most common browsers among active users within the given time\nrange, sorted by frequency in descending order.",
+        "security": [
+          {
+            "basic": []
+          }
+        ],
+        "summary": "/activeUserMetrics/topBrowsers",
         "tags": [
-          "ActiveUser"
+          "v1"
         ]
       }
     },
     "/activeUserMetrics/topDeviceTypes": {
       "get": {
+        "description": "Returns the most common device types (e.g. desktop, mobile, tablet) among active users within the given time range, sorted by frequency descending. Each entry contains a `value` (device type) and a `count`.",
         "operationId": "ActiveUserController_topDeviceTypes",
         "parameters": [
           {
             "name": "start",
             "required": true,
             "in": "query",
+            "description": "Start of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -375,6 +449,7 @@
             "name": "end",
             "required": true,
             "in": "query",
+            "description": "End of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -383,6 +458,7 @@
             "name": "tenantId",
             "required": true,
             "in": "query",
+            "description": "Tenant identifier used to scope the cache query.",
             "schema": {
               "type": "string"
             }
@@ -393,20 +469,27 @@
             "description": ""
           }
         },
-        "summary": "Returns the most common device types among active users within the given\ntime range, sorted by frequency in descending order.",
+        "security": [
+          {
+            "basic": []
+          }
+        ],
+        "summary": "/activeUserMetrics/topDeviceTypes",
         "tags": [
-          "ActiveUser"
+          "v1"
         ]
       }
     },
     "/activeUserMetrics/mailDomainNames": {
       "get": {
+        "description": "Extracts and counts the email domain portion of each active user's identifier within the given time range, returning the most common domains sorted by frequency descending. Useful for understanding which organisations are most active on the platform.",
         "operationId": "ActiveUserController_mailDomainNames",
         "parameters": [
           {
             "name": "start",
             "required": true,
             "in": "query",
+            "description": "Start of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -415,6 +498,7 @@
             "name": "end",
             "required": true,
             "in": "query",
+            "description": "End of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -423,6 +507,7 @@
             "name": "tenantId",
             "required": true,
             "in": "query",
+            "description": "Tenant identifier used to scope the cache query.",
             "schema": {
               "type": "string"
             }
@@ -433,20 +518,27 @@
             "description": ""
           }
         },
-        "summary": "Returns the most common email domain names among active users within the\ngiven time range, sorted by frequency in descending order.",
+        "security": [
+          {
+            "basic": []
+          }
+        ],
+        "summary": "/activeUserMetrics/mailDomainNames",
         "tags": [
-          "ActiveUser"
+          "v1"
         ]
       }
     },
     "/eventCounts": {
       "get": {
+        "description": "Queries the custom-events cache for the given tenant and time range, then groups events by their `name` field and counts occurrences. Returns an array of `{ value, count }` pairs sorted by count descending — useful for a ranked event-type breakdown.",
         "operationId": "EventsController_getEventCounts",
         "parameters": [
           {
             "name": "start",
             "required": true,
             "in": "query",
+            "description": "Start of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -455,6 +547,7 @@
             "name": "end",
             "required": true,
             "in": "query",
+            "description": "End of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -463,6 +556,7 @@
             "name": "tenantId",
             "required": true,
             "in": "query",
+            "description": "Tenant identifier used to scope the cache query.",
             "schema": {
               "type": "string"
             }
@@ -473,14 +567,20 @@
             "description": ""
           }
         },
-        "summary": "Returns the count of each custom event type within the given time range,\nsorted by frequency in descending order.",
+        "security": [
+          {
+            "basic": []
+          }
+        ],
+        "summary": "/eventCounts",
         "tags": [
-          "Events"
+          "v1"
         ]
       }
     },
     "/widgetsByName": {
       "get": {
+        "description": "Filters the custom-events cache to events matching the provided `eventName` query parameter, then groups the results by `data.widgetName` and counts occurrences. Returns an array of `{ value, count }` pairs sorted by count descending — useful for per-widget interaction breakdowns.",
         "operationId": "EventsController_getEventCountsByName",
         "parameters": [
           {
@@ -495,6 +595,7 @@
             "name": "start",
             "required": true,
             "in": "query",
+            "description": "Start of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -503,6 +604,7 @@
             "name": "end",
             "required": true,
             "in": "query",
+            "description": "End of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -511,6 +613,7 @@
             "name": "tenantId",
             "required": true,
             "in": "query",
+            "description": "Tenant identifier used to scope the cache query.",
             "schema": {
               "type": "string"
             }
@@ -521,20 +624,27 @@
             "description": ""
           }
         },
-        "summary": "Returns widget counts grouped by widget name for a specific event type\nwithin the given time range.",
+        "security": [
+          {
+            "basic": []
+          }
+        ],
+        "summary": "/widgetsByName",
         "tags": [
-          "Events"
+          "v1"
         ]
       }
     },
     "/events": {
       "get": {
+        "description": "Returns all custom events from the cache within the given time range for the specified tenant. Each event contains `name`, `date`, and `data`. Set `withId=true` to also include `identifyId` and `sessionId` on each event object.",
         "operationId": "EventsController_getEvents",
         "parameters": [
           {
             "name": "start",
             "required": true,
             "in": "query",
+            "description": "Start of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -543,6 +653,7 @@
             "name": "end",
             "required": true,
             "in": "query",
+            "description": "End of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -551,6 +662,7 @@
             "name": "tenantId",
             "required": true,
             "in": "query",
+            "description": "Tenant identifier used to scope the cache query.",
             "schema": {
               "type": "string"
             }
@@ -580,20 +692,27 @@
             }
           }
         },
-        "summary": "Returns all custom events within the given time range.",
+        "security": [
+          {
+            "basic": []
+          }
+        ],
+        "summary": "/events",
         "tags": [
-          "Events"
+          "v1"
         ]
       }
     },
     "/sessionEventsAutoAgg": {
       "get": {
+        "description": "Aggregates session-initialised events into time buckets using an automatically chosen resolution: ranges ≤ 1 hour are bucketed by minute, ranges ≤ 1 day by hour, and longer ranges by day. All bucket slots within the queried range are pre-populated with zero counts so charts render continuous lines. Returns an array of `{ time, count }` pairs sorted chronologically.",
         "operationId": "SessionEventsController_getSessionsAutoAgg",
         "parameters": [
           {
             "name": "start",
             "required": true,
             "in": "query",
+            "description": "Start of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -602,6 +721,7 @@
             "name": "end",
             "required": true,
             "in": "query",
+            "description": "End of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -610,6 +730,7 @@
             "name": "tenantId",
             "required": true,
             "in": "query",
+            "description": "Tenant identifier used to scope the cache query.",
             "schema": {
               "type": "string"
             }
@@ -620,20 +741,27 @@
             "description": ""
           }
         },
-        "summary": "Returns session events aggregated over an automatically determined time\nresolution based on the given range. Ranges up to 1 hour are bucketed by\nminute, ranges up to 1 day by hour, and longer ranges by day.",
+        "security": [
+          {
+            "basic": []
+          }
+        ],
+        "summary": "/sessionEventsAutoAgg",
         "tags": [
-          "SessionEvents"
+          "v1"
         ]
       }
     },
     "/sessionEvents": {
       "get": {
+        "description": "Returns raw session-initialised events from the cache within the given time range for the specified tenant. Each entry contains `time` (ISO 8601), `eventId`, `identifyId`, `inferredLocation`, and `userType`.",
         "operationId": "SessionEventsController_getSessions",
         "parameters": [
           {
             "name": "start",
             "required": true,
             "in": "query",
+            "description": "Start of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -642,6 +770,7 @@
             "name": "end",
             "required": true,
             "in": "query",
+            "description": "End of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -650,6 +779,7 @@
             "name": "tenantId",
             "required": true,
             "in": "query",
+            "description": "Tenant identifier used to scope the cache query.",
             "schema": {
               "type": "string"
             }
@@ -660,20 +790,27 @@
             "description": ""
           }
         },
-        "summary": "Returns raw session events within the given time range.",
+        "security": [
+          {
+            "basic": []
+          }
+        ],
+        "summary": "/sessionEvents",
         "tags": [
-          "SessionEvents"
+          "v1"
         ]
       }
     },
     "/popularDevices": {
       "get": {
+        "description": "Aggregates page views from the cache by device ID for the given tenant and time range. URLs matching the pattern `/device/{numericId}` are grouped by ID and counted. Returns an array of `{ path, count }` pairs sorted by count descending.",
         "operationId": "PageViewController_getDeviceCounts",
         "parameters": [
           {
             "name": "start",
             "required": true,
             "in": "query",
+            "description": "Start of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -682,6 +819,7 @@
             "name": "end",
             "required": true,
             "in": "query",
+            "description": "End of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -690,6 +828,7 @@
             "name": "tenantId",
             "required": true,
             "in": "query",
+            "description": "Tenant identifier used to scope the cache query.",
             "schema": {
               "type": "string"
             }
@@ -700,20 +839,27 @@
             "description": ""
           }
         },
-        "summary": "Returns page-view counts aggregated by device ID within the given time\nrange, sorted by count in descending order.",
+        "security": [
+          {
+            "basic": []
+          }
+        ],
+        "summary": "/popularDevices",
         "tags": [
-          "PageView"
+          "v1"
         ]
       }
     },
     "/countByType": {
       "get": {
+        "description": "Aggregates page views by a specific URL path segment type: `group`, `device`, `reports`, or `dashboard`. URLs containing `/{type}/{numericId}` are extracted and grouped by their numeric ID. Returns an array of `{ path, count }` pairs sorted by count descending.",
         "operationId": "PageViewController_getCountsForType",
         "parameters": [
           {
             "name": "start",
             "required": true,
             "in": "query",
+            "description": "Start of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -722,6 +868,7 @@
             "name": "end",
             "required": true,
             "in": "query",
+            "description": "End of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -730,6 +877,7 @@
             "name": "tenantId",
             "required": true,
             "in": "query",
+            "description": "Tenant identifier used to scope the cache query.",
             "schema": {
               "type": "string"
             }
@@ -748,20 +896,27 @@
             "description": ""
           }
         },
-        "summary": "Returns page-view counts aggregated by a specific path segment type\nwithin the given time range. Counts page-view URLs that match the pattern\n\"/{type}/{numericId}\" and groups them by numeric ID.",
+        "security": [
+          {
+            "basic": []
+          }
+        ],
+        "summary": "/countByType",
         "tags": [
-          "PageView"
+          "v1"
         ]
       }
     },
     "/pageViewCounts": {
       "get": {
+        "description": "Aggregates page views by normalised URL pattern for the given tenant and time range. All numeric segments in the URL path are replaced with `*` before grouping, producing a count per page type rather than per specific entity. Returns an array of `{ path, count }` pairs sorted by count descending.",
         "operationId": "PageViewController_getPageViewCounts",
         "parameters": [
           {
             "name": "start",
             "required": true,
             "in": "query",
+            "description": "Start of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -770,6 +925,7 @@
             "name": "end",
             "required": true,
             "in": "query",
+            "description": "End of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -778,6 +934,7 @@
             "name": "tenantId",
             "required": true,
             "in": "query",
+            "description": "Tenant identifier used to scope the cache query.",
             "schema": {
               "type": "string"
             }
@@ -788,9 +945,14 @@
             "description": ""
           }
         },
-        "summary": "Returns page-view counts aggregated by masked URL pattern within the given\ntime range. Numeric segments in the URL path are replaced with wildcards\nbefore grouping, producing a count per page type.",
+        "security": [
+          {
+            "basic": []
+          }
+        ],
+        "summary": "/pageViewCounts",
         "tags": [
-          "PageView"
+          "v1"
         ]
       }
     },
@@ -803,6 +965,7 @@
             "name": "start",
             "required": true,
             "in": "query",
+            "description": "Start of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -811,6 +974,7 @@
             "name": "end",
             "required": true,
             "in": "query",
+            "description": "End of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -819,6 +983,7 @@
             "name": "tenantId",
             "required": true,
             "in": "query",
+            "description": "Tenant identifier used to scope the cache query.",
             "schema": {
               "type": "string"
             }
@@ -827,7 +992,7 @@
             "name": "filter",
             "required": false,
             "in": "query",
-            "description": "filtrex filter expression. Strings must be double-quoted. Examples: country == \"Germany\", roles != \"guest\" and platform == \"desktop\", device in (\"mobile\", \"tablet\").",
+            "description": "filtrex filter expression applied to mapped user objects. Strings must be double-quoted.\n\n**Examples**\n- `country == \"Germany\"` — users from Germany\n- `platform == \"desktop\" and browser == \"Chrome\"` — desktop Chrome users\n- `device in (\"mobile\", \"tablet\")` — mobile and tablet users only\n- `roles != \"guest\"` — exclude guest users\n- `domain ~= \"siemens\"` — users whose email domain contains \"siemens\"",
             "schema": {
               "type": "string"
             }
@@ -836,7 +1001,7 @@
             "name": "fields",
             "required": false,
             "in": "query",
-            "description": "Comma-separated user fields to return. Valid values: id, roles, country, sessionId, language, platform, browser, device, domain. Omit to return all fields.",
+            "description": "Comma-separated user fields to return. Valid values: id, roles, country, sessionId, language, platform, browser, device, domain. Omit to return all fields.\n\n**Examples**\n- `id,country,roles` — identity, location, and role breakdown\n- `id,platform,browser,device` — device and browser profile only\n- `id,domain,language` — domain and language breakdown",
             "schema": {
               "type": "string"
             }
@@ -878,9 +1043,14 @@
             }
           }
         },
-        "summary": "Returns active users from the cache within the given time range.",
+        "security": [
+          {
+            "basic": []
+          }
+        ],
+        "summary": "v2/activeUsers",
         "tags": [
-          "ActiveUserControllerV2"
+          "v2"
         ]
       }
     },
@@ -893,6 +1063,7 @@
             "name": "start",
             "required": true,
             "in": "query",
+            "description": "Start of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -901,6 +1072,7 @@
             "name": "end",
             "required": true,
             "in": "query",
+            "description": "End of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -909,6 +1081,7 @@
             "name": "tenantId",
             "required": true,
             "in": "query",
+            "description": "Tenant identifier used to scope the cache query.",
             "schema": {
               "type": "string"
             }
@@ -917,7 +1090,7 @@
             "name": "filter",
             "required": false,
             "in": "query",
-            "description": "filtrex filter expression. Strings must be double-quoted. Examples: name == \"buttonClick\", name != \"pageView\", name in (\"click\", \"hover\").",
+            "description": "filtrex filter expression applied to mapped event objects. Strings must be double-quoted.\n\n**Examples**\n- `name == \"buttonClick\"` — button click events only\n- `name != \"pageView\"` — exclude page view events\n- `name in (\"buttonClick\", \"formSubmit\")` — clicks and form submissions\n- `identifyId == \"user-001\"` — events from a specific user",
             "schema": {
               "type": "string"
             }
@@ -926,7 +1099,7 @@
             "name": "fields",
             "required": false,
             "in": "query",
-            "description": "Comma-separated top-level event fields to return. Valid values: name, date, data, identifyId, sessionId. Omit to return all fields.",
+            "description": "Comma-separated top-level event fields to return. Valid values: name, date, data, identifyId, sessionId. Omit to return all fields.\n\n**Examples**\n- `name,date,identifyId` — event name, timestamp, and user\n- `name,data` — event name and raw payload only\n- `name,date,sessionId` — event name, timestamp, and session context",
             "schema": {
               "type": "string"
             }
@@ -935,7 +1108,7 @@
             "name": "dataFields",
             "required": false,
             "in": "query",
-            "description": "Comma-separated dot-notation paths to project from event.data. Example: widgetName,attributes.size. Omit to return the full data object.",
+            "description": "Comma-separated dot-notation paths to project from event.data. Omit to return the full data object.\n\n**Examples**\n- `widgetName` — widget name only\n- `widgetName,widgetId` — widget name and identifier\n- `attributes.size,attributes.color` — specific nested attribute paths",
             "schema": {
               "type": "string"
             }
@@ -973,9 +1146,14 @@
             }
           }
         },
-        "summary": "Returns events from the cache within the given time range.",
+        "security": [
+          {
+            "basic": []
+          }
+        ],
+        "summary": "v2/events",
         "tags": [
-          "EventsControllerV2"
+          "v2"
         ]
       }
     },
@@ -988,6 +1166,7 @@
             "name": "start",
             "required": true,
             "in": "query",
+            "description": "Start of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -996,6 +1175,7 @@
             "name": "end",
             "required": true,
             "in": "query",
+            "description": "End of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -1004,6 +1184,7 @@
             "name": "tenantId",
             "required": true,
             "in": "query",
+            "description": "Tenant identifier used to scope the cache query.",
             "schema": {
               "type": "string"
             }
@@ -1012,7 +1193,7 @@
             "name": "filter",
             "required": false,
             "in": "query",
-            "description": "filtrex filter expression applied after the customEvent prefix pre-filter. Strings must be double-quoted. Examples: name == \"customEventButtonClick\", name in (\"customEventClick\", \"customEventHover\").",
+            "description": "filtrex filter expression applied after the customEvent prefix pre-filter. Strings must be double-quoted.\n\n**Examples**\n- `name == \"customEventButtonClick\"` — specific customer event type\n- `name in (\"customEventButtonClick\", \"customEventFormSubmit\")` — multiple customer event types\n- `identifyId == \"user-001\"` — customer events from a specific user",
             "schema": {
               "type": "string"
             }
@@ -1021,7 +1202,7 @@
             "name": "fields",
             "required": false,
             "in": "query",
-            "description": "Comma-separated top-level event fields to return. Valid values: name, date, data, identifyId, sessionId. Omit to return all fields.",
+            "description": "Comma-separated top-level event fields to return. Valid values: name, date, data, identifyId, sessionId. Omit to return all fields.\n\n**Examples**\n- `name,date,identifyId` — event name, timestamp, and user\n- `name,data` — event name and payload only\n- `name,date,sessionId` — event name, timestamp, and session context",
             "schema": {
               "type": "string"
             }
@@ -1030,7 +1211,7 @@
             "name": "dataFields",
             "required": false,
             "in": "query",
-            "description": "Comma-separated dot-notation paths to project from event.data. Valid root values: action_type, category, label, metadata. Example: category,label,metadata.size. Omit to return the full data object.",
+            "description": "Comma-separated dot-notation paths to project from event.data. Valid root values: action_type, category, label, metadata. Omit to return the full data object.\n\n**Examples**\n- `category,label` — category and label only\n- `action_type,category` — action type with category\n- `label,metadata.size` — label with a specific metadata sub-field",
             "schema": {
               "type": "string"
             }
@@ -1070,9 +1251,14 @@
             }
           }
         },
-        "summary": "Returns customer custom events (name prefixed with \"customEvent\") from the cache.",
+        "security": [
+          {
+            "basic": []
+          }
+        ],
+        "summary": "v2/customEvents",
         "tags": [
-          "EventsControllerV2"
+          "v2"
         ]
       }
     },
@@ -1085,6 +1271,7 @@
             "name": "start",
             "required": true,
             "in": "query",
+            "description": "Start of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -1093,6 +1280,7 @@
             "name": "end",
             "required": true,
             "in": "query",
+            "description": "End of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -1101,6 +1289,7 @@
             "name": "tenantId",
             "required": true,
             "in": "query",
+            "description": "Tenant identifier used to scope the cache query.",
             "schema": {
               "type": "string"
             }
@@ -1109,7 +1298,7 @@
             "name": "filter",
             "required": false,
             "in": "query",
-            "description": "filtrex filter expression. Strings must be double-quoted. Use ~= for regex matching. Examples:\n- `hash ~= \"group/123/dashboard\"` — all dashboard views inside group 123\n- `hash ~= \"device/456/dashboard\"` — all dashboard views inside device 456\n- `userType == \"USER\" and host == \"app.example.com\"`",
+            "description": "filtrex filter expression applied to mapped page-view objects. Strings must be double-quoted. Use `~=` for regex matching.\n\n**Examples**\n- `hash ~= \"group/123/dashboard\"` — all dashboards inside group 123\n- `hash ~= \"device/456/dashboard\"` — all dashboards inside device 456\n- `userType == \"USER\" and host == \"app.example.com\"` — authenticated users on a specific host\n- `pageTitle ~= \"Dashboard\"` — all pages with \"Dashboard\" in the title\n- `accountId == \"acc-001\"` — page views from a specific account",
             "schema": {
               "type": "string"
             }
@@ -1118,7 +1307,7 @@
             "name": "fields",
             "required": false,
             "in": "query",
-            "description": "Comma-separated page-view fields to return. Valid values: id, identifyId, sessionId, date, scheme, host, path, queryString, hash, queryParams, remoteHost, referrer, screenHeight, screenWidth, languages, pageTitle, propertyKey, eventType, userType, accountId, globalContext. Omit to return all fields.",
+            "description": "Comma-separated page-view fields to return. Valid values: id, identifyId, sessionId, date, scheme, host, path, queryString, hash, queryParams, remoteHost, referrer, screenHeight, screenWidth, languages, pageTitle, propertyKey, eventType, userType, accountId, globalContext. Omit to return all fields.\n\n**Examples**\n- `id,identifyId,hash,date` — minimal view with page path and user\n- `id,pageTitle,accountId,userType` — page title per account and user type\n- `id,hash,screenWidth,screenHeight` — page paths with screen resolution",
             "schema": {
               "type": "string"
             }
@@ -1127,7 +1316,7 @@
             "name": "orderBy",
             "required": false,
             "in": "query",
-            "description": "Field and optional direction to sort results by, in the format `field` or `field:asc` / `field:dir`. Direction defaults to `asc` when omitted. Valid field values match those listed in `fields`.\n\n**Examples**\n- `date:desc` — most recent events first\n- `date:asc` — oldest events first\n- `identifyId:asc` — alphabetical by user\n- `pageTitle:asc` — alphabetical by page title",
+            "description": "Field and optional direction to sort results by, in the format `field` or `field:asc` / `field:desc`. Direction defaults to `asc` when omitted. Valid field values match those listed in `fields`.\n\n**Examples**\n- `date:desc` — most recent events first\n- `date:asc` — oldest events first\n- `identifyId:asc` — alphabetical by user\n- `pageTitle:asc` — alphabetical by page title",
             "schema": {
               "type": "string"
             }
@@ -1172,9 +1361,14 @@
             }
           }
         },
-        "summary": "Returns page-view events from the cache within the given time range.",
+        "security": [
+          {
+            "basic": []
+          }
+        ],
+        "summary": "v2/pageViews",
         "tags": [
-          "PageViewControllerV2"
+          "v2"
         ]
       }
     },
@@ -1187,6 +1381,7 @@
             "name": "start",
             "required": true,
             "in": "query",
+            "description": "Start of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -1195,6 +1390,7 @@
             "name": "end",
             "required": true,
             "in": "query",
+            "description": "End of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -1203,6 +1399,7 @@
             "name": "tenantId",
             "required": true,
             "in": "query",
+            "description": "Tenant identifier used to scope the cache query.",
             "schema": {
               "type": "string"
             }
@@ -1211,7 +1408,7 @@
             "name": "filter",
             "required": false,
             "in": "query",
-            "description": "filtrex filter expression to scope records before aggregation. Strings must be double-quoted. Examples:\n- `hash ~= \"group/123/dashboard\"` — dashboards inside group 123\n- `hash ~= \"device/456/dashboard\"` — dashboards inside device 456\n- `userType == \"USER\"`",
+            "description": "filtrex filter expression to scope page-view records before aggregation. Strings must be double-quoted. Use `~=` for regex matching.\n\n**Examples**\n- `hash ~= \"group/123/dashboard\"` — dashboards inside group 123\n- `hash ~= \"device/456/dashboard\"` — dashboards inside device 456\n- `accountId == \"acc-001\"` — views from a specific account",
             "schema": {
               "type": "string"
             }
@@ -1273,9 +1470,14 @@
             }
           }
         },
-        "summary": "Returns page-view counts aggregated by a chosen field.",
+        "security": [
+          {
+            "basic": []
+          }
+        ],
+        "summary": "v2/pageViewCounts",
         "tags": [
-          "PageViewControllerV2"
+          "v2"
         ]
       }
     },
@@ -1288,6 +1490,7 @@
             "name": "start",
             "required": true,
             "in": "query",
+            "description": "Start of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -1296,6 +1499,7 @@
             "name": "end",
             "required": true,
             "in": "query",
+            "description": "End of the time range (ISO 8601 string or epoch milliseconds).",
             "schema": {
               "type": "string"
             }
@@ -1304,6 +1508,7 @@
             "name": "tenantId",
             "required": true,
             "in": "query",
+            "description": "Tenant identifier used to scope the cache query.",
             "schema": {
               "type": "string"
             }
@@ -1312,7 +1517,7 @@
             "name": "filter",
             "required": false,
             "in": "query",
-            "description": "filtrex filter expression. Strings must be double-quoted. Examples: userType == \"USER\", userType != \"VISITOR\", userType in (\"USER\", \"LEAD\").",
+            "description": "filtrex filter expression applied to mapped session event objects. Strings must be double-quoted.\n\n**Examples**\n- `userType == \"USER\"` — regular authenticated users only\n- `userType != \"VISITOR\"` — exclude anonymous visitors\n- `userType in (\"USER\", \"LEAD\")` — users and leads\n- `accountId == \"acc-001\"` — sessions for a specific account\n- `eventType == \"SESSION_STARTED\"` — session start events only",
             "schema": {
               "type": "string"
             }
@@ -1321,7 +1526,7 @@
             "name": "fields",
             "required": false,
             "in": "query",
-            "description": "Comma-separated session event fields to return. Valid values: id, identifyId, sessionId, accountId, date, propertyKey, eventType, remoteHost, location, userType, globalContext. Omit to return all fields.",
+            "description": "Comma-separated session event fields to return. Valid values: id, identifyId, sessionId, accountId, date, propertyKey, eventType, remoteHost, location, userType, globalContext. Omit to return all fields.\n\n**Examples**\n- `id,identifyId,accountId,date` — minimal identity and timestamp\n- `id,userType,location,date` — geographic and user type analysis\n- `id,identifyId,sessionId,userType` — session tracking with user type",
             "schema": {
               "type": "string"
             }
@@ -1365,9 +1570,14 @@
             }
           }
         },
-        "summary": "Returns session-initialized events from the cache within the given time range.",
+        "security": [
+          {
+            "basic": []
+          }
+        ],
+        "summary": "v2/sessionEvents",
         "tags": [
-          "SessionEventsControllerV2"
+          "v2"
         ]
       }
     },
@@ -1478,17 +1688,20 @@
   "info": {
     "title": "Gainsight Sync Microservice API",
     "description": "A NestJS microservice that periodically pulls Gainsight PX telemetry (custom events, session events, page views, active-user metrics) from configured tenant domains, caches the data in memory per tenant using a date-sorted array with binary-search range queries, and exposes REST endpoints consumed by dashboards such as Grafana.\n\nAll data endpoints require `Authorization: Basic <base64(user:password)>` and a `tenantId` query parameter. Public endpoints: `/health`, `/lastRun`, `/llms.txt`, `/llms-full.txt`.\n\nInteractive docs: https://gainsight.eu-latest.cumulocity.com/apps/gainsight-c8y-openapi/index.html",
-    "version": "0.2.0",
+    "version": "0.2.2",
     "contact": {}
   },
   "tags": [],
-  "servers": [],
+  "servers": [
+    {
+      "url": "https://gainsight.eu-latest.cumulocity.com/service/gainsight-sync-ms"
+    }
+  ],
   "components": {
     "securitySchemes": {
-      "bearer": {
-        "scheme": "bearer",
-        "bearerFormat": "JWT",
-        "type": "http"
+      "basic": {
+        "type": "http",
+        "scheme": "basic"
       }
     },
     "schemas": {}

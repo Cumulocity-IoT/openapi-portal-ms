@@ -3,7 +3,7 @@ import { AppModule } from "./app.module";
 import { NoColorLogger } from "./logger/no-color.logger";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import * as fs from "fs";
-import { version } from "../package.json";
+import { name, version } from "../package.json";
 import { OpenApiDocumentService } from "./api/ai/openapi-document.service";
 
 async function bootstrap() {
@@ -55,7 +55,8 @@ async function bootstrap() {
           "Interactive docs: https://gainsight.eu-latest.cumulocity.com/apps/gainsight-c8y-openapi/index.html",
       )
       .setVersion(version)
-      .addBearerAuth()
+      .addServer(`https://gainsight.eu-latest.cumulocity.com/service/${name}`)
+      .addBasicAuth()
       .build();
 
     const document = SwaggerModule.createDocument(app, config);

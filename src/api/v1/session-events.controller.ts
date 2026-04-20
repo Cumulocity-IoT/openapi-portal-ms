@@ -1,4 +1,5 @@
 import { Controller, Get, Logger, Query, UseGuards } from "@nestjs/common";
+import { ApiBasicAuth, ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
 import {
   addDays,
   addHours,
@@ -13,6 +14,8 @@ import { SessionEventsCacheService } from "../../cache/session-events-cache.serv
 import { TenantGuard } from "../../guards/tenant.guard";
 import { CachedSessionEvent } from "../../model/cache-model";
 @UseGuards(TenantGuard)
+@ApiBasicAuth()
+@ApiTags("v1")
 @Controller()
 export class SessionEventsController {
   private readonly logger = new Logger(SessionEventsController.name);
@@ -29,6 +32,31 @@ export class SessionEventsController {
    * @param tenantId - Tenant identifier used to scope the cache query.
    * @returns Array of time/count pairs sorted chronologically; empty array on error.
    */
+  @ApiQuery({
+    name: "start",
+    required: true,
+    description:
+      "Start of the time range (ISO 8601 string or epoch milliseconds).",
+  })
+  @ApiQuery({
+    name: "end",
+    required: true,
+    description:
+      "End of the time range (ISO 8601 string or epoch milliseconds).",
+  })
+  @ApiQuery({
+    name: "tenantId",
+    required: true,
+    description: "Tenant identifier used to scope the cache query.",
+  })
+  @ApiOperation({
+    summary: "/sessionEventsAutoAgg",
+    description:
+      "Aggregates session-initialised events into time buckets using an automatically chosen resolution: " +
+      "ranges ≤ 1 hour are bucketed by minute, ranges ≤ 1 day by hour, and longer ranges by day. " +
+      "All bucket slots within the queried range are pre-populated with zero counts so charts render continuous lines. " +
+      "Returns an array of `{ time, count }` pairs sorted chronologically.",
+  })
   @Get("/sessionEventsAutoAgg")
   async getSessionsAutoAgg(
     @Query("start") start: string,
@@ -139,6 +167,29 @@ export class SessionEventsController {
    * @returns Array of session event objects with time, eventId, identifyId,
    *   inferredLocation, and userType; empty array on error.
    */
+  @ApiQuery({
+    name: "start",
+    required: true,
+    description:
+      "Start of the time range (ISO 8601 string or epoch milliseconds).",
+  })
+  @ApiQuery({
+    name: "end",
+    required: true,
+    description:
+      "End of the time range (ISO 8601 string or epoch milliseconds).",
+  })
+  @ApiQuery({
+    name: "tenantId",
+    required: true,
+    description: "Tenant identifier used to scope the cache query.",
+  })
+  @ApiOperation({
+    summary: "/sessionEvents",
+    description:
+      "Returns raw session-initialised events from the cache within the given time range for the specified tenant. " +
+      "Each entry contains `time` (ISO 8601), `eventId`, `identifyId`, `inferredLocation`, and `userType`.",
+  })
   @Get("/sessionEvents")
   async getSessions(
     @Query("start") start: string,

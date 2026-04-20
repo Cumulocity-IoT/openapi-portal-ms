@@ -1,5 +1,11 @@
 import { Controller, Get, Logger, Query, UseGuards } from "@nestjs/common";
-import { ApiOperation, ApiQuery, ApiResponse } from "@nestjs/swagger";
+import {
+  ApiBasicAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from "@nestjs/swagger";
 import { SessionEventsCacheService } from "../../cache/session-events-cache.service";
 import { TenantGuard } from "../../guards/tenant.guard";
 import {
@@ -17,6 +23,8 @@ import {
 } from "../../util/dynamic-queries";
 
 @UseGuards(TenantGuard)
+@ApiBasicAuth()
+@ApiTags("v2")
 @Controller()
 export class SessionEventsControllerV2 {
   private readonly logger = new Logger(SessionEventsControllerV2.name);
@@ -34,8 +42,7 @@ export class SessionEventsControllerV2 {
    * @returns Filtered, mapped, and projected session event objects; empty array on error.
    */
   @ApiOperation({
-    summary:
-      "Returns session-initialized events from the cache within the given time range.",
+    summary: "v2/sessionEvents",
     description:
       "Supports optional server-side filtering via filtrex (https://github.com/cshaa/filtrex) " +
       "and field projection. All string values in filter expressions must be double-quoted.",
@@ -44,13 +51,23 @@ export class SessionEventsControllerV2 {
     name: "filter",
     required: false,
     description:
-      'filtrex filter expression. Strings must be double-quoted. Examples: userType == "USER", userType != "VISITOR", userType in ("USER", "LEAD").',
+      "filtrex filter expression applied to mapped session event objects. Strings must be double-quoted.\n\n" +
+      "**Examples**\n" +
+      '- `userType == "USER"` — regular authenticated users only\n' +
+      '- `userType != "VISITOR"` — exclude anonymous visitors\n' +
+      '- `userType in ("USER", "LEAD")` — users and leads\n' +
+      '- `accountId == "acc-001"` — sessions for a specific account\n' +
+      '- `eventType == "SESSION_STARTED"` — session start events only',
   })
   @ApiQuery({
     name: "fields",
     required: false,
     description:
-      "Comma-separated session event fields to return. Valid values: id, identifyId, sessionId, accountId, date, propertyKey, eventType, remoteHost, location, userType, globalContext. Omit to return all fields.",
+      "Comma-separated session event fields to return. Valid values: id, identifyId, sessionId, accountId, date, propertyKey, eventType, remoteHost, location, userType, globalContext. Omit to return all fields.\n\n" +
+      "**Examples**\n" +
+      "- `id,identifyId,accountId,date` — minimal identity and timestamp\n" +
+      "- `id,userType,location,date` — geographic and user type analysis\n" +
+      "- `id,identifyId,sessionId,userType` — session tracking with user type",
   })
   @ApiQuery({
     name: "orderBy",
@@ -84,6 +101,23 @@ export class SessionEventsControllerV2 {
         },
       ],
     },
+  })
+  @ApiQuery({
+    name: "start",
+    required: true,
+    description:
+      "Start of the time range (ISO 8601 string or epoch milliseconds).",
+  })
+  @ApiQuery({
+    name: "end",
+    required: true,
+    description:
+      "End of the time range (ISO 8601 string or epoch milliseconds).",
+  })
+  @ApiQuery({
+    name: "tenantId",
+    required: true,
+    description: "Tenant identifier used to scope the cache query.",
   })
   @Get("v2/sessionEvents")
   getSessionsV2(

@@ -1,5 +1,11 @@
 import { Controller, Get, Logger, Query, UseGuards } from "@nestjs/common";
-import { ApiOperation, ApiQuery, ApiResponse } from "@nestjs/swagger";
+import {
+  ApiBasicAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from "@nestjs/swagger";
 import { ActiveUsersCacheService } from "../../cache/active-users-cache.service";
 import { TenantGuard } from "../../guards/tenant.guard";
 import {
@@ -17,6 +23,8 @@ import {
 } from "../../util/dynamic-queries";
 
 @UseGuards(TenantGuard)
+@ApiBasicAuth()
+@ApiTags("v2")
 @Controller()
 export class ActiveUserControllerV2 {
   private readonly logger = new Logger(ActiveUserControllerV2.name);
@@ -33,7 +41,7 @@ export class ActiveUserControllerV2 {
    * @returns Filtered, mapped, and projected user objects; empty array on error.
    */
   @ApiOperation({
-    summary: "Returns active users from the cache within the given time range.",
+    summary: "v2/activeUsers",
     description:
       "Supports optional server-side filtering via filtrex (https://github.com/cshaa/filtrex) " +
       "and field projection. All string values in filter expressions must be double-quoted.",
@@ -42,13 +50,23 @@ export class ActiveUserControllerV2 {
     name: "filter",
     required: false,
     description:
-      'filtrex filter expression. Strings must be double-quoted. Examples: country == "Germany", roles != "guest" and platform == "desktop", device in ("mobile", "tablet").',
+      "filtrex filter expression applied to mapped user objects. Strings must be double-quoted.\n\n" +
+      "**Examples**\n" +
+      '- `country == "Germany"` — users from Germany\n' +
+      '- `platform == "desktop" and browser == "Chrome"` — desktop Chrome users\n' +
+      '- `device in ("mobile", "tablet")` — mobile and tablet users only\n' +
+      '- `roles != "guest"` — exclude guest users\n' +
+      '- `domain ~= "siemens"` — users whose email domain contains "siemens"',
   })
   @ApiQuery({
     name: "fields",
     required: false,
     description:
-      "Comma-separated user fields to return. Valid values: id, roles, country, sessionId, language, platform, browser, device, domain. Omit to return all fields.",
+      "Comma-separated user fields to return. Valid values: id, roles, country, sessionId, language, platform, browser, device, domain. Omit to return all fields.\n\n" +
+      "**Examples**\n" +
+      "- `id,country,roles` — identity, location, and role breakdown\n" +
+      "- `id,platform,browser,device` — device and browser profile only\n" +
+      "- `id,domain,language` — domain and language breakdown",
   })
   @ApiQuery({
     name: "orderBy",
@@ -80,6 +98,23 @@ export class ActiveUserControllerV2 {
         },
       ],
     },
+  })
+  @ApiQuery({
+    name: "start",
+    required: true,
+    description:
+      "Start of the time range (ISO 8601 string or epoch milliseconds).",
+  })
+  @ApiQuery({
+    name: "end",
+    required: true,
+    description:
+      "End of the time range (ISO 8601 string or epoch milliseconds).",
+  })
+  @ApiQuery({
+    name: "tenantId",
+    required: true,
+    description: "Tenant identifier used to scope the cache query.",
   })
   @Get("v2/activeUsers")
   getUsersV2(
