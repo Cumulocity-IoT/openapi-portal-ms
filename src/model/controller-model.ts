@@ -99,6 +99,32 @@ export function mapCachedEventToControllerEvent(
 }
 
 /**
+ * Maps a cached custom event to the shape returned by the V2 events endpoints.
+ *
+ * Unlike {@link mapCachedEventToControllerEvent}, this mapper always includes
+ * `identifyId` and `sessionId` so that callers can project them in or out via
+ * the `fields` query parameter.
+ *
+ * Field mappings:
+ * - `name`       ← `CachedEvent.name`
+ * - `data`       ← `CachedEvent.data`
+ * - `date`       ← `CachedEvent.date` (converted to ISO string)
+ * - `identifyId` ← `CachedEvent.iId` (always included)
+ * - `sessionId`  ← `CachedEvent.sId` (always included)
+ */
+export function mapCachedEventToControllerEventV2(
+  e: CachedEvent,
+): ControllerEvent {
+  return {
+    name: e.name,
+    data: e.data,
+    date: new Date(e.date).toISOString(),
+    identifyId: e.iId,
+    sessionId: e.sId,
+  };
+}
+
+/**
  * Maps a cached user to the shape returned by the `/v2/activeUsers` endpoint.
  *
  * Field mappings:

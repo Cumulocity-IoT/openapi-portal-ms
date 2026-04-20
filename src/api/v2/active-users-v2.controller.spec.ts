@@ -104,6 +104,56 @@ describe("ActiveUserControllerV2", () => {
       );
       expect(result).toEqual([]);
     });
+
+    describe("orderBy", () => {
+      beforeEach(() => {
+        mockCache.queryCache.mockReturnValue([
+          makeUser({ iId: "u1", location: { countryName: "Germany" } as any }),
+          makeUser({ iId: "u2", location: { countryName: "Austria" } as any }),
+        ]);
+      });
+
+      it("sorts ascending by country with 'country:asc'", () => {
+        const result = controller.getUsersV2(
+          "2024-01-01", "2024-01-02", "t1",
+          undefined, undefined, "country:asc",
+        );
+        expect(result[0].id).toBe("u2"); // Austria < Germany
+        expect(result[1].id).toBe("u1");
+      });
+
+      it("sorts descending by country with 'country:desc'", () => {
+        const result = controller.getUsersV2(
+          "2024-01-01", "2024-01-02", "t1",
+          undefined, undefined, "country:desc",
+        );
+        expect(result[0].id).toBe("u1"); // Germany > Austria
+      });
+
+      it("defaults to ascending when direction is omitted", () => {
+        const result = controller.getUsersV2(
+          "2024-01-01", "2024-01-02", "t1",
+          undefined, undefined, "country",
+        );
+        expect(result[0].id).toBe("u2");
+      });
+
+      it("handles extra colon segments safely ('country:asc:extra')", () => {
+        const result = controller.getUsersV2(
+          "2024-01-01", "2024-01-02", "t1",
+          undefined, undefined, "country:asc:extra",
+        );
+        expect(result[0].id).toBe("u2");
+      });
+
+      it("preserves original order when orderBy is omitted", () => {
+        const result = controller.getUsersV2(
+          "2024-01-01", "2024-01-02", "t1",
+        );
+        expect(result[0].id).toBe("u1");
+        expect(result[1].id).toBe("u2");
+      });
+    });
   });
 
   describe("getUsersV2 — defaults for missing attrs", () => {

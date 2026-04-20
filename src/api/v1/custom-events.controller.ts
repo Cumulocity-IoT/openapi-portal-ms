@@ -1,4 +1,5 @@
 import { Controller, Get, Logger, Query, UseGuards } from "@nestjs/common";
+import { ApiQuery } from "@nestjs/swagger";
 import { get } from "lodash";
 import { CustomEventsCacheService } from "../../cache/custom-events-cache.service";
 import { TenantGuard } from "../../guards/tenant.guard";
@@ -12,6 +13,15 @@ export class EventsController {
 
   constructor(private customEventsCache: CustomEventsCacheService) {}
 
+  /**
+   * Returns the count of each custom event type within the given time range,
+   * sorted by frequency in descending order.
+   *
+   * @param start - Start of the time range (ISO 8601 string or epoch ms).
+   * @param end - End of the time range (ISO 8601 string or epoch ms).
+   * @param tenantId - Tenant identifier used to scope the cache query.
+   * @returns Array of value/count pairs sorted by count descending; empty array on error.
+   */
   @Get("/eventCounts")
   getEventCounts(
     @Query("start") start: string,
@@ -42,6 +52,16 @@ export class EventsController {
       .sort((a, b) => b.count - a.count);
   }
 
+  /**
+   * Returns widget counts grouped by widget name for a specific event type
+   * within the given time range.
+   *
+   * @param eventName - The event name to filter events by.
+   * @param start - Start of the time range (ISO 8601 string or epoch ms).
+   * @param end - End of the time range (ISO 8601 string or epoch ms).
+   * @param tenantId - Tenant identifier used to scope the cache query.
+   * @returns Array of value/count pairs sorted by count descending; empty array on error.
+   */
   @Get("/widgetsByName")
   getEventCountsByName(
     @Query("eventName") eventName: string,
@@ -62,6 +82,22 @@ export class EventsController {
     }
   }
 
+  /**
+   * Returns all custom events within the given time range.
+   *
+   * @param start - Start of the time range (ISO 8601 string or epoch ms).
+   * @param end - End of the time range (ISO 8601 string or epoch ms).
+   * @param tenantId - Tenant identifier used to scope the cache query.
+   * @param withId - When true, includes the internal event ID in each response object.
+   * @returns Array of mapped event objects; empty array on error.
+   */
+  @ApiQuery({
+    name: "withId",
+    required: false,
+    type: Boolean,
+    description:
+      "When true, includes identifyId and sessionId in each event object. Defaults to false.",
+  })
   @Get("/events")
   getEvents(
     @Query("start") start: string,

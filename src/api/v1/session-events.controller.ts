@@ -19,6 +19,16 @@ export class SessionEventsController {
 
   constructor(private sessionEventsCacheService: SessionEventsCacheService) {}
 
+  /**
+   * Returns session events aggregated over an automatically determined time
+   * resolution based on the given range. Ranges up to 1 hour are bucketed by
+   * minute, ranges up to 1 day by hour, and longer ranges by day.
+   *
+   * @param start - Start of the time range (ISO 8601 string or epoch ms).
+   * @param end - End of the time range (ISO 8601 string or epoch ms).
+   * @param tenantId - Tenant identifier used to scope the cache query.
+   * @returns Array of time/count pairs sorted chronologically; empty array on error.
+   */
   @Get("/sessionEventsAutoAgg")
   async getSessionsAutoAgg(
     @Query("start") start: string,
@@ -120,6 +130,15 @@ export class SessionEventsController {
     return dateMap;
   }
 
+  /**
+   * Returns raw session events within the given time range.
+   *
+   * @param start - Start of the time range (ISO 8601 string or epoch ms).
+   * @param end - End of the time range (ISO 8601 string or epoch ms).
+   * @param tenantId - Tenant identifier used to scope the cache query.
+   * @returns Array of session event objects with time, eventId, identifyId,
+   *   inferredLocation, and userType; empty array on error.
+   */
   @Get("/sessionEvents")
   async getSessions(
     @Query("start") start: string,
