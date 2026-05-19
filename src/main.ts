@@ -18,9 +18,7 @@ async function bootstrap() {
     const password = process.env.C8Y_PASSWORD;
 
     if (!target || !tenant || !user || !password) {
-      logger.warn(
-        "DEV_MODE proxy is enabled, but C8Y_BASEURL, C8Y_TENANT, C8Y_USER, or C8Y_PASSWORD is missing. Proxy will not be mounted.",
-      );
+      logger.warn("DEV_MODE proxy is enabled, but C8Y_BASEURL, C8Y_TENANT, C8Y_USER, or C8Y_PASSWORD is missing. Proxy will not be mounted.");
     } else {
       const { createProxyMiddleware } = await import("http-proxy-middleware");
       const authorization = `Basic ${Buffer.from(`${tenant}/${user}:${password}`).toString("base64")}`;

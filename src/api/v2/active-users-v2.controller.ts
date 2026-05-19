@@ -1,26 +1,9 @@
 import { Controller, Get, Logger, Query, UseGuards } from "@nestjs/common";
-import {
-  ApiBasicAuth,
-  ApiOperation,
-  ApiQuery,
-  ApiResponse,
-  ApiTags,
-} from "@nestjs/swagger";
+import { ApiBasicAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { ActiveUsersCacheService } from "../../cache/active-users-cache.service";
 import { TenantGuard } from "../../guards/tenant.guard";
-import {
-  ControllerUser,
-  ControllerUserFieldList,
-  ControllerUserResponse,
-  mapCachedUserToControllerUser,
-} from "../../model/controller-model";
-import {
-  filterArray,
-  parseFieldList,
-  parseOrderBy,
-  projectData,
-  sortArray,
-} from "../../util/dynamic-queries";
+import { ControllerUser, ControllerUserFieldList, ControllerUserResponse, mapCachedUserToControllerUser } from "../../model/controller-model";
+import { filterArray, parseFieldList, parseOrderBy, projectData, sortArray } from "../../util/dynamic-queries";
 
 @UseGuards(TenantGuard)
 @ApiBasicAuth()
@@ -42,9 +25,7 @@ export class ActiveUserControllerV2 {
    */
   @ApiOperation({
     summary: "v2/activeUsers",
-    description:
-      "Supports optional server-side filtering via filtrex (https://github.com/cshaa/filtrex) " +
-      "and field projection. All string values in filter expressions must be double-quoted.",
+    description: "Supports optional server-side filtering via filtrex (https://github.com/cshaa/filtrex) " + "and field projection. All string values in filter expressions must be double-quoted.",
   })
   @ApiQuery({
     name: "filter",
@@ -102,14 +83,12 @@ export class ActiveUserControllerV2 {
   @ApiQuery({
     name: "start",
     required: true,
-    description:
-      "Start of the time range (ISO 8601 string or epoch milliseconds).",
+    description: "Start of the time range (ISO 8601 string or epoch milliseconds).",
   })
   @ApiQuery({
     name: "end",
     required: true,
-    description:
-      "End of the time range (ISO 8601 string or epoch milliseconds).",
+    description: "End of the time range (ISO 8601 string or epoch milliseconds).",
   })
   @ApiQuery({
     name: "tenantId",
@@ -117,36 +96,18 @@ export class ActiveUserControllerV2 {
     description: "Tenant identifier used to scope the cache query.",
   })
   @Get("v2/activeUsers")
-  getUsersV2(
-    @Query("start") start: string,
-    @Query("end") end: string,
-    @Query("tenantId") tenantId: string,
-    @Query("filter") filter?: string,
-    @Query("fields") fields?: ControllerUserFieldList,
-    @Query("orderBy") orderBy?: string,
-  ): ControllerUserResponse[] {
-    this.logger.verbose(
-      `getUsers from ${start} to ${end} for tenant ${tenantId}`,
-    );
+  getUsersV2(@Query("start") start: string, @Query("end") end: string, @Query("tenantId") tenantId: string, @Query("filter") filter?: string, @Query("fields") fields?: ControllerUserFieldList, @Query("orderBy") orderBy?: string): ControllerUserResponse[] {
+    this.logger.verbose(`getUsers from ${start} to ${end} for tenant ${tenantId}`);
     try {
       const users = this.cache.queryCache(start, end, tenantId);
       const mappedUsers = users.map(mapCachedUserToControllerUser);
       const filtered = filterArray(mappedUsers, filter);
       const orderConfig = parseOrderBy(orderBy);
-      const sorted = orderConfig
-        ? sortArray(
-            filtered,
-            orderConfig.field as keyof ControllerUser,
-            orderConfig.direction,
-          )
-        : filtered;
+      const sorted = orderConfig ? sortArray(filtered, orderConfig.field as keyof ControllerUser, orderConfig.direction) : filtered;
       const fieldList = parseFieldList(fields);
       return sorted.map((user) => {
-        const projectedData = projectData(
-          user,
-          fieldList as (keyof ControllerUser)[],
-        );
-        return { id: user.id, ...projectedData };
+        const projectedData = projectData(user, fieldList as (keyof ControllerUser)[]);
+        return { ...projectedData, id: user.id };
       });
     } catch (e) {
       this.logger.error("Error during getUsers", e);

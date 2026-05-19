@@ -1,6 +1,6 @@
 {
   "name": "gainsight-sync-ms",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "",
   "author": "",
   "private": true,
@@ -70,7 +70,7 @@
     "ts-loader": "^9.5.7",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.3"
   },
   "jest": {
     "moduleFileExtensions": [
@@ -81,7 +81,7 @@
     "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
+      "^.+\\.(t|j)s$": ["ts-jest", { "tsconfig": "tsconfig.spec.json" }]
     },
     "collectCoverageFrom": [
       "**/*.(t|j)s"

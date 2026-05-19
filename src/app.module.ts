@@ -21,6 +21,7 @@ import { PageViewCacheService } from "./cache/page-view-cache.service";
 import { SessionEventsCacheService } from "./cache/session-events-cache.service";
 import { ConfigurationService } from "./service/configuration.service";
 import { DevModeService } from "./service/dev-mode.service";
+import { CacheBackupService } from "./service/cache-backup.service";
 import { LlmController } from "./api/ai/llm.controller";
 import { OpenApiDocumentService } from "./api/ai/openapi-document.service";
 
@@ -30,10 +31,7 @@ import { OpenApiDocumentService } from "./api/ai/openapi-document.service";
     UserUtilityService,
     {
       provide: GainsightPxService,
-      useFactory: async (
-        c8yClientProvider: C8yClientProviderService,
-        settings: SettingsService,
-      ) => {
+      useFactory: async (c8yClientProvider: C8yClientProviderService, settings: SettingsService) => {
         const client = await c8yClientProvider.getBootstrapClient();
         settings.setClient(client);
         const { data } = await settings.getTenantOption({
@@ -41,9 +39,7 @@ import { OpenApiDocumentService } from "./api/ai/openapi-document.service";
           key: "api.key",
         });
         if (!data || !data.value) {
-          throw new Error(
-            "Gainsight PX API key is not configured. Please set the tenant option gainsight/api.key",
-          );
+          throw new Error("Gainsight PX API key is not configured. Please set the tenant option gainsight/api.key");
         }
         const service = new GainsightPxService(data.value!);
         return service;
@@ -55,22 +51,12 @@ import { OpenApiDocumentService } from "./api/ai/openapi-document.service";
     PageViewCacheService,
     SessionEventsCacheService,
     SchedulerService,
+    CacheBackupService,
     ConfigurationService,
     SettingsService,
     DevModeService,
     OpenApiDocumentService,
   ],
-  controllers: [
-    AppController,
-    ActiveUserController,
-    EventsController,
-    SessionEventsController,
-    PageViewController,
-    ActiveUserControllerV2,
-    EventsControllerV2,
-    PageViewControllerV2,
-    SessionEventsControllerV2,
-    LlmController,
-  ],
+  controllers: [AppController, ActiveUserController, EventsController, SessionEventsController, PageViewController, ActiveUserControllerV2, EventsControllerV2, PageViewControllerV2, SessionEventsControllerV2, LlmController],
 })
 export class AppModule {}

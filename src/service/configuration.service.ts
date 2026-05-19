@@ -1,9 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { SettingsService } from "./settings.service";
-import {
-  GainsightConfigValue,
-  isValidGainsightConfigValue,
-} from "../app.model";
+import { GainsightConfigValue, isValidGainsightConfigValue } from "../app.model";
 import { DevModeService } from "./dev-mode.service";
 
 @Injectable()
@@ -35,9 +32,7 @@ export class ConfigurationService {
     }
   }
 
-  async getDomainsForUser(
-    user: string,
-  ): Promise<{ url: string; id: string; ttl?: number }[]> {
+  async getDomainsForUser(user: string): Promise<{ url: string; id: string; ttl?: number }[]> {
     if (this.devMode.isDevModeEnabled()) {
       return [this.devMode.getDevModeDomain()];
     }
@@ -53,10 +48,7 @@ export class ConfigurationService {
       }
       return [];
     } catch (e) {
-      this.logger.error(
-        "Could not find any matching domain for user " + user,
-        e,
-      );
+      this.logger.error("Could not find any matching domain for user " + user, e);
       return [];
     }
   }

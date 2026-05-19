@@ -106,7 +106,7 @@ export type User = {
   lastName: string;
   numberOfVisits: number;
   score: number;
-  email: string;
+  email?: string;
   firstVisitDate: number;
   signUpDate: number;
   lastSeenDate: number;
@@ -155,42 +155,19 @@ export type Pagination = {
 };
 export type Operator = "==" | "!=" | ">" | "<" | ">=" | "<=" | "~" | "!~";
 
-export type CustomEventFilter =
-  | `identifyId${Operator}${string}`
-  | `eventName${Operator}${string}`
-  | `date${Operator}${string}`;
+export type CustomEventFilter = `identifyId${Operator}${string}` | `eventName${Operator}${string}` | `date${Operator}${string}`;
 export type CustomEventSort = "accountId" | "-accountId" | "date" | "-date";
 
-export type SessionEventFilter =
-  | `identifyId${Operator}${string}`
-  | `accountId${Operator}${string}`
-  | `date${Operator}${string}`;
+export type SessionEventFilter = `identifyId${Operator}${string}` | `accountId${Operator}${string}` | `date${Operator}${string}`;
 export type SessionEventSort = "accountId" | "-accountId" | "date" | "-date";
 
-export type PageViewFilter =
-  | `identifyId${Operator}${string}`
-  | `accountId${Operator}${string}`
-  | `date${Operator}${string}`
-  | `path${Operator}${string}`
-  | `queryString${Operator}${string}`
-  | `pageTitle${Operator}${string}`
-  | `host${Operator}${string}`;
+export type PageViewFilter = `identifyId${Operator}${string}` | `accountId${Operator}${string}` | `date${Operator}${string}` | `path${Operator}${string}` | `queryString${Operator}${string}` | `pageTitle${Operator}${string}` | `host${Operator}${string}`;
 export type PageViewSort = "accountId" | "-accountId" | "date" | "-date";
 
-export type IdentifyEventFilter =
-  | `identifyId${Operator}${string}`
-  | `email${Operator}${string}`
-  | `date${Operator}${string}`;
+export type IdentifyEventFilter = `identifyId${Operator}${string}` | `email${Operator}${string}` | `date${Operator}${string}`;
 export type IdentifyEventSort = "accountId" | "-accountId" | "date" | "-date";
 
-export type CustomAttributes =
-  | "userRoles"
-  | "instanceId"
-  | "domainName"
-  | "versionBE"
-  | "userName"
-  | "versionUI"
-  | "userLanguage";
+export type CustomAttributes = "userRoles" | "instanceId" | "domainName" | "versionBE" | "userName" | "versionUI" | "userLanguage";
 export type UserFilter =
   | `firstName${Operator}${string}`
   | `lastName${Operator}${string}`
@@ -199,15 +176,7 @@ export type UserFilter =
   | `location.${string}${Operator}${string}`
   | `lastInferredLocation.${string}${Operator}${string}`
   | `lastVisitedUserAgentData.${string}${Operator}${string}`;
-export type UserSort =
-  | "firstName"
-  | "-firstName"
-  | "lastName"
-  | "-lastName"
-  | "createDate"
-  | "-createDate"
-  | "lastSeenDate"
-  | "-lastSeenDate";
+export type UserSort = "firstName" | "-firstName" | "lastName" | "-lastName" | "createDate" | "-createDate" | "lastSeenDate" | "-lastSeenDate";
 
 export type PXParams<A, B> = {
   filter?: A;

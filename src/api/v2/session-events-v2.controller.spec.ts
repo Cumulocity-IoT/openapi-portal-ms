@@ -1,9 +1,7 @@
 import { SessionEventsControllerV2 } from "./session-events-v2.controller";
 import { CachedSessionEvent } from "../../model/cache-model";
 
-const makeSessionEvent = (
-  overrides: Partial<CachedSessionEvent> = {},
-): CachedSessionEvent => ({
+const makeSessionEvent = (overrides: Partial<CachedSessionEvent> = {}): CachedSessionEvent => ({
   id: "se-1",
   iId: "identify-1",
   sId: "session-1",
@@ -31,11 +29,7 @@ describe("SessionEventsControllerV2", () => {
     it("returns empty array and calls queryCache with correct args", () => {
       const result = controller.getSessionsV2("2024-01-01", "2024-01-02", "t1");
       expect(result).toEqual([]);
-      expect(mockCache.queryCache).toHaveBeenCalledWith(
-        "2024-01-01",
-        "2024-01-02",
-        "t1",
-      );
+      expect(mockCache.queryCache).toHaveBeenCalledWith("2024-01-01", "2024-01-02", "t1");
     });
   });
 
@@ -45,11 +39,7 @@ describe("SessionEventsControllerV2", () => {
     });
 
     it("maps all fields correctly when no projection applied", () => {
-      const [result] = controller.getSessionsV2(
-        "2024-01-01",
-        "2024-01-02",
-        "t1",
-      );
+      const [result] = controller.getSessionsV2("2024-01-01", "2024-01-02", "t1");
       expect(result.id).toBe("se-1");
       expect(result.identifyId).toBe("identify-1");
       expect(result.sessionId).toBe("session-1");
@@ -63,13 +53,7 @@ describe("SessionEventsControllerV2", () => {
     });
 
     it("projects only requested fields, always includes id", () => {
-      const [result] = controller.getSessionsV2(
-        "2024-01-01",
-        "2024-01-02",
-        "t1",
-        undefined,
-        "identifyId,userType",
-      );
+      const [result] = controller.getSessionsV2("2024-01-01", "2024-01-02", "t1", undefined, "identifyId,userType");
       expect(result.id).toBe("se-1");
       expect(result.identifyId).toBe("identify-1");
       expect(result.userType).toBe("USER");
@@ -78,117 +62,58 @@ describe("SessionEventsControllerV2", () => {
     });
 
     it("filters by userType using filtrex expression", () => {
-      mockCache.queryCache.mockReturnValue([
-        makeSessionEvent({ id: "se-a", userType: "USER" }),
-        makeSessionEvent({ id: "se-b", userType: "VISITOR" }),
-      ]);
-      const result = controller.getSessionsV2(
-        "2024-01-01",
-        "2024-01-02",
-        "t1",
-        'userType == "USER"',
-      );
+      mockCache.queryCache.mockReturnValue([makeSessionEvent({ id: "se-a", userType: "USER" }), makeSessionEvent({ id: "se-b", userType: "VISITOR" })]);
+      const result = controller.getSessionsV2("2024-01-01", "2024-01-02", "t1", 'userType == "USER"');
       expect(result).toHaveLength(1);
       expect(result[0].id).toBe("se-a");
     });
 
     it("filters by eventType using filtrex expression", () => {
-      mockCache.queryCache.mockReturnValue([
-        makeSessionEvent({ id: "se-a", eventType: "session_started" }),
-        makeSessionEvent({ id: "se-b", eventType: "session_ended" }),
-      ]);
-      const result = controller.getSessionsV2(
-        "2024-01-01",
-        "2024-01-02",
-        "t1",
-        'eventType == "session_ended"',
-      );
+      mockCache.queryCache.mockReturnValue([makeSessionEvent({ id: "se-a", eventType: "session_started" }), makeSessionEvent({ id: "se-b", eventType: "session_ended" })]);
+      const result = controller.getSessionsV2("2024-01-01", "2024-01-02", "t1", 'eventType == "session_ended"');
       expect(result).toHaveLength(1);
       expect(result[0].id).toBe("se-b");
     });
 
     it("returns empty array when filter matches nothing", () => {
-      const result = controller.getSessionsV2(
-        "2024-01-01",
-        "2024-01-02",
-        "t1",
-        'userType == "LEAD"',
-      );
+      const result = controller.getSessionsV2("2024-01-01", "2024-01-02", "t1", 'userType == "LEAD"');
       expect(result).toEqual([]);
     });
 
     it("returns multiple results when cache has multiple session events", () => {
-      mockCache.queryCache.mockReturnValue([
-        makeSessionEvent({ id: "se-a" }),
-        makeSessionEvent({ id: "se-b" }),
-      ]);
+      mockCache.queryCache.mockReturnValue([makeSessionEvent({ id: "se-a" }), makeSessionEvent({ id: "se-b" })]);
       const result = controller.getSessionsV2("2024-01-01", "2024-01-02", "t1");
       expect(result).toHaveLength(2);
     });
 
     describe("orderBy", () => {
       beforeEach(() => {
-        mockCache.queryCache.mockReturnValue([
-          makeSessionEvent({ id: "se-a", aId: "acc-b" }),
-          makeSessionEvent({ id: "se-b", aId: "acc-a" }),
-        ]);
+        mockCache.queryCache.mockReturnValue([makeSessionEvent({ id: "se-a", aId: "acc-b" }), makeSessionEvent({ id: "se-b", aId: "acc-a" })]);
       });
 
       it("sorts ascending by accountId with 'accountId:asc'", () => {
-        const result = controller.getSessionsV2(
-          "2024-01-01",
-          "2024-01-02",
-          "t1",
-          undefined,
-          undefined,
-          "accountId:asc",
-        );
+        const result = controller.getSessionsV2("2024-01-01", "2024-01-02", "t1", undefined, undefined, "accountId:asc");
         expect(result[0].id).toBe("se-b"); // acc-a < acc-b
         expect(result[1].id).toBe("se-a");
       });
 
       it("sorts descending by accountId with 'accountId:desc'", () => {
-        const result = controller.getSessionsV2(
-          "2024-01-01",
-          "2024-01-02",
-          "t1",
-          undefined,
-          undefined,
-          "accountId:desc",
-        );
+        const result = controller.getSessionsV2("2024-01-01", "2024-01-02", "t1", undefined, undefined, "accountId:desc");
         expect(result[0].id).toBe("se-a"); // acc-b > acc-a
       });
 
       it("defaults to ascending when direction is omitted", () => {
-        const result = controller.getSessionsV2(
-          "2024-01-01",
-          "2024-01-02",
-          "t1",
-          undefined,
-          undefined,
-          "accountId",
-        );
+        const result = controller.getSessionsV2("2024-01-01", "2024-01-02", "t1", undefined, undefined, "accountId");
         expect(result[0].id).toBe("se-b");
       });
 
       it("handles extra colon segments safely ('accountId:asc:extra')", () => {
-        const result = controller.getSessionsV2(
-          "2024-01-01",
-          "2024-01-02",
-          "t1",
-          undefined,
-          undefined,
-          "accountId:asc:extra",
-        );
+        const result = controller.getSessionsV2("2024-01-01", "2024-01-02", "t1", undefined, undefined, "accountId:asc:extra");
         expect(result[0].id).toBe("se-b");
       });
 
       it("preserves original order when orderBy is omitted", () => {
-        const result = controller.getSessionsV2(
-          "2024-01-01",
-          "2024-01-02",
-          "t1",
-        );
+        const result = controller.getSessionsV2("2024-01-01", "2024-01-02", "t1");
         expect(result[0].id).toBe("se-a");
         expect(result[1].id).toBe("se-b");
       });

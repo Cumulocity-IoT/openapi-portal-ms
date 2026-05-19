@@ -1,15 +1,6 @@
 import { Controller, Get, Logger, Query, UseGuards } from "@nestjs/common";
 import { ApiBasicAuth, ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
-import {
-  addDays,
-  addHours,
-  addMinutes,
-  differenceInDays,
-  differenceInHours,
-  startOfDay,
-  startOfHour,
-  startOfMinute,
-} from "date-fns";
+import { addDays, addHours, addMinutes, differenceInDays, differenceInHours, startOfDay, startOfHour, startOfMinute } from "date-fns";
 import { SessionEventsCacheService } from "../../cache/session-events-cache.service";
 import { TenantGuard } from "../../guards/tenant.guard";
 import { CachedSessionEvent } from "../../model/cache-model";
@@ -35,14 +26,12 @@ export class SessionEventsController {
   @ApiQuery({
     name: "start",
     required: true,
-    description:
-      "Start of the time range (ISO 8601 string or epoch milliseconds).",
+    description: "Start of the time range (ISO 8601 string or epoch milliseconds).",
   })
   @ApiQuery({
     name: "end",
     required: true,
-    description:
-      "End of the time range (ISO 8601 string or epoch milliseconds).",
+    description: "End of the time range (ISO 8601 string or epoch milliseconds).",
   })
   @ApiQuery({
     name: "tenantId",
@@ -58,25 +47,11 @@ export class SessionEventsController {
       "Returns an array of `{ time, count }` pairs sorted chronologically.",
   })
   @Get("/sessionEventsAutoAgg")
-  async getSessionsAutoAgg(
-    @Query("start") start: string,
-    @Query("end") end: string,
-    @Query("tenantId") tenantId: string,
-  ) {
-    this.logger.verbose(
-      `getSessionsAutoAgg from ${start} to ${end} tenant ${tenantId}`,
-    );
+  async getSessionsAutoAgg(@Query("start") start: string, @Query("end") end: string, @Query("tenantId") tenantId: string) {
+    this.logger.verbose(`getSessionsAutoAgg from ${start} to ${end} tenant ${tenantId}`);
     try {
-      const allEvents = this.sessionEventsCacheService.queryCache(
-        start,
-        end,
-        tenantId,
-      );
-      const aggregated = this.aggregateByTimeframe(
-        allEvents,
-        new Date(start),
-        new Date(end),
-      );
+      const allEvents = this.sessionEventsCacheService.queryCache(start, end, tenantId);
+      const aggregated = this.aggregateByTimeframe(allEvents, new Date(start), new Date(end));
       return aggregated;
     } catch (e) {
       this.logger.error("Error during aggregation", e);
@@ -84,11 +59,7 @@ export class SessionEventsController {
     }
   }
 
-  private aggregateByTimeframe(
-    events: CachedSessionEvent[],
-    startDate: Date,
-    endDate: Date,
-  ) {
+  private aggregateByTimeframe(events: CachedSessionEvent[], startDate: Date, endDate: Date) {
     const timeframe = this.detectTimeframe(startDate, endDate);
     const counts = this.prepopulateDates(startDate, endDate, timeframe);
     for (const event of events) {
@@ -125,11 +96,7 @@ export class SessionEventsController {
     }
   }
 
-  private prepopulateDates(
-    startDate: Date,
-    endDate: Date,
-    timeframe: "MINUTE" | "HOUR" | "DAY",
-  ): Record<string, number> {
+  private prepopulateDates(startDate: Date, endDate: Date, timeframe: "MINUTE" | "HOUR" | "DAY"): Record<string, number> {
     const dateMap: Record<string, number> = {};
     if (startDate > endDate) return dateMap;
 
@@ -170,14 +137,12 @@ export class SessionEventsController {
   @ApiQuery({
     name: "start",
     required: true,
-    description:
-      "Start of the time range (ISO 8601 string or epoch milliseconds).",
+    description: "Start of the time range (ISO 8601 string or epoch milliseconds).",
   })
   @ApiQuery({
     name: "end",
     required: true,
-    description:
-      "End of the time range (ISO 8601 string or epoch milliseconds).",
+    description: "End of the time range (ISO 8601 string or epoch milliseconds).",
   })
   @ApiQuery({
     name: "tenantId",
@@ -186,29 +151,15 @@ export class SessionEventsController {
   })
   @ApiOperation({
     summary: "/sessionEvents",
-    description:
-      "Returns raw session-initialised events from the cache within the given time range for the specified tenant. " +
-      "Each entry contains `time` (ISO 8601), `eventId`, `identifyId`, `inferredLocation`, and `userType`.",
+    description: "Returns raw session-initialised events from the cache within the given time range for the specified tenant. " + "Each entry contains `time` (ISO 8601), `eventId`, `identifyId`, `inferredLocation`, and `userType`.",
   })
   @Get("/sessionEvents")
-  async getSessions(
-    @Query("start") start: string,
-    @Query("end") end: string,
-    @Query("tenantId") tenantId: string,
-  ) {
-    this.logger.verbose(
-      `getSessions from ${start} to ${end} tenant ${tenantId}`,
-    );
+  async getSessions(@Query("start") start: string, @Query("end") end: string, @Query("tenantId") tenantId: string) {
+    this.logger.verbose(`getSessions from ${start} to ${end} tenant ${tenantId}`);
     try {
-      const allEvents = this.sessionEventsCacheService.queryCache(
-        start,
-        end,
-        tenantId,
-      );
+      const allEvents = this.sessionEventsCacheService.queryCache(start, end, tenantId);
       if (allEvents.length) {
-        this.logger.verbose(
-          `Range from ${new Date(allEvents[0].date).toISOString()} to ${new Date(allEvents[allEvents.length - 1].date).toISOString()}`,
-        );
+        this.logger.verbose(`Range from ${new Date(allEvents[0].date).toISOString()} to ${new Date(allEvents[allEvents.length - 1].date).toISOString()}`);
       }
 
       return allEvents.map((e) => ({

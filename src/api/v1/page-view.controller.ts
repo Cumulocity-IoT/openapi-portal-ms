@@ -23,14 +23,12 @@ export class PageViewController {
   @ApiQuery({
     name: "start",
     required: true,
-    description:
-      "Start of the time range (ISO 8601 string or epoch milliseconds).",
+    description: "Start of the time range (ISO 8601 string or epoch milliseconds).",
   })
   @ApiQuery({
     name: "end",
     required: true,
-    description:
-      "End of the time range (ISO 8601 string or epoch milliseconds).",
+    description: "End of the time range (ISO 8601 string or epoch milliseconds).",
   })
   @ApiQuery({
     name: "tenantId",
@@ -39,26 +37,13 @@ export class PageViewController {
   })
   @ApiOperation({
     summary: "/popularDevices",
-    description:
-      "Aggregates page views from the cache by device ID for the given tenant and time range. " +
-      "URLs matching the pattern `/device/{numericId}` are grouped by ID and counted. " +
-      "Returns an array of `{ path, count }` pairs sorted by count descending.",
+    description: "Aggregates page views from the cache by device ID for the given tenant and time range. " + "URLs matching the pattern `/device/{numericId}` are grouped by ID and counted. " + "Returns an array of `{ path, count }` pairs sorted by count descending.",
   })
   @Get("/popularDevices")
-  async getDeviceCounts(
-    @Query("start") start: string,
-    @Query("end") end: string,
-    @Query("tenantId") tenantId: string,
-  ) {
-    this.logger.verbose(
-      `getDeviceCounts from ${start} to ${end} tenant ${tenantId} type device`,
-    );
+  async getDeviceCounts(@Query("start") start: string, @Query("end") end: string, @Query("tenantId") tenantId: string) {
+    this.logger.verbose(`getDeviceCounts from ${start} to ${end} tenant ${tenantId} type device`);
     try {
-      const pageViews = this.pageViewCacheService.queryCache(
-        start,
-        end,
-        tenantId,
-      );
+      const pageViews = this.pageViewCacheService.queryCache(start, end, tenantId);
       return this.aggregateById(pageViews, "device");
     } catch (e) {
       this.logger.error("Error during device count aggregation", e);
@@ -80,14 +65,12 @@ export class PageViewController {
   @ApiQuery({
     name: "start",
     required: true,
-    description:
-      "Start of the time range (ISO 8601 string or epoch milliseconds).",
+    description: "Start of the time range (ISO 8601 string or epoch milliseconds).",
   })
   @ApiQuery({
     name: "end",
     required: true,
-    description:
-      "End of the time range (ISO 8601 string or epoch milliseconds).",
+    description: "End of the time range (ISO 8601 string or epoch milliseconds).",
   })
   @ApiQuery({
     name: "tenantId",
@@ -96,27 +79,13 @@ export class PageViewController {
   })
   @ApiOperation({
     summary: "/countByType",
-    description:
-      "Aggregates page views by a specific URL path segment type: `group`, `device`, `reports`, or `dashboard`. " +
-      "URLs containing `/{type}/{numericId}` are extracted and grouped by their numeric ID. " +
-      "Returns an array of `{ path, count }` pairs sorted by count descending.",
+    description: "Aggregates page views by a specific URL path segment type: `group`, `device`, `reports`, or `dashboard`. " + "URLs containing `/{type}/{numericId}` are extracted and grouped by their numeric ID. " + "Returns an array of `{ path, count }` pairs sorted by count descending.",
   })
   @Get("/countByType")
-  async getCountsForType(
-    @Query("start") start: string,
-    @Query("end") end: string,
-    @Query("tenantId") tenantId: string,
-    @Query("type") type: "group" | "device" | "reports" | "dashboard",
-  ) {
-    this.logger.verbose(
-      `getCountsForType from ${start} to ${end} tenant ${tenantId} type ${type}`,
-    );
+  async getCountsForType(@Query("start") start: string, @Query("end") end: string, @Query("tenantId") tenantId: string, @Query("type") type: "group" | "device" | "reports" | "dashboard") {
+    this.logger.verbose(`getCountsForType from ${start} to ${end} tenant ${tenantId} type ${type}`);
     try {
-      const pageViews = this.pageViewCacheService.queryCache(
-        start,
-        end,
-        tenantId,
-      );
+      const pageViews = this.pageViewCacheService.queryCache(start, end, tenantId);
       return this.aggregateById(pageViews, type);
     } catch (e) {
       this.logger.error("Error during count aggregation for type " + type, e);
@@ -124,10 +93,7 @@ export class PageViewController {
     }
   }
 
-  private aggregateById(
-    views: CachedPageView[],
-    type: "group" | "device" | "reports" | "dashboard",
-  ) {
+  private aggregateById(views: CachedPageView[], type: "group" | "device" | "reports" | "dashboard") {
     const pattern = new RegExp(`(?:^|\/)${type}\/(\\d+)`);
     const counts: Record<string, number> = {};
     for (const view of views) {
@@ -162,14 +128,12 @@ export class PageViewController {
   @ApiQuery({
     name: "start",
     required: true,
-    description:
-      "Start of the time range (ISO 8601 string or epoch milliseconds).",
+    description: "Start of the time range (ISO 8601 string or epoch milliseconds).",
   })
   @ApiQuery({
     name: "end",
     required: true,
-    description:
-      "End of the time range (ISO 8601 string or epoch milliseconds).",
+    description: "End of the time range (ISO 8601 string or epoch milliseconds).",
   })
   @ApiQuery({
     name: "tenantId",
@@ -184,20 +148,10 @@ export class PageViewController {
       "Returns an array of `{ path, count }` pairs sorted by count descending.",
   })
   @Get("/pageViewCounts")
-  async getPageViewCounts(
-    @Query("start") start: string,
-    @Query("end") end: string,
-    @Query("tenantId") tenantId: string,
-  ) {
-    this.logger.verbose(
-      `getPageViewCounts from ${start} to ${end} tenant ${tenantId}`,
-    );
+  async getPageViewCounts(@Query("start") start: string, @Query("end") end: string, @Query("tenantId") tenantId: string) {
+    this.logger.verbose(`getPageViewCounts from ${start} to ${end} tenant ${tenantId}`);
     try {
-      const pageViews = this.pageViewCacheService.queryCache(
-        start,
-        end,
-        tenantId,
-      );
+      const pageViews = this.pageViewCacheService.queryCache(start, end, tenantId);
       return this.createrPopularPagesAggregation(pageViews);
     } catch (e) {
       this.logger.error("Error during page view count aggregation", e);

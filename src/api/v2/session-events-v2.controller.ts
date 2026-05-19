@@ -1,26 +1,9 @@
 import { Controller, Get, Logger, Query, UseGuards } from "@nestjs/common";
-import {
-  ApiBasicAuth,
-  ApiOperation,
-  ApiQuery,
-  ApiResponse,
-  ApiTags,
-} from "@nestjs/swagger";
+import { ApiBasicAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { SessionEventsCacheService } from "../../cache/session-events-cache.service";
 import { TenantGuard } from "../../guards/tenant.guard";
-import {
-  ControllerSessionEvent,
-  ControllerSessionEventFieldList,
-  ControllerSessionEventResponse,
-  mapCachedSessionEventToControllerSessionEvent,
-} from "../../model/controller-model";
-import {
-  filterArray,
-  parseFieldList,
-  parseOrderBy,
-  projectData,
-  sortArray,
-} from "../../util/dynamic-queries";
+import { ControllerSessionEvent, ControllerSessionEventFieldList, ControllerSessionEventResponse, mapCachedSessionEventToControllerSessionEvent } from "../../model/controller-model";
+import { filterArray, parseFieldList, parseOrderBy, projectData, sortArray } from "../../util/dynamic-queries";
 
 @UseGuards(TenantGuard)
 @ApiBasicAuth()
@@ -43,9 +26,7 @@ export class SessionEventsControllerV2 {
    */
   @ApiOperation({
     summary: "v2/sessionEvents",
-    description:
-      "Supports optional server-side filtering via filtrex (https://github.com/cshaa/filtrex) " +
-      "and field projection. All string values in filter expressions must be double-quoted.",
+    description: "Supports optional server-side filtering via filtrex (https://github.com/cshaa/filtrex) " + "and field projection. All string values in filter expressions must be double-quoted.",
   })
   @ApiQuery({
     name: "filter",
@@ -105,14 +86,12 @@ export class SessionEventsControllerV2 {
   @ApiQuery({
     name: "start",
     required: true,
-    description:
-      "Start of the time range (ISO 8601 string or epoch milliseconds).",
+    description: "Start of the time range (ISO 8601 string or epoch milliseconds).",
   })
   @ApiQuery({
     name: "end",
     required: true,
-    description:
-      "End of the time range (ISO 8601 string or epoch milliseconds).",
+    description: "End of the time range (ISO 8601 string or epoch milliseconds).",
   })
   @ApiQuery({
     name: "tenantId",
@@ -120,42 +99,18 @@ export class SessionEventsControllerV2 {
     description: "Tenant identifier used to scope the cache query.",
   })
   @Get("v2/sessionEvents")
-  getSessionsV2(
-    @Query("start") start: string,
-    @Query("end") end: string,
-    @Query("tenantId") tenantId: string,
-    @Query("filter") filter?: string,
-    @Query("fields") fields?: ControllerSessionEventFieldList,
-    @Query("orderBy") orderBy?: string,
-  ): ControllerSessionEventResponse[] {
-    this.logger.verbose(
-      `getSessionsV2 from ${start} to ${end} tenant ${tenantId}`,
-    );
+  getSessionsV2(@Query("start") start: string, @Query("end") end: string, @Query("tenantId") tenantId: string, @Query("filter") filter?: string, @Query("fields") fields?: ControllerSessionEventFieldList, @Query("orderBy") orderBy?: string): ControllerSessionEventResponse[] {
+    this.logger.verbose(`getSessionsV2 from ${start} to ${end} tenant ${tenantId}`);
     try {
-      const allEvents = this.sessionEventsCacheService.queryCache(
-        start,
-        end,
-        tenantId,
-      );
-      const mappedEvents = allEvents.map(
-        mapCachedSessionEventToControllerSessionEvent,
-      );
+      const allEvents = this.sessionEventsCacheService.queryCache(start, end, tenantId);
+      const mappedEvents = allEvents.map(mapCachedSessionEventToControllerSessionEvent);
       const filtered = filterArray(mappedEvents, filter);
       const orderConfig = parseOrderBy(orderBy);
-      const sorted = orderConfig
-        ? sortArray(
-            filtered,
-            orderConfig.field as keyof ControllerSessionEvent,
-            orderConfig.direction,
-          )
-        : filtered;
+      const sorted = orderConfig ? sortArray(filtered, orderConfig.field as keyof ControllerSessionEvent, orderConfig.direction) : filtered;
       const fieldList = parseFieldList(fields);
       return sorted.map((e) => {
-        const projected = projectData(
-          e,
-          fieldList as (keyof ControllerSessionEvent)[],
-        );
-        return { id: e.id, ...projected };
+        const projected = projectData(e, fieldList as (keyof ControllerSessionEvent)[]);
+        return { ...projected, id: e.id };
       });
     } catch (e) {
       this.logger.error("Error during session events retrieval", e);

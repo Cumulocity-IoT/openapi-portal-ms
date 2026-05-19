@@ -26,14 +26,8 @@ import { BadRequestException } from "@nestjs/common/exceptions/bad-request.excep
  * projectData({ attributes: { size: 1024 } }, ["attributes.size"]);
  */
 export function projectData<T extends object>(event: T, fields?: []): T;
-export function projectData<T extends object, K extends keyof T & string>(
-  event: T,
-  fields: K[],
-): Pick<T, K>;
-export function projectData<T extends object>(
-  event: T,
-  fields: string[],
-): Partial<T>;
+export function projectData<T extends object, K extends keyof T & string>(event: T, fields: K[]): Pick<T, K>;
+export function projectData<T extends object>(event: T, fields: string[]): Partial<T>;
 export function projectData(event: any, fields?: string[]): any {
   // If no fields requested, return everything
   if (!fields || fields.length === 0) return event;
@@ -97,18 +91,14 @@ export function filterArray<T>(items: T[], ruleExpression?: string): T[] {
  * // Returns [{ count: 10 }, { count: 3 }]
  * sortArray([{ count: 3 }, { count: 10 }], "count", "desc");
  */
-export function sortArray<T>(
-  items: T[],
-  field: keyof T & string,
-  direction: "asc" | "desc" = "asc",
-): T[] {
+export function sortArray<T>(items: T[], field: keyof T & string, direction: "asc" | "desc" = "asc"): T[] {
   if (!field || items.length === 0) return items;
   const dir = direction === "desc" ? -1 : 1;
   return [...items].sort((a, b) => {
     const av = a[field];
     const bv = b[field];
-    if (av === undefined) return 1;
-    if (bv === undefined) return -1;
+    if (av == null) return 1;
+    if (bv == null) return -1;
     if (av < bv) return -1 * dir;
     if (av > bv) return 1 * dir;
     return 0;

@@ -1,9 +1,4 @@
-import {
-  CachedEvent,
-  CachedPageView,
-  CachedSessionEvent,
-  CachedUser,
-} from "./cache-model";
+import { CachedEvent, CachedPageView, CachedSessionEvent, CachedUser } from "./cache-model";
 import { PXLocation } from "./gainsight-px.model";
 
 /**
@@ -11,9 +6,7 @@ import { PXLocation } from "./gainsight-px.model";
  * Valid values: `id`, `roles`, `country`, `sessionId`, `language`, `platform`, `browser`, `device`, `domain`.
  * Example: `"id,roles,location"`
  */
-export type ControllerUserFieldList = `${keyof ControllerUser}` extends string
-  ? string
-  : never;
+export type ControllerUserFieldList = `${keyof ControllerUser}` extends string ? string : never;
 
 /**
  * The shape returned by the `/v2/activeUsers` endpoint.
@@ -57,9 +50,7 @@ export type ControllerEvent = {
  * Valid values: `name`, `date`, `data`, `identifyId`, `sessionId`.
  * Example: `"name,date,identifyId"`
  */
-export type ControllerEventFieldList = `${keyof ControllerEvent}` extends string
-  ? string
-  : never;
+export type ControllerEventFieldList = `${keyof ControllerEvent}` extends string ? string : never;
 
 /**
  * Comma-separated list of dot-notation field paths to project from `event.data`.
@@ -86,10 +77,7 @@ export type ControllerEventResponse = {
  * - `identifyId` ← `CachedEvent.iId` (only included when `withId` is true)
  * - `sessionId`  ← `CachedEvent.sId` (only included when `withId` is true)
  */
-export function mapCachedEventToControllerEvent(
-  e: CachedEvent,
-  withId = false,
-): ControllerEvent {
+export function mapCachedEventToControllerEvent(e: CachedEvent, withId = false): ControllerEvent {
   return {
     name: e.name,
     data: e.data,
@@ -112,9 +100,7 @@ export function mapCachedEventToControllerEvent(
  * - `identifyId` ← `CachedEvent.iId` (always included)
  * - `sessionId`  ← `CachedEvent.sId` (always included)
  */
-export function mapCachedEventToControllerEventV2(
-  e: CachedEvent,
-): ControllerEvent {
+export function mapCachedEventToControllerEventV2(e: CachedEvent): ControllerEvent {
   return {
     name: e.name,
     data: e.data,
@@ -197,8 +183,7 @@ export type ControllerPageView = {
  * `eventType`, `userType`, `accountId`, `globalContext`.
  * Example: `"host,path,pageTitle"`
  */
-export type ControllerPageViewFieldList =
-  `${keyof ControllerPageView}` extends string ? string : never;
+export type ControllerPageViewFieldList = `${keyof ControllerPageView}` extends string ? string : never;
 
 /**
  * The shape returned by the `/v2/pageViews` endpoint.
@@ -219,9 +204,7 @@ export type ControllerPageViewResponse = {
  * - `date`        ← `CachedPageView.date` (converted to ISO string)
  * - all other fields are passed through unchanged
  */
-export function mapCachedPageViewToControllerPageView(
-  pv: CachedPageView,
-): ControllerPageView {
+export function mapCachedPageViewToControllerPageView(pv: CachedPageView): ControllerPageView {
   return {
     id: pv.id,
     identifyId: pv.iId,
@@ -272,8 +255,7 @@ export type ControllerSessionEvent = {
  * `propertyKey`, `eventType`, `remoteHost`, `location`, `userType`, `globalContext`.
  * Example: `"id,identifyId,date,userType"`
  */
-export type ControllerSessionEventFieldList =
-  `${keyof ControllerSessionEvent}` extends string ? string : never;
+export type ControllerSessionEventFieldList = `${keyof ControllerSessionEvent}` extends string ? string : never;
 
 /**
  * The shape returned by the `/v2/sessionEvents` endpoint.
@@ -295,9 +277,7 @@ export type ControllerSessionEventResponse = {
  * - `date`        ← `CachedSessionEvent.date` (converted to ISO string)
  * - all other fields are passed through unchanged
  */
-export function mapCachedSessionEventToControllerSessionEvent(
-  s: CachedSessionEvent,
-): ControllerSessionEvent {
+export function mapCachedSessionEventToControllerSessionEvent(s: CachedSessionEvent): ControllerSessionEvent {
   return {
     id: s.id,
     identifyId: s.iId,

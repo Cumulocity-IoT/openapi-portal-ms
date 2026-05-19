@@ -39,10 +39,7 @@ export class OpenApiDocumentService {
       .addServer(`https://gainsight.eu-latest.cumulocity.com/service/${name}`)
       .addBearerAuth()
       .build();
-    this.cachedDocument = SwaggerModule.createDocument(
-      this.app,
-      config,
-    ) as unknown as Record<string, unknown>;
+    this.cachedDocument = SwaggerModule.createDocument(this.app, config) as unknown as Record<string, unknown>;
     return this.cachedDocument;
   }
 }

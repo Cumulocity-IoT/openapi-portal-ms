@@ -12,12 +12,7 @@ describe("EventsController (empty cache)", () => {
   });
 
   it("getEventCountsByName (widgetsByName) returns empty array when cache is empty", async () => {
-    const res = await controller.getEventCountsByName(
-      "someEvent",
-      "2020-01-01",
-      "2020-01-02",
-      "t1234",
-    );
+    const res = await controller.getEventCountsByName("someEvent", "2020-01-01", "2020-01-02", "t1234");
     expect(Array.isArray(res)).toBe(true);
     expect(res.length).toBe(0);
     expect(mockCache.queryCache).toHaveBeenCalled();

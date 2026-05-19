@@ -24,6 +24,15 @@ export abstract class ChronoArrayCache<T> {
       return;
     }
 
+    for (let i = 0; i < items.length; i++) {
+      const dateVal = this.getDate(items[i]);
+      if (typeof dateVal !== "number" || isNaN(dateVal)) {
+        const err = new Error(`Item at index ${i} has invalid date: ${dateVal}`);
+        this.getLogger().error(`Cache update rejected for tenant ${tenantId}`, err);
+        throw err;
+      }
+    }
+
     // Sort the incoming batch in-place by date ascending before merging.
     items.sort((a, b) => this.getDate(a) - this.getDate(b));
 
@@ -42,15 +51,23 @@ export abstract class ChronoArrayCache<T> {
     // TTL eviction: drop records older than the tenant's TTL (or the global default)
     const effectiveTtl = this.ttlMap.get(tenantId) ?? TTL_DAYS;
     const cutoff = Date.now() - effectiveTtl * 24 * 60 * 60 * 1000;
-    const arr = this.cache.get(tenantId);
+    const arr = this.cache.get(tenantId)!;
     if (arr.length > 0 && this.getDate(arr[0]) < cutoff) {
       const cutoffIndex = arr.findIndex((item) => this.getDate(item) >= cutoff);
       if (cutoffIndex > 0) {
         this.cache.set(tenantId, arr.slice(cutoffIndex));
-        this.getLogger().log(
-          `Evicted ${cutoffIndex} items older than ${effectiveTtl} days.`,
-        );
+        this.getLogger().log(`Evicted ${cutoffIndex} items older than ${effectiveTtl} days.`);
       }
+    }
+  }
+
+  protected checkPageSortOrder<P extends { date: number }>(page: P[], accumulated: P[]): void {
+    if (page.length === 0) return;
+    if (accumulated.length > 0 && page[0].date < accumulated[accumulated.length - 1].date) {
+      this.getLogger().warn(`Cross-page sort violation: page starts at ${page[0].date} but previous page ended at ${accumulated[accumulated.length - 1].date}. Partial data recovery will lose events between these timestamps.`);
+    }
+    if (page.length > 1 && page[0].date > page[page.length - 1].date) {
+      this.getLogger().warn(`Intra-page sort violation: page first item ${page[0].date} > last item ${page[page.length - 1].date}. Response is not sorted ascending by date as expected.`);
     }
   }
 
@@ -126,19 +143,28 @@ export abstract class ChronoArrayCache<T> {
 
     // O(1) "Up to Now" optimisation: Grafana always passes the current timestamp
     // as endDate, which is >= every cached event, so this branch is the common path.
-    const endIndex =
-      endDate >= this.getDate(arr[length - 1])
-        ? length - 1
-        : this.findLastIndex(arr, endDate);
+    const endIndex = endDate >= this.getDate(arr[length - 1]) ? length - 1 : this.findLastIndex(arr, endDate);
 
     // O(1) "All Time" optimisation: skip binary search when start covers head
-    const startIndex =
-      startDate <= this.getDate(arr[0])
-        ? 0
-        : this.findFirstIndex(arr, startDate);
+    const startIndex = startDate <= this.getDate(arr[0]) ? 0 : this.findFirstIndex(arr, startDate);
 
     if (startIndex > endIndex) return [];
     return arr.slice(startIndex, endIndex + 1);
+  }
+
+  exportAll(): Record<string, T[]> {
+    return Object.fromEntries(this.cache.entries());
+  }
+
+  importAll(data: Record<string, T[]>): void {
+    const entries = Object.entries(data);
+    for (let i = 0; i < entries.length; i++) {
+      const key = entries[i][0];
+      const values = entries[i][1];
+      if (Array.isArray(values) && values.length > 0) {
+        this.cache.set(key, values);
+      }
+    }
   }
 
   getCache(start: number, end: number, tenantId: string): T[] {
@@ -146,7 +172,7 @@ export abstract class ChronoArrayCache<T> {
       this.getLogger().log("No cache for tenantId " + tenantId);
       return [];
     }
-    const arr = this.cache.get(tenantId);
+    const arr = this.cache.get(tenantId)!;
     const length = arr.length;
     if (length === 0) return [];
 
@@ -154,23 +180,17 @@ export abstract class ChronoArrayCache<T> {
     const newest = this.getDate(arr[length - 1]);
 
     if (start > newest) {
-      this.getLogger().warn(
-        `Start date param is more recent than the newest date in the cache. ${start} > ${newest}`,
-      );
+      this.getLogger().warn(`Start date param is more recent than the newest date in the cache. ${start} > ${newest}`);
       return [];
     }
 
     if (end < oldest) {
-      this.getLogger().warn(
-        `End date param is older than the oldest date in the cache. ${end} < ${oldest}`,
-      );
+      this.getLogger().warn(`End date param is older than the oldest date in the cache. ${end} < ${oldest}`);
       return [];
     }
 
     const results = this.getEventsInRange(arr, start, end);
-    this.getLogger().verbose(
-      `Cache query from ${new Date(start).toISOString()} to ${new Date(end).toISOString()} returned ${results.length} items.`,
-    );
+    this.getLogger().verbose(`Cache query from ${new Date(start).toISOString()} to ${new Date(end).toISOString()} returned ${results.length} items.`);
     return results;
   }
 }

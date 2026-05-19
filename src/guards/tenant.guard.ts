@@ -1,17 +1,9 @@
-import {
-  Injectable,
-  CanActivate,
-  ExecutionContext,
-  SetMetadata,
-  UnauthorizedException,
-  BadRequestException,
-} from "@nestjs/common";
+import { Injectable, CanActivate, ExecutionContext, SetMetadata, UnauthorizedException, BadRequestException } from "@nestjs/common";
 import { ConfigurationService } from "../service/configuration.service";
 import { DevModeService } from "../service/dev-mode.service";
 
 export const PERMISSIONS_KEY = "permissions";
-export const Permissions = (...permissions: string[]) =>
-  SetMetadata(PERMISSIONS_KEY, permissions);
+export const Permissions = (...permissions: string[]) => SetMetadata(PERMISSIONS_KEY, permissions);
 
 @Injectable()
 export class TenantGuard implements CanActivate {
@@ -30,9 +22,7 @@ export class TenantGuard implements CanActivate {
     const authHeader = request.headers["authorization"];
 
     if (!authHeader || !authHeader.startsWith("Basic ")) {
-      throw new UnauthorizedException(
-        "Missing or invalid Authorization header",
-      );
+      throw new UnauthorizedException("Missing or invalid Authorization header");
     }
 
     const base64Credentials = authHeader.replace("Basic ", "").trim();
@@ -52,18 +42,14 @@ export class TenantGuard implements CanActivate {
 
     const tenantId = request.query.tenantId;
     if (!tenantId || typeof tenantId !== "string" || tenantId.trim() === "") {
-      throw new BadRequestException(
-        "Missing required query parameter: tenantId",
-      );
+      throw new BadRequestException("Missing required query parameter: tenantId");
     }
 
     return this.configService.getDomainsForUser(username).then(
       (domains) => {
         const domain = domains.find((d) => d.id === tenantId);
         if (!domain) {
-          throw new UnauthorizedException(
-            "User does not have access to the specified tenant",
-          );
+          throw new UnauthorizedException("User does not have access to the specified tenant");
         }
         return true;
       },

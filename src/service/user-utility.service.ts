@@ -46,10 +46,7 @@ export class UserUtilityService {
       .map(([value, count]) => ({
         value,
         count,
-        percentage:
-          allRolesCount > 0
-            ? Math.round((count / allRolesCount) * 10000) / 100
-            : 0,
+        percentage: allRolesCount > 0 ? Math.round((count / allRolesCount) * 10000) / 100 : 0,
       }))
       .sort((a, b) => b.count - a.count);
     return roleCounts;
@@ -140,10 +137,9 @@ export class UserUtilityService {
 
   mailDomainNames(users: CachedUser[]) {
     const counts: Record<string, number> = {};
-    const usersWithDomain = users.filter((u) => u.email?.includes("@"));
+    const usersWithDomain = users.filter((u) => u.emailDomain);
     for (const user of usersWithDomain) {
-      const domain = user.email.split("@")[1];
-      counts[domain] = (counts[domain] ?? 0) + 1;
+      counts[user.emailDomain] = (counts[user.emailDomain] ?? 0) + 1;
     }
     const total = usersWithDomain.length;
     const mailCounts = Object.entries(counts)

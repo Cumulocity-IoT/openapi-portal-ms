@@ -1,5 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
-import axios, { AxiosInstance } from "axios";
+import axios, { AxiosInstance, isAxiosError } from "axios";
 import { isNil } from "lodash";
 import {
   CustomEventsResponse,
@@ -43,57 +43,40 @@ export class GainsightPxService {
     });
   }
 
-  async getSessionEvents(
-    parameters?: PXParams<SessionEventFilter, SessionEventSort>,
-  ): Promise<SessionEventsResponse> {
+  async getSessionEvents(parameters?: PXParams<SessionEventFilter, SessionEventSort>): Promise<SessionEventsResponse> {
     try {
       const params = this.applyParams(parameters);
       this.logger.log(`GET /events/session, query: ${JSON.stringify(params)}`);
-      const response = await this.apiClient.get("/events/session", { params });
-      return response.data;
+      return await this.fetchWithRetry(() => this.apiClient.get("/events/session", { params }).then((r) => r.data));
     } catch (error) {
       this.logger.error(`GET /events/session failed`, error);
-      throw new Error(
-        `Error: ${error instanceof Error ? error.message : String(error)}`,
-      );
+      throw error;
     }
   }
 
-  async getCustomEvents(
-    parameters?: PXParams<CustomEventFilter, CustomEventSort>,
-  ): Promise<CustomEventsResponse> {
+  async getCustomEvents(parameters?: PXParams<CustomEventFilter, CustomEventSort>): Promise<CustomEventsResponse> {
     try {
       const params = this.applyParams(parameters);
       this.logger.log(`GET /events/custom, query: ${JSON.stringify(params)}`);
-      const response = await this.apiClient.get("/events/custom", { params });
-      return response.data;
+      return await this.fetchWithRetry(() => this.apiClient.get("/events/custom", { params }).then((r) => r.data));
     } catch (error) {
       this.logger.error(`GET /events/custom failed`, error);
-      throw new Error(
-        `Error: ${error instanceof Error ? error.message : String(error)}`,
-      );
+      throw error;
     }
   }
 
-  async getPageViews(
-    parameters?: PXParams<PageViewFilter, PageViewSort>,
-  ): Promise<PageViewEventResponse> {
+  async getPageViews(parameters?: PXParams<PageViewFilter, PageViewSort>): Promise<PageViewEventResponse> {
     try {
       const params = this.applyParams(parameters);
       this.logger.log(`GET /events/pageView, query: ${JSON.stringify(params)}`);
-      const response = await this.apiClient.get("/events/pageView", { params });
-      return response.data;
+      return await this.fetchWithRetry(() => this.apiClient.get("/events/pageView", { params }).then((r) => r.data));
     } catch (error) {
       this.logger.error(`GET /events/pageView failed`, error);
-      throw new Error(
-        `Error: ${error instanceof Error ? error.message : String(error)}`,
-      );
+      throw error;
     }
   }
 
-  async getIdentifyId(
-    parameters?: PXParams<IdentifyEventFilter, IdentifyEventSort>,
-  ): Promise<IdentifyEventResponse> {
+  async getIdentifyId(parameters?: PXParams<IdentifyEventFilter, IdentifyEventSort>): Promise<IdentifyEventResponse> {
     try {
       const params = this.applyParams(parameters);
       this.logger.log(`GET /events/identify, query: ${JSON.stringify(params)}`);
@@ -101,9 +84,7 @@ export class GainsightPxService {
       return response.data;
     } catch (error) {
       this.logger.error(`GET /events/identify failed`, error);
-      throw new Error(
-        `Error: ${error instanceof Error ? error.message : String(error)}`,
-      );
+      throw new Error(`Error: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -115,20 +96,14 @@ export class GainsightPxService {
       return response.data;
     } catch (error) {
       this.logger.error(`GET /feature failed`, error);
-      throw new Error(
-        `Error: ${error instanceof Error ? error.message : String(error)}`,
-      );
+      throw new Error(`Error: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
-  async getFeaturesV2(
-    parameters?: FeaturePagination,
-  ): Promise<FeaturesResponse> {
+  async getFeaturesV2(parameters?: FeaturePagination): Promise<FeaturesResponse> {
     try {
       const params = this.applyParams(parameters);
-      this.logger.log(
-        `GET /v2/feature_ext, query: ${JSON.stringify(parameters)}`,
-      );
+      this.logger.log(`GET /v2/feature_ext, query: ${JSON.stringify(parameters)}`);
       const api = axios.create({
         baseURL: "https://api.aptrinsic.com/v2",
         headers: {
@@ -140,10 +115,24 @@ export class GainsightPxService {
       return response.data;
     } catch (error) {
       this.logger.error(`GET /v2/feature_ext failed`, error);
-      throw new Error(
-        `Error: ${error instanceof Error ? error.message : String(error)}`,
-      );
+      throw new Error(`Error: ${error instanceof Error ? error.message : String(error)}`);
     }
+  }
+
+  private async fetchWithRetry<T>(fn: () => Promise<T>, maxAttempts = 4): Promise<T> {
+    let delay = 5_000;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        return await fn();
+      } catch (error) {
+        const is429 = isAxiosError(error) && error.response?.status === 429;
+        if (attempt === maxAttempts || !is429) throw error;
+        this.logger.warn(`Rate limited (429), retrying in ${delay}ms (attempt ${attempt}/${maxAttempts})`);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        delay *= 2;
+      }
+    }
+    throw new Error("fetchWithRetry exhausted all attempts"); // unreachable, satisfies TS
   }
 
   private applyParams(parameters?: object) {
@@ -158,7 +147,7 @@ export class GainsightPxService {
     return params;
   }
 
-  async getCustomEventById(id: string): Promise<CustomEvent> {
+  async getCustomEventById(id: string): Promise<CustomEvent | undefined> {
     const res = await this.getCustomEvents({ filter: `identifyId==${id}` });
     if (res.customEvents.length === 1) {
       return res.customEvents[0];
@@ -167,19 +156,14 @@ export class GainsightPxService {
     }
   }
 
-  async getUsers(
-    parameters?: PXParams<UserFilter, UserSort>,
-  ): Promise<UsersResponse> {
+  async getUsers(parameters?: PXParams<UserFilter, UserSort>): Promise<UsersResponse> {
     try {
       const params = this.applyParams(parameters);
       this.logger.log(`GET /users, query: ${JSON.stringify(params)}`);
-      const response = await this.apiClient.get("/users", { params });
-      return response.data;
+      return await this.fetchWithRetry(() => this.apiClient.get("/users", { params }).then((r) => r.data));
     } catch (error) {
       this.logger.error(`GET /users failed`, error);
-      throw new Error(
-        `Error: ${error instanceof Error ? error.message : String(error)}`,
-      );
+      throw error;
     }
   }
 
@@ -190,9 +174,7 @@ export class GainsightPxService {
       return response.data;
     } catch (error) {
       this.logger.error(`GET /feature/${key} failed`, error);
-      throw new Error(
-        `Error: ${error instanceof Error ? error.message : String(error)}`,
-      );
+      throw new Error(`Error: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -216,9 +198,7 @@ export class GainsightPxService {
 
     for (const feature of featureClasses) {
       if (feature.parentFeatureId) {
-        const parent = featureClasses.find(
-          (f) => f.id === feature.parentFeatureId,
-        );
+        const parent = featureClasses.find((f) => f.id === feature.parentFeatureId);
         if (parent) {
           parent.children.push(feature);
           feature.parent = parent;
@@ -235,27 +215,15 @@ export class GainsightPxService {
     // filter out inactive features
     // workaround: allowlist of Tree data
     // make allow list configurable
-    const allowList = [
-      "Header",
-      "Cockpit",
-      "Device Management",
-      "Administration",
-    ];
-    const rootModules = featureClasses.filter(
-      (feature) =>
-        feature.parentFeatureId == null && allowList.includes(feature.name),
-    );
-    const childFeatures = rootModules.flatMap((feature) =>
-      this.getActiveFeatures(feature),
-    );
+    const allowList = ["Header", "Cockpit", "Device Management", "Administration"];
+    const rootModules = featureClasses.filter((feature) => feature.parentFeatureId == null && allowList.includes(feature.name));
+    const childFeatures = rootModules.flatMap((feature) => this.getActiveFeatures(feature));
     for (const feature of childFeatures) {
       if (feature.parent) {
         feature.hierarchyPath = this.calculateFeatureHierarchyPath(feature);
       }
     }
-    const names = childFeatures.map(
-      (feature) => `${this.shortHash(feature.hierarchyPath)}_${feature.name}`,
-    );
+    const names = childFeatures.map((feature) => `${this.shortHash(feature.hierarchyPath ?? "")}_${feature.name}`);
     // console.log('Child paths:', paths);
     // console.log('Too long names:', paths.filter((path) => path?.length > 40));
     const nameCounts = names.reduce(
@@ -304,9 +272,7 @@ export class GainsightPxService {
     return response.data;
   }
 
-  async getAllCustomEvents(
-    params: PXParams<CustomEventFilter, CustomEventSort>,
-  ) {
+  async getAllCustomEvents(params: PXParams<CustomEventFilter, CustomEventSort>) {
     params.pageSize = 1000;
     const results: CustomEvent[] = [];
     let res = await this.getCustomEvents(params);
@@ -336,14 +302,7 @@ export class GainsightPxService {
    * @param scrollId - (Optional) The scroll identifier for pagination.
    * @returns A promise that resolves to an array of filtered items accumulated from all pages.
    */
-  async getWithPagination<T>(
-    fetchPage: (
-      scrollId?: string,
-    ) => Promise<{ items: T[]; scrollId?: string; pageSize?: number }>,
-    sum: T[],
-    rule: (item: T) => boolean,
-    scrollId?: string,
-  ): Promise<T[]> {
+  async getWithPagination<T>(fetchPage: (scrollId?: string) => Promise<{ items: T[]; scrollId?: string; pageSize?: number }>, sum: T[], rule: (item: T) => boolean, scrollId?: string): Promise<T[]> {
     const res = await fetchPage(scrollId);
     const pageSize = res.pageSize ?? 100;
 
