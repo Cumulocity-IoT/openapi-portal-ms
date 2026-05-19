@@ -393,12 +393,9 @@ const AI_PLUGIN = {
   schema_version: "v1",
   name_for_human: "Gainsight Sync MS",
   name_for_model: "gainsight_sync_ms",
-  description_for_human:
-    "Serves cached Gainsight PX analytics (custom events, session events, page views, active users) per tenant.",
+  description_for_human: "Serves cached Gainsight PX analytics (custom events, session events, page views, active users) per tenant.",
   description_for_model:
-    "REST API backed by an in-memory per-tenant cache that is refreshed every 10 minutes from Gainsight PX. " +
-    "Endpoints accept start/end ISO 8601 timestamps and a tenantId query parameter. " +
-    "All data endpoints require Basic Auth. See /openapi.json for the full machine-readable spec.",
+    "REST API backed by an in-memory per-tenant cache that is refreshed every 10 minutes from Gainsight PX. " + "Endpoints accept start/end ISO 8601 timestamps and a tenantId query parameter. " + "All data endpoints require Basic Auth. See /openapi.json for the full machine-readable spec.",
   auth: { type: "user_http", authorization_type: "basic" },
   api: { type: "openapi", url: "/openapi.json" },
   logo_url: "",

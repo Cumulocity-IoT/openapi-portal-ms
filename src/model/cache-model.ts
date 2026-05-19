@@ -1,12 +1,4 @@
-import {
-  CustomEvent,
-  CustomUserAttributes,
-  LastVisitedUserAgentData,
-  PageView,
-  PXLocation,
-  SessionEvent,
-  User,
-} from "./gainsight-px.model";
+import { CustomEvent, CustomUserAttributes, LastVisitedUserAgentData, PageView, PXLocation, SessionEvent, User } from "./gainsight-px.model";
 
 export type CachedEvent = {
   name: string;
@@ -26,9 +18,7 @@ export type CachedEvent = {
  * - `iId`   ← `CustomEvent.identifyId`
  * - `sId`   ← `CustomEvent.sessionId`
  */
-export function mapCustomEventsToCachedEvents(
-  events: CustomEvent[],
-): CachedEvent[] {
+export function mapCustomEventsToCachedEvents(events: CustomEvent[]): CachedEvent[] {
   return events.map((e) => ({
     name: e.eventName,
     data: e.attributes,
@@ -43,7 +33,7 @@ export type CachedUser = {
   sId: string;
   date: number;
   signUpDate: number;
-  email: string;
+  emailDomain: string;
   type: "LEAD" | "USER" | "VISITOR" | "EMPTY_USER_TYPE";
   attrs: CustomUserAttributes;
   agent: LastVisitedUserAgentData[];
@@ -58,19 +48,25 @@ export type CachedUser = {
  * - `sId`       ← `User.id`
  * - `date`      ← `User.lastSeenDate`
  * - `signUpDate`← `User.signUpDate`
- * - `email`     ← `User.email`
+ * - `emailDomain` ← domain extracted from `User.email` (e.g., "test.de" from "hans@test.de")
  * - `type`      ← `User.type`
  * - `attrs`     ← `User.customAttributes`
  * - `agent`     ← `User.lastVisitedUserAgentData` (defaults to `[]` when absent)
  * - `location`  ← `User.lastInferredLocation`
  */
+function extractEmailDomain(email: string | undefined): string {
+  if (!email) return "";
+  const atIndex = email.lastIndexOf("@");
+  return atIndex > 0 ? email.substring(atIndex + 1) : "";
+}
+
 export function mapUsersToCachedUsers(users: User[]): CachedUser[] {
   return users.map((u) => ({
     iId: u.identifyId,
     sId: u.id,
     date: u.lastSeenDate,
     signUpDate: u.signUpDate,
-    email: u.email,
+    emailDomain: extractEmailDomain(u.email),
     type: u.type,
     attrs: u.customAttributes,
     agent: u.lastVisitedUserAgentData ?? [],
@@ -128,9 +124,7 @@ export type CachedPageView = {
  * - `accountId`   ← `PageView.accountId`
  * - `globalContext`← `PageView.globalContext`
  */
-export function mapPageViewsToCachedPageViews(
-  pageViews: PageView[],
-): CachedPageView[] {
+export function mapPageViewsToCachedPageViews(pageViews: PageView[]): CachedPageView[] {
   return pageViews.map((p) => ({
     scheme: p.scheme,
     host: p.host,
@@ -186,9 +180,7 @@ export type CachedSessionEvent = {
  * - `location`     ← `SessionEvent.inferredLocation`
  * - `userType`     ← `SessionEvent.userType`
  */
-export function mapSessionEventsToCachedSessionEvents(
-  sessionEvents: SessionEvent[],
-): CachedSessionEvent[] {
+export function mapSessionEventsToCachedSessionEvents(sessionEvents: SessionEvent[]): CachedSessionEvent[] {
   return sessionEvents.map((s) => ({
     id: s.eventId,
     iId: s.identifyId,

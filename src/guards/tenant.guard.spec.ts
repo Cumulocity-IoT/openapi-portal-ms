@@ -9,10 +9,7 @@ describe("TenantGuard", () => {
     isDevModeEnabled: jest.fn(),
   };
 
-  const guard = new TenantGuard(
-    mockConfigService as any,
-    mockDevModeService as any,
-  );
+  const guard = new TenantGuard(mockConfigService as any, mockDevModeService as any);
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -20,9 +17,7 @@ describe("TenantGuard", () => {
   });
 
   it("should allow Basic auth when password contains colon", async () => {
-    mockConfigService.getDomainsForUser.mockResolvedValue([
-      { id: "tenant-1", url: "https://example.com" },
-    ]);
+    mockConfigService.getDomainsForUser.mockResolvedValue([{ id: "tenant-1", url: "https://example.com" }]);
 
     const credentials = "user:pass:with:colon";
     const authHeader = `Basic ${Buffer.from(credentials).toString("base64")}`;

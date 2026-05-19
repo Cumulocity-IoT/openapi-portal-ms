@@ -1,31 +1,10 @@
 import { Controller, Get, Logger, Query, UseGuards } from "@nestjs/common";
-import {
-  ApiBasicAuth,
-  ApiOperation,
-  ApiQuery,
-  ApiResponse,
-  ApiTags,
-} from "@nestjs/swagger";
+import { ApiBasicAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { CustomEventsCacheService } from "../../cache/custom-events-cache.service";
 import { TenantGuard } from "../../guards/tenant.guard";
-import {
-  CachedEventDataFieldList,
-  ControllerEventFieldList,
-  ControllerEventResponse,
-  mapCachedEventToControllerEventV2,
-} from "../../model/controller-model";
-import {
-  filterArray,
-  parseFieldList,
-  parseOrderBy,
-  projectData,
-  sortArray,
-} from "../../util/dynamic-queries";
-import {
-  CustomerCustomEventDataFieldList,
-  CustomerCustomEventResponse,
-  isCustomerCustomCachedEvent,
-} from "../../model/customer-custom-event.model";
+import { CachedEventDataFieldList, ControllerEventFieldList, ControllerEventResponse, mapCachedEventToControllerEventV2 } from "../../model/controller-model";
+import { filterArray, parseFieldList, parseOrderBy, projectData, sortArray } from "../../util/dynamic-queries";
+import { CustomerCustomEventDataFieldList, CustomerCustomEventResponse, isCustomerCustomCachedEvent } from "../../model/customer-custom-event.model";
 
 @UseGuards(TenantGuard)
 @ApiBasicAuth()
@@ -49,9 +28,7 @@ export class EventsControllerV2 {
    */
   @ApiOperation({
     summary: "v2/events",
-    description:
-      "Supports optional server-side filtering via filtrex (https://github.com/cshaa/filtrex), " +
-      "field projection, and data sub-field projection. All string values in filter expressions must be double-quoted.",
+    description: "Supports optional server-side filtering via filtrex (https://github.com/cshaa/filtrex), " + "field projection, and data sub-field projection. All string values in filter expressions must be double-quoted.",
   })
   @ApiQuery({
     name: "filter",
@@ -114,14 +91,12 @@ export class EventsControllerV2 {
   @ApiQuery({
     name: "start",
     required: true,
-    description:
-      "Start of the time range (ISO 8601 string or epoch milliseconds).",
+    description: "Start of the time range (ISO 8601 string or epoch milliseconds).",
   })
   @ApiQuery({
     name: "end",
     required: true,
-    description:
-      "End of the time range (ISO 8601 string or epoch milliseconds).",
+    description: "End of the time range (ISO 8601 string or epoch milliseconds).",
   })
   @ApiQuery({
     name: "tenantId",
@@ -144,9 +119,7 @@ export class EventsControllerV2 {
       const mappedEvents = allEvents.map(mapCachedEventToControllerEventV2);
       const filtered = filterArray(mappedEvents, filter);
       const orderConfig = parseOrderBy(orderBy);
-      const sorted = orderConfig
-        ? sortArray(filtered, orderConfig.field as any, orderConfig.direction)
-        : filtered;
+      const sorted = orderConfig ? sortArray(filtered, orderConfig.field as any, orderConfig.direction) : filtered;
       const fieldList = parseFieldList(fields);
       const dataFieldsList = parseFieldList(dataFields);
       return sorted.map((e) => {
@@ -248,14 +221,12 @@ export class EventsControllerV2 {
   @ApiQuery({
     name: "start",
     required: true,
-    description:
-      "Start of the time range (ISO 8601 string or epoch milliseconds).",
+    description: "Start of the time range (ISO 8601 string or epoch milliseconds).",
   })
   @ApiQuery({
     name: "end",
     required: true,
-    description:
-      "End of the time range (ISO 8601 string or epoch milliseconds).",
+    description: "End of the time range (ISO 8601 string or epoch milliseconds).",
   })
   @ApiQuery({
     name: "tenantId",
@@ -272,20 +243,14 @@ export class EventsControllerV2 {
     @Query("dataFields") dataFields?: CustomerCustomEventDataFieldList,
     @Query("orderBy") orderBy?: string,
   ): CustomerCustomEventResponse[] {
-    this.logger.verbose(
-      `getCustomerEventsV2 from ${start} to ${end} tenant ${tenantId}`,
-    );
+    this.logger.verbose(`getCustomerEventsV2 from ${start} to ${end} tenant ${tenantId}`);
     try {
       const allEvents = this.customEventsCache.queryCache(start, end, tenantId);
       const customerEvents = allEvents.filter(isCustomerCustomCachedEvent);
-      const mappedEvents = customerEvents.map(
-        mapCachedEventToControllerEventV2,
-      );
+      const mappedEvents = customerEvents.map(mapCachedEventToControllerEventV2);
       const filtered = filterArray(mappedEvents, filter);
       const orderConfig = parseOrderBy(orderBy);
-      const sorted = orderConfig
-        ? sortArray(filtered, orderConfig.field as any, orderConfig.direction)
-        : filtered;
+      const sorted = orderConfig ? sortArray(filtered, orderConfig.field as any, orderConfig.direction) : filtered;
       const fieldList = parseFieldList(fields);
       const dataFieldsList = parseFieldList(dataFields);
       return sorted.map((e) => {

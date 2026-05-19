@@ -1,16 +1,8 @@
 import { Injectable, Logger } from "@nestjs/common";
-import {
-  PageView,
-  PageViewFilter,
-  PageViewSort,
-  PXParams,
-} from "../model/gainsight-px.model";
+import { PageView, PageViewFilter, PageViewSort, PXParams } from "../model/gainsight-px.model";
 import { GainsightPxService } from "../service/gainsight-px.service";
 import { ChronoArrayCache } from "./chrono-array-cache.service";
-import {
-  CachedPageView,
-  mapPageViewsToCachedPageViews,
-} from "../model/cache-model";
+import { CachedPageView, mapPageViewsToCachedPageViews } from "../model/cache-model";
 
 @Injectable()
 export class PageViewCacheService extends ChronoArrayCache<CachedPageView> {
@@ -20,11 +12,7 @@ export class PageViewCacheService extends ChronoArrayCache<CachedPageView> {
     super();
   }
 
-  createOrUpdateCache(
-    start: string,
-    end: string,
-    domain: { id: string; url: string; ttl?: number },
-  ): Promise<void> {
+  createOrUpdateCache(start: string, end: string, domain: { id: string; url: string; ttl?: number }): Promise<void> {
     const startDate = this.getStartDate(start, domain.id);
     return this.getPageViews(startDate, end, domain.url).then((pageViews) => {
       const cachedPageViews = mapPageViewsToCachedPageViews(pageViews);
@@ -48,21 +36,14 @@ export class PageViewCacheService extends ChronoArrayCache<CachedPageView> {
   private async getPageViews(start: string, end: string, host: string) {
     const dateFrom = new Date(start);
     const dateTo = new Date(end);
-    const filter =
-      `host==${host};date>${dateFrom.getTime()};date<${dateTo.getTime()};` as PageViewFilter;
+    const filter = `host==${host};date>${dateFrom.getTime()};date<${dateTo.getTime()};` as PageViewFilter;
     const allPageViews = await this.getPageViewEventsWithPagination(filter, []);
-    this.logger.log(
-      `Fetched ${allPageViews.length} page views for host ${host} from ${start} to ${end}.`,
-    );
+    this.logger.log(`Fetched ${allPageViews.length} page views for host ${host} from ${start} to ${end}.`);
 
     return allPageViews;
   }
 
-  private async getPageViewEventsWithPagination(
-    filter: PageViewFilter,
-    sum: PageView[],
-    scrollId?: string,
-  ): Promise<PageView[]> {
+  private async getPageViewEventsWithPagination(filter: PageViewFilter, sum: PageView[], scrollId?: string): Promise<PageView[]> {
     const params = {
       filter,
       sort: "date",
@@ -72,13 +53,23 @@ export class PageViewCacheService extends ChronoArrayCache<CachedPageView> {
     const res = await this.api.getPageViews(params);
 
     const events = res.results;
+    this.checkPageSortOrder(events, sum);
     sum.push(...events);
 
     if (events.length < 1000) {
       this.logger.verbose(`Page views - overall count ${sum.length}.`);
       return sum;
     } else {
-      return this.getPageViewEventsWithPagination(filter, sum, res.scrollId);
+      if (!res.scrollId) {
+        this.logger.warn(`Received a full page of 1000 page views but scrollId is missing; pagination cannot continue. Total so far: ${sum.length}.`);
+        return sum;
+      }
+      try {
+        return await this.getPageViewEventsWithPagination(filter, sum, res.scrollId);
+      } catch (error) {
+        this.logger.warn(`Pagination interrupted after ${sum.length} items; saving partial data. ${error instanceof Error ? error.message : String(error)}`);
+        return sum;
+      }
     }
   }
 }

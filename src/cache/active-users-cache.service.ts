@@ -12,18 +12,12 @@ export class ActiveUsersCacheService extends ChronoArrayCache<CachedUser> {
 
   private readonly logger = new Logger(ActiveUsersCacheService.name);
 
-  createOrUpdateCache(
-    start: string,
-    end: string,
-    domain: { id: string; url: string; ttl?: number },
-  ): Promise<void> {
+  createOrUpdateCache(start: string, end: string, domain: { id: string; url: string; ttl?: number }): Promise<void> {
     const startDate = this.getStartDate(start, domain.id);
-    return this.getActiveUserMetricsDateRange(startDate, end, domain.url).then(
-      (users) => {
-        const cachedUsers = mapUsersToCachedUsers(users);
-        this.setCache(cachedUsers, domain.id, domain.ttl);
-      },
-    );
+    return this.getActiveUserMetricsDateRange(startDate, end, domain.url).then((users) => {
+      const cachedUsers = mapUsersToCachedUsers(users);
+      this.setCache(cachedUsers, domain.id, domain.ttl);
+    });
   }
 
   getDate(item: CachedUser): number {
@@ -53,11 +47,7 @@ export class ActiveUsersCacheService extends ChronoArrayCache<CachedUser> {
     return users;
   }
 
-  private async getActiveUserMetricsDateRange(
-    start: string,
-    end: string,
-    url: string,
-  ) {
+  private async getActiveUserMetricsDateRange(start: string, end: string, url: string) {
     let filter = `customAttributes.domainName==${url};`;
 
     const dateFrom = new Date(start);
@@ -72,9 +62,7 @@ export class ActiveUsersCacheService extends ChronoArrayCache<CachedUser> {
       pageSize: 1000,
     };
     const { users } = await this.api.getUsers(params);
-    this.logger.log(
-      `Fetched ${users.length} active users for domain ${url} from ${start} to ${end}.`,
-    );
+    this.logger.log(`Fetched ${users.length} active users for domain ${url} from ${start} to ${end}.`);
     return users;
   }
 }

@@ -40,11 +40,7 @@ describe("SessionEventsController.prepopulateDates (edge cases)", () => {
 
     // count expected hours inclusive
     let expectedHours = 0;
-    for (
-      let cur = new Date(normStart);
-      cur <= normEnd;
-      cur.setHours(cur.getHours() + 1)
-    ) {
+    for (let cur = new Date(normStart); cur <= normEnd; cur.setHours(cur.getHours() + 1)) {
       expectedHours++;
     }
 
@@ -71,11 +67,7 @@ describe("SessionEventsController.prepopulateDates (edge cases)", () => {
     const normEnd = normalizeMinute(end);
 
     let expectedMinutes = 0;
-    for (
-      let cur = new Date(normStart);
-      cur <= normEnd;
-      cur.setMinutes(cur.getMinutes() + 1)
-    ) {
+    for (let cur = new Date(normStart); cur <= normEnd; cur.setMinutes(cur.getMinutes() + 1)) {
       expectedMinutes++;
     }
 

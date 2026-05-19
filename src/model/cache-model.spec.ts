@@ -1,16 +1,5 @@
-import {
-  mapCustomEventsToCachedEvents,
-  mapPageViewsToCachedPageViews,
-  mapSessionEventsToCachedSessionEvents,
-  mapUsersToCachedUsers,
-} from "./cache-model";
-import {
-  CustomEvent,
-  PageView,
-  PXLocation,
-  SessionEvent,
-  User,
-} from "./gainsight-px.model";
+import { mapCustomEventsToCachedEvents, mapPageViewsToCachedPageViews, mapSessionEventsToCachedSessionEvents, mapUsersToCachedUsers } from "./cache-model";
+import { CustomEvent, PageView, PXLocation, SessionEvent, User } from "./gainsight-px.model";
 
 const location: PXLocation = {
   countryName: "United States",
@@ -120,9 +109,28 @@ describe("mapUsersToCachedUsers", () => {
     expect(result.sId).toBe("usr-001");
     expect(result.date).toBe(1_700_000_000_000);
     expect(result.type).toBe("USER");
+    expect(result.emailDomain).toBe("example.com");
     expect(result.attrs).toEqual(user.customAttributes);
     expect(result.agent).toEqual(user.lastVisitedUserAgentData);
     expect(result.location).toEqual(location);
+  });
+
+  it("extracts email domain correctly", () => {
+    const domainUser = { ...user, email: "hans.mueller@test.de" };
+    const [result] = mapUsersToCachedUsers([domainUser]);
+    expect(result.emailDomain).toBe("test.de");
+  });
+
+  it("handles missing email gracefully", () => {
+    const noEmail = { ...user, email: undefined };
+    const [result] = mapUsersToCachedUsers([noEmail]);
+    expect(result.emailDomain).toBe("");
+  });
+
+  it("handles email without @ gracefully", () => {
+    const invalidEmail = { ...user, email: "invalid-email" };
+    const [result] = mapUsersToCachedUsers([invalidEmail]);
+    expect(result.emailDomain).toBe("");
   });
 
   it("defaults agent to empty array when lastVisitedUserAgentData is absent", () => {
@@ -231,10 +239,7 @@ describe("mapSessionEventsToCachedSessionEvents", () => {
       eventId: "evt-se-002",
       identifyId: "iid-002",
     };
-    const result = mapSessionEventsToCachedSessionEvents([
-      sessionEvent,
-      second,
-    ]);
+    const result = mapSessionEventsToCachedSessionEvents([sessionEvent, second]);
     expect(result).toHaveLength(2);
     expect(result[1].id).toBe("evt-se-002");
     expect(result[1].iId).toBe("iid-002");

@@ -22,15 +22,15 @@ export class C8yClientProviderService {
     private devModeService: DevModeService,
     private bootstrapService: C8yBootstrapService,
   ) {
-    this.baseUrl = process.env.C8Y_BASEURL;
+    this.baseUrl = process.env.C8Y_BASEURL!;
 
-    this.tenant = process.env.C8Y_TENANT;
-    this.user = process.env.C8Y_USER;
-    this.password = process.env.C8Y_PASSWORD;
+    this.tenant = process.env.C8Y_TENANT!;
+    this.user = process.env.C8Y_USER!;
+    this.password = process.env.C8Y_PASSWORD!;
 
-    this.bootstrapTenant = process.env.C8Y_BOOTSTRAP_TENANT;
-    this.bootstrapUser = process.env.C8Y_BOOTSTRAP_USER;
-    this.bootstrapPassword = process.env.C8Y_BOOTSTRAP_PASSWORD;
+    this.bootstrapTenant = process.env.C8Y_BOOTSTRAP_TENANT!;
+    this.bootstrapUser = process.env.C8Y_BOOTSTRAP_USER!;
+    this.bootstrapPassword = process.env.C8Y_BOOTSTRAP_PASSWORD!;
   }
 
   get client() {
@@ -67,18 +67,13 @@ export class C8yClientProviderService {
       ).then(
         (users) => {
           if (!users.length) {
-            return Promise.reject(
-              "Microservice gainsight-sync-ms is not subscribed!",
-            );
+            return Promise.reject("Microservice gainsight-sync-ms is not subscribed!");
           }
           const [user] = users;
           return Client.authenticate(user, this.baseUrl);
         },
         (error) => {
-          this.logger.error(
-            "Failed to fetch microservice subscriptions",
-            error,
-          );
+          this.logger.error("Failed to fetch microservice subscriptions", error);
           return Promise.reject();
         },
       );
@@ -97,9 +92,7 @@ export class C8yClientProviderService {
         )
         .then((users) => {
           if (!users.length) {
-            return Promise.reject(
-              "Microservice gainsight-sync-ms is not subscribed!",
-            );
+            return Promise.reject("Microservice gainsight-sync-ms is not subscribed!");
           }
           const [user] = users;
           return Client.authenticate(user, this.baseUrl);

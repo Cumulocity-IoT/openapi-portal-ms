@@ -1,26 +1,9 @@
 import { Controller, Get, Logger, Query, UseGuards } from "@nestjs/common";
-import {
-  ApiBasicAuth,
-  ApiOperation,
-  ApiQuery,
-  ApiResponse,
-  ApiTags,
-} from "@nestjs/swagger";
+import { ApiBasicAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { PageViewCacheService } from "../../cache/page-view-cache.service";
 import { TenantGuard } from "../../guards/tenant.guard";
-import {
-  ControllerPageView,
-  ControllerPageViewFieldList,
-  ControllerPageViewResponse,
-  mapCachedPageViewToControllerPageView,
-} from "../../model/controller-model";
-import {
-  filterArray,
-  parseFieldList,
-  parseOrderBy,
-  projectData,
-  sortArray,
-} from "../../util/dynamic-queries";
+import { ControllerPageView, ControllerPageViewFieldList, ControllerPageViewResponse, mapCachedPageViewToControllerPageView } from "../../model/controller-model";
+import { filterArray, parseFieldList, parseOrderBy, projectData, sortArray } from "../../util/dynamic-queries";
 
 type PageViewCountResult = { value: string; count: number };
 
@@ -127,14 +110,12 @@ export class PageViewControllerV2 {
   @ApiQuery({
     name: "start",
     required: true,
-    description:
-      "Start of the time range (ISO 8601 string or epoch milliseconds).",
+    description: "Start of the time range (ISO 8601 string or epoch milliseconds).",
   })
   @ApiQuery({
     name: "end",
     required: true,
-    description:
-      "End of the time range (ISO 8601 string or epoch milliseconds).",
+    description: "End of the time range (ISO 8601 string or epoch milliseconds).",
   })
   @ApiQuery({
     name: "tenantId",
@@ -142,42 +123,18 @@ export class PageViewControllerV2 {
     description: "Tenant identifier used to scope the cache query.",
   })
   @Get("v2/pageViews")
-  getPageViewsV2(
-    @Query("start") start: string,
-    @Query("end") end: string,
-    @Query("tenantId") tenantId: string,
-    @Query("filter") filter?: string,
-    @Query("fields") fields?: ControllerPageViewFieldList,
-    @Query("orderBy") orderBy?: string,
-  ): ControllerPageViewResponse[] {
-    this.logger.verbose(
-      `getPageViewsV2 from ${start} to ${end} tenant ${tenantId}`,
-    );
+  getPageViewsV2(@Query("start") start: string, @Query("end") end: string, @Query("tenantId") tenantId: string, @Query("filter") filter?: string, @Query("fields") fields?: ControllerPageViewFieldList, @Query("orderBy") orderBy?: string): ControllerPageViewResponse[] {
+    this.logger.verbose(`getPageViewsV2 from ${start} to ${end} tenant ${tenantId}`);
     try {
-      const pageViews = this.pageViewCacheService.queryCache(
-        start,
-        end,
-        tenantId,
-      );
-      const mappedPageViews = pageViews.map(
-        mapCachedPageViewToControllerPageView,
-      );
+      const pageViews = this.pageViewCacheService.queryCache(start, end, tenantId);
+      const mappedPageViews = pageViews.map(mapCachedPageViewToControllerPageView);
       const filtered = filterArray(mappedPageViews, filter);
       const orderConfig = parseOrderBy(orderBy);
-      const sorted = orderConfig
-        ? sortArray(
-            filtered,
-            orderConfig.field as keyof ControllerPageView,
-            orderConfig.direction,
-          )
-        : filtered;
+      const sorted = orderConfig ? sortArray(filtered, orderConfig.field as keyof ControllerPageView, orderConfig.direction) : filtered;
       const fieldList = parseFieldList(fields);
       return sorted.map((pv) => {
-        const projected = projectData(
-          pv,
-          fieldList as (keyof ControllerPageView)[],
-        );
-        return { id: pv.id, ...projected };
+        const projected = projectData(pv, fieldList as (keyof ControllerPageView)[]);
+        return { ...projected, id: pv.id };
       });
     } catch (e) {
       this.logger.error("Error during page view retrieval", e);
@@ -224,26 +181,18 @@ export class PageViewControllerV2 {
   @ApiQuery({
     name: "groupBy",
     required: false,
-    description:
-      "Page-view field to aggregate by. Defaults to `hash`. " +
-      "Valid values: id, identifyId, sessionId, date, scheme, host, path, queryString, hash, " +
-      "remoteHost, referrer, pageTitle, propertyKey, eventType, userType, accountId.",
+    description: "Page-view field to aggregate by. Defaults to `hash`. " + "Valid values: id, identifyId, sessionId, date, scheme, host, path, queryString, hash, " + "remoteHost, referrer, pageTitle, propertyKey, eventType, userType, accountId.",
   })
   @ApiQuery({
     name: "pathMask",
     required: false,
     enum: ["true", "false"],
-    description:
-      'When set to `"true"`, all numeric segments in the grouped value are replaced with `*` before counting. ' +
-      "This collapses individual IDs into page-type patterns. " +
-      "Example: `#/group/123/dashboard/7` → `#/group/*/dashboard/*`.",
+    description: 'When set to `"true"`, all numeric segments in the grouped value are replaced with `*` before counting. ' + "This collapses individual IDs into page-type patterns. " + "Example: `#/group/123/dashboard/7` → `#/group/*/dashboard/*`.",
   })
   @ApiQuery({
     name: "limit",
     required: false,
-    description:
-      "Maximum number of results to return. Applies after sorting, so you always get the top-N by count. " +
-      "Omit to return all groups.",
+    description: "Maximum number of results to return. Applies after sorting, so you always get the top-N by count. " + "Omit to return all groups.",
   })
   @ApiResponse({
     status: 200,
@@ -259,14 +208,12 @@ export class PageViewControllerV2 {
   @ApiQuery({
     name: "start",
     required: true,
-    description:
-      "Start of the time range (ISO 8601 string or epoch milliseconds).",
+    description: "Start of the time range (ISO 8601 string or epoch milliseconds).",
   })
   @ApiQuery({
     name: "end",
     required: true,
-    description:
-      "End of the time range (ISO 8601 string or epoch milliseconds).",
+    description: "End of the time range (ISO 8601 string or epoch milliseconds).",
   })
   @ApiQuery({
     name: "tenantId",
@@ -283,18 +230,10 @@ export class PageViewControllerV2 {
     @Query("pathMask") pathMask?: string,
     @Query("limit") limit?: string,
   ): PageViewCountResult[] {
-    this.logger.verbose(
-      `getPageViewCountsV2 from ${start} to ${end} tenant ${tenantId} groupBy ${groupBy ?? "hash"}`,
-    );
+    this.logger.verbose(`getPageViewCountsV2 from ${start} to ${end} tenant ${tenantId} groupBy ${groupBy ?? "hash"}`);
     try {
-      const pageViews = this.pageViewCacheService.queryCache(
-        start,
-        end,
-        tenantId,
-      );
-      const mappedPageViews = pageViews.map(
-        mapCachedPageViewToControllerPageView,
-      );
+      const pageViews = this.pageViewCacheService.queryCache(start, end, tenantId);
+      const mappedPageViews = pageViews.map(mapCachedPageViewToControllerPageView);
       const filtered = filterArray(mappedPageViews, filter);
 
       const field = (groupBy ?? "hash") as keyof ControllerPageView;

@@ -28,7 +28,7 @@ export default [
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
-      'prettier/prettier': 'error',
+      'prettier/prettier': ['error', { printWidth: 300, singleQuote: false, trailingComma: 'all' }],
     },
   },
   {

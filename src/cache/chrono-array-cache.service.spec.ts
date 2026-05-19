@@ -12,11 +12,7 @@ class TestCache extends ChronoArrayCache<Item> {
     return item.date;
   }
   queryCache(start: string, end: string, tenantId: string): Item[] {
-    return this.getCache(
-      new Date(start).getTime(),
-      new Date(end).getTime(),
-      tenantId,
-    );
+    return this.getCache(new Date(start).getTime(), new Date(end).getTime(), tenantId);
   }
   getLogger(): Logger {
     return this.logger;
@@ -45,9 +41,7 @@ describe("TreeCache – date range queries", () => {
     jest.spyOn(cache.getLogger(), "warn").mockImplementation(() => {});
 
     // Seed 10 items, one per minute
-    const items = Array.from({ length: 10 }, (_, i) =>
-      item(i * 60_000, `v${i}`),
-    );
+    const items = Array.from({ length: 10 }, (_, i) => item(i * 60_000, `v${i}`));
     cache.setCache(items, TENANT);
   });
 
@@ -117,11 +111,7 @@ describe("TreeCache – date range queries", () => {
   // ── setCache ingestion ───────────────────────────────────────────────────────
 
   it("sorts an out-of-order batch before appending", () => {
-    const unsorted: Item[] = [
-      item(15 * 60_000, "late"),
-      item(11 * 60_000, "early"),
-      item(13 * 60_000, "mid"),
-    ];
+    const unsorted: Item[] = [item(15 * 60_000, "late"), item(11 * 60_000, "early"), item(13 * 60_000, "mid")];
     cache.setCache(unsorted, TENANT);
     // After appending the sorted batch, the array must be in ascending order
     const result = cache.getCache(t(11 * 60_000), t(15 * 60_000), TENANT);
@@ -213,11 +203,7 @@ describe("TreeCache – date range queries", () => {
     const freshTs = now - 3 * 24 * 60 * 60 * 1000; // 3 days ago → within 7-day TTL
 
     // First call sets the custom TTL
-    cache.setCache(
-      [{ date: staleTs, value: "stale" }],
-      tenantId,
-      customTtlDays,
-    );
+    cache.setCache([{ date: staleTs, value: "stale" }], tenantId, customTtlDays);
 
     // Second call omits ttlDays — stored TTL (7 days) should still be used
     cache.setCache(
@@ -314,14 +300,7 @@ describe("mergeSorted", () => {
     cache.setCache([item(100, "a1"), item(300, "a2"), item(500, "a3")], MID);
     cache.setCache([item(200, "b1"), item(400, "b2"), item(600, "b3")], MID);
     const result = cache.getCache(t(0), t(700), MID);
-    expect(result.map((i) => i.value)).toEqual([
-      "a1",
-      "b1",
-      "a2",
-      "b2",
-      "a3",
-      "b3",
-    ]);
+    expect(result.map((i) => i.value)).toEqual(["a1", "b1", "a2", "b2", "a3", "b3"]);
   });
 
   // Full merge loop: a exhausted first → remaining b items appended
@@ -368,9 +347,7 @@ describe("findFirstIndex / findLastIndex / getEventsInRange", () => {
 
   const MIN = 60_000;
   // 7 items at minutes 0–6
-  const arr: Item[] = Array.from({ length: 7 }, (_, i) =>
-    item(i * MIN, `v${i}`),
-  );
+  const arr: Item[] = Array.from({ length: 7 }, (_, i) => item(i * MIN, `v${i}`));
 
   beforeEach(() => {
     cache = new TestCache();

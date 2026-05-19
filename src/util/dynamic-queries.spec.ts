@@ -1,11 +1,5 @@
 import { BadRequestException } from "@nestjs/common";
-import {
-  filterArray,
-  parseFieldList,
-  parseOrderBy,
-  projectData,
-  sortArray,
-} from "./dynamic-queries";
+import { filterArray, parseFieldList, parseOrderBy, projectData, sortArray } from "./dynamic-queries";
 
 describe("projectData", () => {
   const event = {
@@ -85,9 +79,7 @@ describe("filterArray", () => {
   });
 
   it("filters with a compound expression", () => {
-    expect(filterArray(items, 'status == "active" and age > 26')).toEqual([
-      { name: "Carol", age: 32, status: "active" },
-    ]);
+    expect(filterArray(items, 'status == "active" and age > 26')).toEqual([{ name: "Carol", age: 32, status: "active" }]);
   });
 
   it("returns an empty array when no items match", () => {
@@ -95,9 +87,7 @@ describe("filterArray", () => {
   });
 
   it("throws BadRequestException for invalid filter syntax", () => {
-    expect(() => filterArray(items, "!!!invalid???")).toThrow(
-      BadRequestException,
-    );
+    expect(() => filterArray(items, "!!!invalid???")).toThrow(BadRequestException);
   });
 });
 
@@ -113,19 +103,11 @@ describe("sortArray", () => {
   });
 
   it("sorts strings ascending by default", () => {
-    expect(sortArray(items, "name").map((i) => i.name)).toEqual([
-      "Alice",
-      "Bob",
-      "Charlie",
-    ]);
+    expect(sortArray(items, "name").map((i) => i.name)).toEqual(["Alice", "Bob", "Charlie"]);
   });
 
   it("sorts strings descending", () => {
-    expect(sortArray(items, "name", "desc").map((i) => i.name)).toEqual([
-      "Charlie",
-      "Bob",
-      "Alice",
-    ]);
+    expect(sortArray(items, "name", "desc").map((i) => i.name)).toEqual(["Charlie", "Bob", "Alice"]);
   });
 
   it("sorts numbers ascending", () => {
@@ -133,9 +115,7 @@ describe("sortArray", () => {
   });
 
   it("sorts numbers descending", () => {
-    expect(sortArray(items, "age", "desc").map((i) => i.age)).toEqual([
-      30, 25, 17,
-    ]);
+    expect(sortArray(items, "age", "desc").map((i) => i.age)).toEqual([30, 25, 17]);
   });
 
   it("does not mutate the original array", () => {
@@ -145,19 +125,9 @@ describe("sortArray", () => {
   });
 
   it("places undefined values at the end regardless of direction", () => {
-    const withUndefined = [
-      { name: "Bob" as string | undefined },
-      { name: undefined },
-      { name: "Alice" as string | undefined },
-    ];
-    expect(sortArray(withUndefined, "name", "asc").map((i) => i.name)).toEqual([
-      "Alice",
-      "Bob",
-      undefined,
-    ]);
-    expect(sortArray(withUndefined, "name", "desc").map((i) => i.name)).toEqual(
-      ["Bob", "Alice", undefined],
-    );
+    const withUndefined = [{ name: "Bob" as string | undefined }, { name: undefined }, { name: "Alice" as string | undefined }];
+    expect(sortArray(withUndefined, "name", "asc").map((i) => i.name)).toEqual(["Alice", "Bob", undefined]);
+    expect(sortArray(withUndefined, "name", "desc").map((i) => i.name)).toEqual(["Bob", "Alice", undefined]);
   });
 });
 

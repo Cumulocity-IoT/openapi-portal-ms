@@ -1,9 +1,7 @@
 import { EventsControllerV2 } from "./custom-events-v2.controller";
 import { CachedEvent } from "../../model/cache-model";
 
-const makeCachedEvent = (
-  overrides: Partial<CachedEvent> = {},
-): CachedEvent => ({
+const makeCachedEvent = (overrides: Partial<CachedEvent> = {}): CachedEvent => ({
   name: "buttonClick",
   data: { widgetName: "myWidget", attributes: { size: "large" } },
   date: new Date("2024-01-15T10:00:00Z").getTime(),
@@ -12,10 +10,7 @@ const makeCachedEvent = (
   ...overrides,
 });
 
-const makeCustomerEvent = (
-  name: `customEvent${string}` = "customEventButtonClick",
-  overrides: Partial<CachedEvent> = {},
-): CachedEvent => ({
+const makeCustomerEvent = (name: `customEvent${string}` = "customEventButtonClick", overrides: Partial<CachedEvent> = {}): CachedEvent => ({
   name,
   data: {
     action_type: "track",
@@ -46,11 +41,7 @@ describe("EventsControllerV2", () => {
       it("returns empty array and calls queryCache with correct args", () => {
         const result = controller.getEventsV2("2024-01-01", "2024-01-02", "t1");
         expect(result).toEqual([]);
-        expect(mockCache.queryCache).toHaveBeenCalledWith(
-          "2024-01-01",
-          "2024-01-02",
-          "t1",
-        );
+        expect(mockCache.queryCache).toHaveBeenCalledWith("2024-01-01", "2024-01-02", "t1");
       });
     });
 
@@ -60,11 +51,7 @@ describe("EventsControllerV2", () => {
       });
 
       it("maps all fields correctly when no projection applied", () => {
-        const [result] = controller.getEventsV2(
-          "2024-01-01",
-          "2024-01-02",
-          "t1",
-        );
+        const [result] = controller.getEventsV2("2024-01-01", "2024-01-02", "t1");
         expect(result.name).toBe("buttonClick");
         expect(result.date).toBe("2024-01-15T10:00:00.000Z");
         expect(result.data).toEqual({
@@ -74,13 +61,7 @@ describe("EventsControllerV2", () => {
       });
 
       it("projects only requested top-level fields, always includes name", () => {
-        const [result] = controller.getEventsV2(
-          "2024-01-01",
-          "2024-01-02",
-          "t1",
-          undefined,
-          "name,date",
-        );
+        const [result] = controller.getEventsV2("2024-01-01", "2024-01-02", "t1", undefined, "name,date");
         expect(result.name).toBe("buttonClick");
         expect(result.date).toBe("2024-01-15T10:00:00.000Z");
         expect(result.identifyId).toBeUndefined();
@@ -88,121 +69,58 @@ describe("EventsControllerV2", () => {
       });
 
       it("projects only requested dataFields from event.data", () => {
-        const [result] = controller.getEventsV2(
-          "2024-01-01",
-          "2024-01-02",
-          "t1",
-          undefined,
-          undefined,
-          "widgetName",
-        );
+        const [result] = controller.getEventsV2("2024-01-01", "2024-01-02", "t1", undefined, undefined, "widgetName");
         expect(result.data).toEqual({ widgetName: "myWidget" });
         expect((result.data as any).attributes).toBeUndefined();
       });
 
       it("filters events by name using filtrex expression", () => {
-        mockCache.queryCache.mockReturnValue([
-          makeCachedEvent({ name: "buttonClick", iId: "u1" }),
-          makeCachedEvent({ name: "pageView", iId: "u2" }),
-        ]);
-        const result = controller.getEventsV2(
-          "2024-01-01",
-          "2024-01-02",
-          "t1",
-          'name == "buttonClick"',
-        );
+        mockCache.queryCache.mockReturnValue([makeCachedEvent({ name: "buttonClick", iId: "u1" }), makeCachedEvent({ name: "pageView", iId: "u2" })]);
+        const result = controller.getEventsV2("2024-01-01", "2024-01-02", "t1", 'name == "buttonClick"');
         expect(result).toHaveLength(1);
         expect(result[0].name).toBe("buttonClick");
       });
 
       it("returns empty array when filter matches nothing", () => {
-        const result = controller.getEventsV2(
-          "2024-01-01",
-          "2024-01-02",
-          "t1",
-          'name == "nonexistentEvent"',
-        );
+        const result = controller.getEventsV2("2024-01-01", "2024-01-02", "t1", 'name == "nonexistentEvent"');
         expect(result).toEqual([]);
       });
 
       it("returns multiple results for multiple cached events", () => {
-        mockCache.queryCache.mockReturnValue([
-          makeCachedEvent({ name: "click" }),
-          makeCachedEvent({ name: "hover" }),
-          makeCachedEvent({ name: "focus" }),
-        ]);
+        mockCache.queryCache.mockReturnValue([makeCachedEvent({ name: "click" }), makeCachedEvent({ name: "hover" }), makeCachedEvent({ name: "focus" })]);
         const result = controller.getEventsV2("2024-01-01", "2024-01-02", "t1");
         expect(result).toHaveLength(3);
       });
 
       describe("orderBy", () => {
         beforeEach(() => {
-          mockCache.queryCache.mockReturnValue([
-            makeCachedEvent({ name: "bravo", iId: "u1" }),
-            makeCachedEvent({ name: "alpha", iId: "u2" }),
-          ]);
+          mockCache.queryCache.mockReturnValue([makeCachedEvent({ name: "bravo", iId: "u1" }), makeCachedEvent({ name: "alpha", iId: "u2" })]);
         });
 
         it("sorts ascending by name with 'name:asc'", () => {
-          const result = controller.getEventsV2(
-            "2024-01-01",
-            "2024-01-02",
-            "t1",
-            undefined,
-            undefined,
-            undefined,
-            "name:asc",
-          );
+          const result = controller.getEventsV2("2024-01-01", "2024-01-02", "t1", undefined, undefined, undefined, "name:asc");
           expect(result[0].name).toBe("alpha");
           expect(result[1].name).toBe("bravo");
         });
 
         it("sorts descending by name with 'name:desc'", () => {
-          const result = controller.getEventsV2(
-            "2024-01-01",
-            "2024-01-02",
-            "t1",
-            undefined,
-            undefined,
-            undefined,
-            "name:desc",
-          );
+          const result = controller.getEventsV2("2024-01-01", "2024-01-02", "t1", undefined, undefined, undefined, "name:desc");
           expect(result[0].name).toBe("bravo");
           expect(result[1].name).toBe("alpha");
         });
 
         it("defaults to ascending when direction is omitted", () => {
-          const result = controller.getEventsV2(
-            "2024-01-01",
-            "2024-01-02",
-            "t1",
-            undefined,
-            undefined,
-            undefined,
-            "name",
-          );
+          const result = controller.getEventsV2("2024-01-01", "2024-01-02", "t1", undefined, undefined, undefined, "name");
           expect(result[0].name).toBe("alpha");
         });
 
         it("handles extra colon segments safely ('name:asc:extra')", () => {
-          const result = controller.getEventsV2(
-            "2024-01-01",
-            "2024-01-02",
-            "t1",
-            undefined,
-            undefined,
-            undefined,
-            "name:asc:extra",
-          );
+          const result = controller.getEventsV2("2024-01-01", "2024-01-02", "t1", undefined, undefined, undefined, "name:asc:extra");
           expect(result[0].name).toBe("alpha");
         });
 
         it("preserves original order when orderBy is omitted", () => {
-          const result = controller.getEventsV2(
-            "2024-01-01",
-            "2024-01-02",
-            "t1",
-          );
+          const result = controller.getEventsV2("2024-01-01", "2024-01-02", "t1");
           expect(result[0].name).toBe("bravo");
           expect(result[1].name).toBe("alpha");
         });
@@ -226,31 +144,16 @@ describe("EventsControllerV2", () => {
   describe("getCustomerEventsV2", () => {
     describe("empty cache", () => {
       it("returns empty array and calls queryCache with correct args", () => {
-        const result = controller.getCustomerEventsV2(
-          "2024-01-01",
-          "2024-01-02",
-          "t1",
-        );
+        const result = controller.getCustomerEventsV2("2024-01-01", "2024-01-02", "t1");
         expect(result).toEqual([]);
-        expect(mockCache.queryCache).toHaveBeenCalledWith(
-          "2024-01-01",
-          "2024-01-02",
-          "t1",
-        );
+        expect(mockCache.queryCache).toHaveBeenCalledWith("2024-01-01", "2024-01-02", "t1");
       });
     });
 
     describe("pre-filtering to customEvent* names", () => {
       it("excludes events whose name does not start with 'customEvent'", () => {
-        mockCache.queryCache.mockReturnValue([
-          makeCustomerEvent("customEventButtonClick"),
-          makeCachedEvent({ name: "pageView" }),
-        ]);
-        const result = controller.getCustomerEventsV2(
-          "2024-01-01",
-          "2024-01-02",
-          "t1",
-        );
+        mockCache.queryCache.mockReturnValue([makeCustomerEvent("customEventButtonClick"), makeCachedEvent({ name: "pageView" })]);
+        const result = controller.getCustomerEventsV2("2024-01-01", "2024-01-02", "t1");
         expect(result).toHaveLength(1);
         expect(result[0].name).toBe("customEventButtonClick");
       });
@@ -266,11 +169,7 @@ describe("EventsControllerV2", () => {
             sId: "y",
           },
         ]);
-        const result = controller.getCustomerEventsV2(
-          "2024-01-01",
-          "2024-01-02",
-          "t1",
-        );
+        const result = controller.getCustomerEventsV2("2024-01-01", "2024-01-02", "t1");
         expect(result).toHaveLength(1);
         expect(result[0].name).toBe("customEventButtonClick");
       });
@@ -282,11 +181,7 @@ describe("EventsControllerV2", () => {
       });
 
       it("maps all fields correctly when no projection applied", () => {
-        const [result] = controller.getCustomerEventsV2(
-          "2024-01-01",
-          "2024-01-02",
-          "t1",
-        );
+        const [result] = controller.getCustomerEventsV2("2024-01-01", "2024-01-02", "t1");
         expect(result.name).toBe("customEventButtonClick");
         expect(result.date).toBe("2024-01-15T10:00:00.000Z");
         expect(result.data).toEqual({
@@ -298,27 +193,14 @@ describe("EventsControllerV2", () => {
       });
 
       it("projects only requested dataFields from event.data", () => {
-        const [result] = controller.getCustomerEventsV2(
-          "2024-01-01",
-          "2024-01-02",
-          "t1",
-          undefined,
-          undefined,
-          "category,label",
-        );
+        const [result] = controller.getCustomerEventsV2("2024-01-01", "2024-01-02", "t1", undefined, undefined, "category,label");
         expect(result.data).toEqual({ category: "ui", label: "submit-btn" });
         expect((result.data as any).action_type).toBeUndefined();
         expect((result.data as any).metadata).toBeUndefined();
       });
 
       it("projects only requested top-level fields, always includes name", () => {
-        const [result] = controller.getCustomerEventsV2(
-          "2024-01-01",
-          "2024-01-02",
-          "t1",
-          undefined,
-          "name,date",
-        );
+        const [result] = controller.getCustomerEventsV2("2024-01-01", "2024-01-02", "t1", undefined, "name,date");
         expect(result.name).toBe("customEventButtonClick");
         expect(result.date).toBe("2024-01-15T10:00:00.000Z");
         expect(result.identifyId).toBeUndefined();
@@ -326,98 +208,46 @@ describe("EventsControllerV2", () => {
       });
 
       it("filters customer events using filtrex expression on name", () => {
-        mockCache.queryCache.mockReturnValue([
-          makeCustomerEvent("customEventButtonClick"),
-          makeCustomerEvent("customEventPageLoad"),
-        ]);
-        const result = controller.getCustomerEventsV2(
-          "2024-01-01",
-          "2024-01-02",
-          "t1",
-          'name == "customEventPageLoad"',
-        );
+        mockCache.queryCache.mockReturnValue([makeCustomerEvent("customEventButtonClick"), makeCustomerEvent("customEventPageLoad")]);
+        const result = controller.getCustomerEventsV2("2024-01-01", "2024-01-02", "t1", 'name == "customEventPageLoad"');
         expect(result).toHaveLength(1);
         expect(result[0].name).toBe("customEventPageLoad");
       });
 
       it("returns empty array when filter matches nothing", () => {
-        const result = controller.getCustomerEventsV2(
-          "2024-01-01",
-          "2024-01-02",
-          "t1",
-          'name == "customEventNonExistent"',
-        );
+        const result = controller.getCustomerEventsV2("2024-01-01", "2024-01-02", "t1", 'name == "customEventNonExistent"');
         expect(result).toEqual([]);
       });
 
       describe("orderBy", () => {
         beforeEach(() => {
-          mockCache.queryCache.mockReturnValue([
-            makeCustomerEvent("customEventBravo"),
-            makeCustomerEvent("customEventAlpha"),
-          ]);
+          mockCache.queryCache.mockReturnValue([makeCustomerEvent("customEventBravo"), makeCustomerEvent("customEventAlpha")]);
         });
 
         it("sorts ascending by name with 'name:asc'", () => {
-          const result = controller.getCustomerEventsV2(
-            "2024-01-01",
-            "2024-01-02",
-            "t1",
-            undefined,
-            undefined,
-            undefined,
-            "name:asc",
-          );
+          const result = controller.getCustomerEventsV2("2024-01-01", "2024-01-02", "t1", undefined, undefined, undefined, "name:asc");
           expect(result[0].name).toBe("customEventAlpha");
           expect(result[1].name).toBe("customEventBravo");
         });
 
         it("sorts descending by name with 'name:desc'", () => {
-          const result = controller.getCustomerEventsV2(
-            "2024-01-01",
-            "2024-01-02",
-            "t1",
-            undefined,
-            undefined,
-            undefined,
-            "name:desc",
-          );
+          const result = controller.getCustomerEventsV2("2024-01-01", "2024-01-02", "t1", undefined, undefined, undefined, "name:desc");
           expect(result[0].name).toBe("customEventBravo");
           expect(result[1].name).toBe("customEventAlpha");
         });
 
         it("defaults to ascending when direction is omitted", () => {
-          const result = controller.getCustomerEventsV2(
-            "2024-01-01",
-            "2024-01-02",
-            "t1",
-            undefined,
-            undefined,
-            undefined,
-            "name",
-          );
+          const result = controller.getCustomerEventsV2("2024-01-01", "2024-01-02", "t1", undefined, undefined, undefined, "name");
           expect(result[0].name).toBe("customEventAlpha");
         });
 
         it("handles extra colon segments safely ('name:asc:extra')", () => {
-          const result = controller.getCustomerEventsV2(
-            "2024-01-01",
-            "2024-01-02",
-            "t1",
-            undefined,
-            undefined,
-            undefined,
-            "name:asc:extra",
-          );
+          const result = controller.getCustomerEventsV2("2024-01-01", "2024-01-02", "t1", undefined, undefined, undefined, "name:asc:extra");
           expect(result[0].name).toBe("customEventAlpha");
         });
 
         it("preserves original order when orderBy is omitted", () => {
-          const result = controller.getCustomerEventsV2(
-            "2024-01-01",
-            "2024-01-02",
-            "t1",
-          );
+          const result = controller.getCustomerEventsV2("2024-01-01", "2024-01-02", "t1");
           expect(result[0].name).toBe("customEventBravo");
           expect(result[1].name).toBe("customEventAlpha");
         });
@@ -429,11 +259,7 @@ describe("EventsControllerV2", () => {
         mockCache.queryCache.mockImplementation(() => {
           throw new Error("cache failure");
         });
-        const result = controller.getCustomerEventsV2(
-          "2024-01-01",
-          "2024-01-02",
-          "t1",
-        );
+        const result = controller.getCustomerEventsV2("2024-01-01", "2024-01-02", "t1");
         expect(result).toEqual([]);
       });
     });

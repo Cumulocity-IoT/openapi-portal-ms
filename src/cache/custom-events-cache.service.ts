@@ -1,16 +1,8 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { GainsightPxService } from "../service/gainsight-px.service";
-import {
-  CustomEvent,
-  CustomEventFilter,
-  CustomEventSort,
-  PXParams,
-} from "../model/gainsight-px.model";
+import { CustomEvent, CustomEventFilter, CustomEventSort, PXParams } from "../model/gainsight-px.model";
 import { ChronoArrayCache } from "./chrono-array-cache.service";
-import {
-  CachedEvent,
-  mapCustomEventsToCachedEvents,
-} from "../model/cache-model";
+import { CachedEvent, mapCustomEventsToCachedEvents } from "../model/cache-model";
 
 @Injectable()
 export class CustomEventsCacheService extends ChronoArrayCache<CachedEvent> {
@@ -20,11 +12,7 @@ export class CustomEventsCacheService extends ChronoArrayCache<CachedEvent> {
     super();
   }
 
-  createOrUpdateCache(
-    start: string,
-    end: string,
-    domain: { id: string; url: string; ttl?: number },
-  ): Promise<void> {
+  createOrUpdateCache(start: string, end: string, domain: { id: string; url: string; ttl?: number }): Promise<void> {
     const startDate = this.getStartDate(start, domain.id);
     return this.getCustomEvents(startDate, end, domain.id).then((events) => {
       const cachedEvents = mapCustomEventsToCachedEvents(events);
@@ -45,11 +33,7 @@ export class CustomEventsCacheService extends ChronoArrayCache<CachedEvent> {
     return this.getCache(startStamp, endStamp, tenantId);
   }
 
-  private async getCustomEvents(
-    start: string,
-    end: string,
-    tenantId: string,
-  ): Promise<CustomEvent[]> {
+  private async getCustomEvents(start: string, end: string, tenantId: string): Promise<CustomEvent[]> {
     let filter = `accountId~${tenantId}*;` as CustomEventFilter; // `accountId~t1234*;eventName==${eventName};` as CustomEventFilter;
     if (start) {
       const date = new Date(start);
@@ -59,18 +43,12 @@ export class CustomEventsCacheService extends ChronoArrayCache<CachedEvent> {
       const date = new Date(end);
       filter += `date<${date.getTime()};`;
     }
-    const events = await this.getEventWithPagination(filter, []);
-    this.logger.log(
-      `Fetched ${events.length} custom events for tenant ${tenantId} from ${start} to ${end}.`,
-    );
+    const events = await this.getEventWithPagination(filter as CustomEventFilter, [] as CustomEvent[]);
+    this.logger.log(`Fetched ${events.length} custom events for tenant ${tenantId} from ${start} to ${end}.`);
     return events;
   }
 
-  private async getEventWithPagination(
-    filter: CustomEventFilter,
-    sum: CustomEvent[],
-    scrollId?: string,
-  ): Promise<CustomEvent[]> {
+  private async getEventWithPagination(filter: CustomEventFilter, sum: CustomEvent[], scrollId?: string): Promise<CustomEvent[]> {
     const params = {
       filter,
       sort: "date",
@@ -78,17 +56,22 @@ export class CustomEventsCacheService extends ChronoArrayCache<CachedEvent> {
       scrollId,
     } as PXParams<CustomEventFilter, CustomEventSort>;
     const res = await this.api.getCustomEvents(params);
-    sum.push(...res.customEvents);
-    if (res.customEvents.length < 1000) {
+    const page = res.customEvents;
+    this.checkPageSortOrder(page, sum);
+    sum.push(...page);
+    if (page.length < 1000) {
       return sum;
     } else {
       if (!res.scrollId) {
-        this.logger.warn(
-          `Received a full page of 1000 events but scrollId is missing; pagination cannot continue. Total so far: ${sum.length}. Filter: ${filter}`,
-        );
+        this.logger.warn(`Received a full page of 1000 events but scrollId is missing; pagination cannot continue. Total so far: ${sum.length}. Filter: ${filter}`);
         return sum;
       }
-      return this.getEventWithPagination(filter, sum, res.scrollId);
+      try {
+        return await this.getEventWithPagination(filter, sum, res.scrollId);
+      } catch (error) {
+        this.logger.warn(`Pagination interrupted after ${sum.length} items; saving partial data. ${error instanceof Error ? error.message : String(error)}`);
+        return sum;
+      }
     }
   }
 }

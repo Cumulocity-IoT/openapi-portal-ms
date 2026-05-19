@@ -22,9 +22,7 @@ export const GainsightConfigValueSchema = z.array(
 export type GainsightConfigValue = z.infer<typeof GainsightConfigValueSchema>;
 
 // Function to check if a given response matches the schema
-export function isValidGainsightConfigValue(
-  data: unknown,
-): data is GainsightConfigValue {
+export function isValidGainsightConfigValue(data: unknown): data is GainsightConfigValue {
   const result = GainsightConfigValueSchema.safeParse(data);
   return result.success;
 }

@@ -7,8 +7,8 @@ export class DevModeService {
   }
 
   getDevModeDomain() {
-    const url = process.env.DEV_MODE_DOMAIN_URL;
-    const id = process.env.DEV_MODE_DOMAIN_ID;
+    const url = process.env.DEV_MODE_DOMAIN_URL!;
+    const id = process.env.DEV_MODE_DOMAIN_ID!;
 
     return { url, id };
   }

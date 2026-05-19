@@ -24,10 +24,7 @@ export type CustomerCustomEventAttributes = {
  *
  * Example: `"action_type,category"` or `"label,metadata.size"`
  */
-export type CustomerCustomEventDataFieldList =
-  | keyof CustomerCustomEventAttributes
-  | `metadata.${string}`
-  | string; // allows comma-separated combinations at runtime
+export type CustomerCustomEventDataFieldList = keyof CustomerCustomEventAttributes | `metadata.${string}` | string; // allows comma-separated combinations at runtime
 
 /**
  * A specialization of {@link CachedEvent} representing events explicitly
@@ -56,19 +53,8 @@ export type CustomerCustomCachedEvent = Omit<CachedEvent, "name" | "data"> & {
  * - `data` contains the expected {@link CustomerCustomEventAttributes} keys
  *   (`action_type`, `category`, `label`, `metadata`)
  */
-export function isCustomerCustomCachedEvent(
-  event: CachedEvent,
-): event is CustomerCustomCachedEvent {
-  return (
-    typeof event.name === "string" &&
-    event.name.startsWith("customEvent") &&
-    typeof event.data === "object" &&
-    event.data !== null &&
-    "action_type" in event.data &&
-    "category" in event.data &&
-    "label" in event.data &&
-    "metadata" in event.data
-  );
+export function isCustomerCustomCachedEvent(event: CachedEvent): event is CustomerCustomCachedEvent {
+  return typeof event.name === "string" && event.name.startsWith("customEvent") && typeof event.data === "object" && event.data !== null && "action_type" in event.data && "category" in event.data && "label" in event.data && "metadata" in event.data;
 }
 
 /**
