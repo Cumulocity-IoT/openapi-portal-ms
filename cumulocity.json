@@ -1,23 +1,15 @@
 {
   "apiVersion": "2",
-  "name": "gainsight-sync-ms",
-  "description": "NestJS microservice that periodically pulls Gainsight PX data (every 10 mins), keeps that data in memory per tenant, and exposes simple GET endpoints to consume via e.g. Grafana.",
-  "version": "0.1.18",
+  "name": "openapi-portal-ms",
+  "description": "Generic Cumulocity microservice that hosts and renders multiple OpenAPI specs (Redoc + Swagger UI).",
+  "version": "1.0.0",
   "provider": {
     "name": "Cumulocity"
   },
   "type": "MICROSERVICE",
   "isolation": "PER_TENANT",
-  "roles": [
-    "ROLE_GAINSIGHT_READ"
-  ],
-  "requiredRoles": [
-    "ROLE_OPTION_MANAGEMENT_READ",
-    "ROLE_OPTION_MANAGEMENT_ADMIN",
-    "ROLE_APPLICATION_MANAGEMENT_READ",
-    "ROLE_APPLICATION_MANAGEMENT_ADMIN",
-    "ROLE_BINARY_ADMIN"
-  ],
+  "roles": [],
+  "requiredRoles": [],
   "livenessProbe": {
     "httpGet": {
       "path": "/health",
@@ -35,9 +27,9 @@
     "periodSeconds": 10
   },
   "requestedResources": {
-    "memory": "2048M"
+    "memory": "256M"
   },
   "resources": {
-    "memory": "4096M"
+    "memory": "512M"
   }
 }

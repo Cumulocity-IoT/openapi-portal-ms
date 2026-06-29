@@ -5,6 +5,6 @@ import { DevModeService } from "./service/dev-mode.service";
 
 @Module({
   providers: [C8yClientProviderService, C8yBootstrapService, DevModeService],
-  exports: [C8yClientProviderService],
+  exports: [C8yClientProviderService, DevModeService],
 })
 export class BootstrapModule {}

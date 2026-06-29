@@ -10,7 +10,7 @@ export class C8yBootstrapService {
     const tenant = process.env.C8Y_TENANT;
     const user = process.env.C8Y_USER;
     const password = process.env.C8Y_PASSWORD;
-    const appName = process.env.C8Y_MICROSERVICE_NAME || "gainsight-sync-ms";
+    const appName = process.env.C8Y_MICROSERVICE_NAME || "openapi-portal-ms";
 
     if (!baseUrl || !tenant || !user || !password) {
       throw new Error("Missing C8Y_BASEURL, C8Y_TENANT, C8Y_USER, or C8Y_PASSWORD for bootstrap credential lookup.");

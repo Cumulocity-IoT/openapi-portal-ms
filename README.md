@@ -1,101 +1,179 @@
-# Gainsight Sync Microservice — API & Scheduling Documentation
+# OpenAPI Portal Microservice
 
-## Overview
+A NestJS Cumulocity microservice that hosts and renders multiple OpenAPI specs. Register specs from remote URLs or direct upload; browse them via Redoc or Swagger UI.
 
-A small NestJS microservice that periodically pulls Gainsight PX telemetry and user/profile data, keeps that data in memory per tenant, and exposes simple GET endpoints to be consumed e.g. by Grafana.
+## Features
 
-### What it does (high level)
+- Register OpenAPI specs by URL (with TTL auto-refresh) or by uploading the JSON directly
+- Browse all specs via a portal index page
+- View each spec with Redoc or Swagger UI
+- Admin API protected by Cumulocity Basic Auth (bypassed in dev mode)
+- Pre-populate specs at startup via an environment variable
+- LLM-friendly `/llms.txt` endpoint summarising all registered specs
 
-Fetches custom events, session events, page views and user/profile info every 10 minutes in a scheduled manner.
-On the first run it will fetch for the last 90 days, in subsequent runs it will only query from the last run until now (delta).
-Caches the fetched data per tenant for fast range queries.
-Serves REST endpoints that return raw records or aggregated summaries (counts, top languages/platforms/countries, time‑bucketed session counts, popular pages/devices).
+---
 
-### Configuration via Tenant Option
+## Local Development
 
-Adding or removing customers is easy:
-1. Create a new technical user, that has only access to this MS
-2. Update the tenant option with category gainsight and key config by adding a new entry like this: `{\"mail\":\"my-customer-domain.com\",\"domains\":[{\"url\":\"main.customer-cloud.com\",\"id\":\"t1234\"}`
+### Prerequisites
 
-On the next scheduled run, the MS will also crawl telemtry data for the newly configured tenant(s).
+- Node.js 20+
+- [pnpm](https://pnpm.io/) 10+
 
+### Install dependencies
 
-## Overview
-This microservice periodically pulls Gainsight (PX) telemetry (custom events, session events, page views, user/profile metrics) and serves aggregated and filtered results through REST endpoints. Data is cached in memory per tenant to allow fast range queries.
+```bash
+pnpm install
+```
 
-Common query parameters
-- start (string, required) — ISO date/time string or other date-parsable value; many endpoints support filtering by start date.
-- end (string, required) — ISO date/time string to specify an end (inclusive).
-- tenantId (string, required) — multi-tenant identifier; caches are maintained per tenant.
+### Start the dev server
 
-All GET endpoints return JSON. On internal errors the endpoints return an empty array or object (depending on the handler) and log the error.
+```bash
+pnpm start
+```
 
-## Endpoints
+The server starts on **port 8080** with `DEV_MODE=true` (no auth checks).
 
-The full, up-to-date API specification and generated docs are available from the bundled OpenAPI outputs in the `docs/` folder. Instead of duplicating the endpoint list here, open the generated files:
+To pre-populate specs at startup, pass the `OPENAPI_SPECS` environment variable:
 
-- HTML (single-file): `docs/openapi.html` (generated with `@redocly/cli` — preview or bundle using the CLI)
-- Markdown: `docs/openapi.md` (if present — produced from the OpenAPI spec)
+```bash
+OPENAPI_SPECS='[{"id":"petstore","label":"Petstore","url":"https://petstore3.swagger.io/api/v3/openapi.json"}]' \
+pnpm start
+```
 
-You can generate or preview these locally; see the "OpenAPI / API docs" section below for `@redocly/cli` commands.
+### Endpoints
 
-# Technical details
+| URL | Description |
+|-----|-------------|
+| `http://localhost:8080/` | Portal index — lists all registered specs |
+| `http://localhost:8080/api/` | Portal's own API docs (Swagger UI) |
+| `http://localhost:8080/health` | Health check with spec count |
+| `http://localhost:8080/specs` | JSON list of registered specs |
+| `http://localhost:8080/specs/:id/redoc` | Redoc viewer for a spec |
+| `http://localhost:8080/specs/:id/swagger` | Swagger UI viewer for a spec |
+| `http://localhost:8080/specs/:id/openapi.json` | Raw OpenAPI JSON |
+| `http://localhost:8080/llms.txt` | Plain-text LLM summary of all specs |
 
-## What is fetched
-- A scheduler module periodically runs jobs to fetch telemetry and user data from configured upstream sources (Gainsight / PX APIs or other configured endpoints):
-  - Custom events
-  - Session events
-  - Page views
-  - User/profile data used for active-user metrics
+### Register a spec at runtime
 
-- Frequency:
-  - Scheduler uses cron-like annotations and runs at configured intervals (see scheduler.service.ts). Typical configuration fetches updates every few minutes for telemetry and less frequently for user aggregates.
+In dev mode no `Authorization` header is required.
 
-## How data is cached
-- The app uses per-tenant in-memory caches implemented by `ChronoArrayCache<T>` subclasses (e.g. `SessionEventsCacheService`, `PageViewCacheService`, `CustomEventsCacheService`).
-- Each tenant gets a date-sorted `T[]` array stored in a `Map<tenantId, T[]>`.
-- `setCache(items, tenantId)`
-  - Sorts the incoming batch by date ascending before appending.
-  - Appends to the tenant's array.
-  - Applies TTL eviction: items older than `TTL_DAYS` are dropped from the head.
-- `queryCache(start, end, tenantId)`
-  - Applies binary search (lower-bound for `start`, upper-bound for `end`) to find the slice in O(log n).
-  - Two O(1) fast paths: if `end` ≥ newest item, skip the upper-bound search; if `start` ≤ oldest item, skip the lower-bound search.
-  - Returns the matching slice.
+```bash
+# From a remote URL (auto-refreshes every ttlMs milliseconds)
+curl -X POST http://localhost:8080/admin/specs \
+  -H "Content-Type: application/json" \
+  -d '{"id":"petstore","label":"Petstore","url":"https://petstore3.swagger.io/api/v3/openapi.json","ttlMs":3600000}'
 
-## Cache behavior and guarantees
-- Per-tenant caches are in memory only (no persistence). A restart clears caches and scheduled fetchers must repopulate them.
-- `setCache` sorts incoming batches before appending and evicts records older than `TTL_DAYS` from the head of the array.
-- `queryCache` is synchronous and fast: binary search on a pre-sorted array gives O(log n) range lookups with O(1) fast paths for the common Grafana "up to now" and "all time" queries.
-- Each cache subclass implements `getDate(item)` to extract the numeric timestamp used for sorting and searching.
+# From an inline payload
+curl -X POST http://localhost:8080/admin/specs \
+  -H "Content-Type: application/json" \
+  -d '{"id":"myapi","label":"My API","content":{...openapi json...}}'
 
-## Operational notes & recommendations
-- Ensure scheduled fetches are non-blocking (no sync fs/exec or CPU-heavy synchronous work) — they run on the Node event loop and can block controller request handling if they block CPU.
-- Add timeouts around remote HTTP calls made by the scheduler to avoid stuck fetches.
-- Monitor memory usage: caches keep all fetched items in memory per tenant; if telemetry volume is large, consider retention windows or backing the cache with a persistent store.
-- Rehydrate cache on startup or expose a health endpoint to allow external tooling to verify caches are populated.
-- The service assumes input dates are ISO parsable. Make sure upstream data provides valid timestamps.
+# List all specs
+curl http://localhost:8080/admin/specs
 
-## OpenAPI / API docs
+# Force refresh a URL-backed spec
+curl -X POST http://localhost:8080/admin/specs/petstore/refresh
 
-- **Spec file shipped:** `docs/openapi.json` (OpenAPI v3.0.1) — a static spec covering the controllers in `src/api`.
-- **Generate / preview docs using Redocly CLI:** this repository includes `@redocly/cli` as a devDependency. After running `pnpm install` you can:
-  - Preview the docs locally: `npx @redocly/cli preview-docs docs/openapi.json`
-  - Bundle into a single-file HTML (example): `npx @redocly/cli build-docs docs/openapi.json -o docs/index.html`
-  - Inspect available commands: `npx @redocly/cli --help`
+# Delete a spec
+curl -X DELETE http://localhost:8080/admin/specs/petstore
+```
 
-The app already uses `@nestjs/swagger` to generate the OpenAPI spec at runtime. Run `pnpm run openapi:generate` to start the app in dev mode and write the live spec to `docs/openapi.json`.
+### Environment variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `DEV_MODE` | `false` | Skip auth checks and use `DEV_MODE_DOMAIN_*` for bootstrap |
+| `OPENAPI_SPECS` | — | JSON array of `RegisterSpecDto` objects to load at startup |
+| `PORT` | `8080` (dev) / `80` (prod) | Listening port |
+| `C8Y_BASEURL` | — | Cumulocity tenant base URL |
+| `C8Y_TENANT` | — | Cumulocity tenant ID |
+| `C8Y_USER` | — | Cumulocity service user |
+| `C8Y_PASSWORD` | — | Cumulocity service user password |
+
+Copy `sample.env` to `.env` and fill in the values for non-dev use.
+
+### `OPENAPI_SPECS` format
+
+```json
+[
+  {
+    "id": "petstore",
+    "label": "Petstore",
+    "url": "https://petstore3.swagger.io/api/v3/openapi.json",
+    "ttlMs": 3600000
+  },
+  {
+    "id": "internal",
+    "label": "Internal API",
+    "content": { "openapi": "3.0.0", "..." : "..." }
+  }
+]
+```
+
+---
+
+## Testing
+
+```bash
+pnpm test           # unit tests
+pnpm test:cov       # unit tests with coverage report
+pnpm test:e2e       # end-to-end tests
+```
+
+---
+
+## Cumulocity Deployment
+
+### 1. Build the microservice ZIP
+
+```bash
+pnpm build:image
+```
+
+This builds a `linux/amd64` Docker image and packages it with `cumulocity.json` into `.tmp/openapi-portal-ms.zip`.
+
+Requires Docker with `buildx` support.
+
+### 2. Upload to Cumulocity
+
+1. Open **Administration → Ecosystem → Microservices**
+2. Click **Add microservice** and upload `.tmp/openapi-portal-ms.zip`
+3. Subscribe the microservice to your tenant
+
+### 3. Configure specs
+
+Set the `OPENAPI_SPECS` environment variable in the microservice configuration (Administration → Microservices → openapi-portal-ms → Settings) to pre-populate the registry on startup.
+
+### 4. Auth in production
+
+With `DEV_MODE=false` (the default in production), all `/admin/*` endpoints require a valid Cumulocity `Authorization: Basic <base64>` header.
+
+```bash
+curl -X POST https://<tenant>.cumulocity.com/service/openapi-portal-ms/admin/specs \
+  -H "Authorization: Basic <base64(user:password)>" \
+  -H "Content-Type: application/json" \
+  -d '{"id":"myapi","label":"My API","url":"https://..."}'
+```
+
+---
+
+## Generate the portal's own OpenAPI spec
+
+```bash
+pnpm openapi:generate   # writes docs/openapi.json
+pnpm openapi:html       # renders docs/openapi.json → docs/index.html (Redoc)
+```
 
 ---
 
 ## Contributing
 
-- Add new files to `.gitignore` as needed for local env files (`.env.local`), IDE settings, and platform-specific files (`.DS_Store`).
-- Run:
-  - `pnpm install`
-  - `pnpm run lint`
-  - `pnpm test`
-  - `pnpm run build`
-- Use the same naming and route patterns as existing modules under `src/api`, `src/cache`, and `src/service`.
-- Do not commit secrets in `.env` or code.
+```bash
+pnpm install
+pnpm lint
+pnpm test
+pnpm build
+```
 
+Do not commit `.env` files or secrets.
