@@ -60,6 +60,18 @@ async function bootstrap() {
     }
   }
 
+  // Log every incoming request so we can confirm requests reach the app in production.
+  app.use((req: any, _res: any, next: any) => {
+    logger.warn(
+      `[http] ${req.method} ${req.path} | ` +
+        `cookie=${req.headers["cookie"] ? "present" : "absent"} | ` +
+        `auth=${req.headers["authorization"] ? "present" : "absent"} | ` +
+        `x-forwarded-host=${req.headers["x-forwarded-host"] ?? "(none)"} | ` +
+        `x-forwarded-proto=${req.headers["x-forwarded-proto"] ?? "(none)"}`,
+    );
+    next();
+  });
+
   const isDevMode = process.env.DEV_MODE === "true";
   const port = process.env.PORT ?? (isDevMode ? 8080 : 80);
   app.useLogger(["log", "error", "warn", "debug", "verbose"]);

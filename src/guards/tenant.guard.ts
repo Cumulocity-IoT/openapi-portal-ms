@@ -5,10 +5,11 @@ import { DevModeService } from "../service/dev-mode.service";
 /**
  * Verifies the caller is an authenticated Cumulocity user via GET /user/currentUser.
  *
- *   OAI-Secure: JWT from `authorization` cookie → Authorization: Bearer <jwt>
- *   Basic Auth: Authorization header forwarded as-is
+ * Follows MicroserviceClientRequestAuth pattern (cumulocity-ui SDK):
+ *   OAI-Secure: `authorization` cookie → Authorization: Bearer <jwt>  +  X-XSRF-TOKEN
+ *   Basic Auth / Bearer header: forwarded as-is
+ *   X-Forwarded-Host is always forwarded for SSO tenant resolution (MTM-66206).
  *
- * X-XSRF-TOKEN is a browser CSRF mechanism not needed for server-to-server calls.
  * In DEV_MODE the guard always passes.
  */
 @Injectable()
@@ -23,45 +24,55 @@ export class TenantGuard implements CanActivate {
     }
 
     const req = context.switchToHttp().getRequest<Request>();
+
+    this.logger.debug(
+      `[guard] ${req.method} ${req.path} | ` +
+        `cookie=${req.headers["cookie"] ? "present" : "absent"} | ` +
+        `authorization=${req.headers["authorization"] ? "present" : "absent"} | ` +
+        `x-forwarded-host=${req.headers["x-forwarded-host"] ?? "(none)"} | ` +
+        `C8Y_BASEURL=${process.env.C8Y_BASEURL ?? "(not set)"}`,
+    );
+
     const forwardHeaders = this.extractCredentialHeaders(req);
 
     if (!forwardHeaders) {
+      this.logger.warn("[guard] No usable credentials found in request — denying");
       throw new UnauthorizedException("Missing Cumulocity credentials (Basic Auth or OAI-Secure cookie)");
     }
 
     const baseUrl = this.resolveBaseUrl(req);
-    this.logger.debug(`Verifying credentials at ${baseUrl}/user/currentUser`);
+    this.logger.debug(`[guard] Calling ${baseUrl}/user/currentUser with Authorization=${forwardHeaders["Authorization"]?.slice(0, 20)}...`);
 
     const verified = await this.verifyWithCumulocity(baseUrl, forwardHeaders);
     if (!verified) {
+      this.logger.warn("[guard] /user/currentUser rejected credentials — denying");
       throw new UnauthorizedException("Cumulocity credential verification failed");
     }
 
+    this.logger.debug("[guard] Credentials verified — allowing");
     return true;
   }
 
   /**
-   * Builds the outgoing verification headers for the server-to-server call to
-   * GET /user/currentUser, following the pattern described in MTM-66206:
+   * Builds headers for the server-to-server /user/currentUser call.
    *
-   *   OAI-Secure: Authorization: Bearer <jwt>  +  X-XSRF-TOKEN  +  X-Forwarded-Host
-   *   Basic Auth: Authorization: Basic <base64>  +  X-Forwarded-Host
+   * Priority (mirrors MicroserviceClientRequestAuth from cumulocity-ui):
+   *  1. `authorization` cookie → Authorization: Bearer <jwt>  (OAI-Secure / SSO)
+   *  2. Authorization: Bearer <token> header   (already a bearer token)
+   *  3. Authorization: Basic <base64> header   (Basic Auth)
    *
-   * X-Forwarded-Host is required for tenant resolution when using SSO/external
-   * tokens — without it, Cumulocity cannot identify the tenant from the request domain.
+   * X-XSRF-TOKEN (from XSRF-TOKEN cookie) and X-Forwarded-Host are added when present.
    */
   private extractCredentialHeaders(req: Request): Record<string, string> | null {
-    // X-Forwarded-Host is needed for tenant resolution in SSO/external-token scenarios.
     const forwardedHost = req.headers["x-forwarded-host"] as string | undefined;
     const hostHeaders: Record<string, string> = forwardedHost ? { "X-Forwarded-Host": forwardedHost } : {};
 
     const cookie = req.headers["cookie"] as string | undefined;
-
     if (cookie) {
       const jwt = this.parseCookieValue(cookie, "authorization");
       const xsrf = this.parseCookieValue(cookie, "XSRF-TOKEN");
-
       if (jwt) {
+        this.logger.debug(`[guard] Using OAI-Secure cookie (jwt len=${jwt.length}, xsrf=${xsrf ? "present" : "absent"})`);
         return {
           Authorization: `Bearer ${jwt}`,
           ...(xsrf ? { "X-XSRF-TOKEN": xsrf } : {}),
@@ -71,7 +82,8 @@ export class TenantGuard implements CanActivate {
     }
 
     const authHeader = req.headers["authorization"] as string | undefined;
-    if (authHeader?.startsWith("Basic ")) {
+    if (authHeader?.startsWith("Bearer ") || authHeader?.startsWith("Basic ")) {
+      this.logger.debug(`[guard] Using Authorization header (${authHeader.split(" ")[0]})`);
       return { Authorization: authHeader, ...hostHeaders };
     }
 
@@ -94,12 +106,13 @@ export class TenantGuard implements CanActivate {
   private async verifyWithCumulocity(baseUrl: string, headers: Record<string, string>): Promise<boolean> {
     try {
       const res = await fetch(`${baseUrl}/user/currentUser`, { method: "GET", headers });
+      this.logger.debug(`[guard] /user/currentUser → ${res.status}`);
       if (res.status !== 200) {
-        this.logger.warn(`/user/currentUser returned ${res.status}`);
+        this.logger.warn(`[guard] /user/currentUser returned ${res.status} — body: ${await res.text().catch(() => "")}`);
       }
       return res.status === 200;
     } catch (err) {
-      this.logger.error(`Auth verification failed: ${String(err)}`);
+      this.logger.error(`[guard] fetch to /user/currentUser failed: ${String(err)}`);
       return false;
     }
   }

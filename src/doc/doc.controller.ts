@@ -1,4 +1,4 @@
-import { Controller, Get, Header, NotFoundException, Param, Res } from "@nestjs/common";
+import { Controller, Get, Header, NotFoundException, Param, Req, Res } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { Response } from "express";
 import { SpecRegistryService } from "../spec/spec-registry.service";
@@ -165,5 +165,16 @@ export class DocController {
   @ApiOperation({ summary: "Health check" })
   health(): { status: string; specCount: number } {
     return { status: "ok", specCount: this.registry.getAll().length };
+  }
+
+  /** Diagnostic: returns all request headers as received by the microservice. No auth required. */
+  @Get("/debug/headers")
+  @ApiOperation({ summary: "Return raw request headers (diagnostic, no auth)" })
+  debugHeaders(@Req() req: Request): Record<string, unknown> {
+    return {
+      headers: req.headers,
+      cookies: (req as any).cookies ?? "(no cookie parser)",
+      rawCookie: req.headers["cookie"],
+    };
   }
 }
