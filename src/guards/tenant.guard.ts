@@ -22,8 +22,16 @@ export class TenantGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<{ headers: Record<string, string> }>();
     const authHeader = request.headers["authorization"];
 
-    if (!authHeader || !authHeader.startsWith("Basic ")) {
-      throw new UnauthorizedException("Missing or invalid Authorization header");
+    // No Authorization header — request came through the Cumulocity proxy which
+    // already authenticated the user (browser/SSO sessions). Trust the proxy.
+    if (!authHeader) {
+      return true;
+    }
+
+    // If an Authorization header IS present it must be a well-formed Basic token.
+    // This validates direct API/curl calls that supply credentials explicitly.
+    if (!authHeader.startsWith("Basic ")) {
+      throw new UnauthorizedException("Unsupported authorization scheme — use Basic");
     }
 
     const base64Credentials = authHeader.replace("Basic ", "").trim();
@@ -31,7 +39,7 @@ export class TenantGuard implements CanActivate {
     const delimiterIndex = decoded.indexOf(":");
 
     if (delimiterIndex < 0 || !decoded.substring(0, delimiterIndex) || !decoded.substring(delimiterIndex + 1)) {
-      throw new UnauthorizedException("Invalid BasicAuth format");
+      throw new UnauthorizedException("Invalid Basic auth format");
     }
 
     return true;

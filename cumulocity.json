@@ -2,7 +2,7 @@
   "apiVersion": "2",
   "name": "openapi-portal-ms",
   "description": "Generic Cumulocity microservice that hosts and renders multiple OpenAPI specs (Redoc + Swagger UI).",
-  "version": "1.0.0",
+  "version": "1.0.0-SNAPSHOT",
   "provider": {
     "name": "Cumulocity"
   },
