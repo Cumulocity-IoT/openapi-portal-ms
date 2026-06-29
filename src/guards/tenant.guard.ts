@@ -99,7 +99,10 @@ export class TenantGuard implements CanActivate {
       return process.env.C8Y_BASEURL.replace(/\/$/, "");
     }
     const proto = (req.headers["x-forwarded-proto"] as string) ?? "https";
-    const host = (req.headers["x-forwarded-host"] as string) ?? (req.headers["host"] as string);
+    // x-forwarded-host may include a non-standard port (e.g. :444) added by the
+    // Cumulocity gateway — strip it so the verification call uses standard HTTPS.
+    const rawHost = (req.headers["x-forwarded-host"] as string) ?? (req.headers["host"] as string);
+    const host = rawHost?.split(":")[0] ?? rawHost;
     return `${proto}://${host}`;
   }
 

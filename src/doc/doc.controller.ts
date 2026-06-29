@@ -1,4 +1,4 @@
-import { Controller, Get, Header, NotFoundException, Param, Req, Res } from "@nestjs/common";
+import { Controller, Get, Header, NotFoundException, Param, Res } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { Response } from "express";
 import { SpecRegistryService } from "../spec/spec-registry.service";
@@ -53,7 +53,7 @@ export class DocController {
         <tr>
           <td>${s.id}</td>
           <td>${s.label}</td>
-          <td><a href="/specs/${s.id}/redoc">Redoc</a> &nbsp; <a href="/specs/${s.id}/swagger">Swagger UI</a></td>
+          <td><a href="specs/${s.id}/redoc">Redoc</a> &nbsp; <a href="specs/${s.id}/swagger">Swagger UI</a></td>
           <td>${s.url ?? "<em>uploaded</em>"}</td>
           <td>${s.fetchedAt.toISOString()}</td>
         </tr>`,
@@ -114,7 +114,9 @@ export class DocController {
     const entry = this.registry.getById(id);
     if (!entry) throw new NotFoundException(`Spec "${id}" not found`);
     res.setHeader("Content-Type", "text/html");
-    res.send(REDOC_HTML(`/specs/${id}/openapi.json`, entry.label));
+    // Use a path-relative URL so the browser resolves it correctly regardless
+    // of whether the microservice is mounted at / (dev) or /service/... (Cumulocity).
+    res.send(REDOC_HTML(`openapi.json`, entry.label));
   }
 
   /** Swagger UI viewer for a specific spec. */
@@ -125,7 +127,7 @@ export class DocController {
     const entry = this.registry.getById(id);
     if (!entry) throw new NotFoundException(`Spec "${id}" not found`);
     res.setHeader("Content-Type", "text/html");
-    res.send(SWAGGER_HTML(`/specs/${id}/openapi.json`, entry.label));
+    res.send(SWAGGER_HTML(`openapi.json`, entry.label));
   }
 
   /** Plain-text LLM summary — one block per registered spec. */
@@ -167,14 +169,5 @@ export class DocController {
     return { status: "ok", specCount: this.registry.getAll().length };
   }
 
-  /** Diagnostic: returns all request headers as received by the microservice. No auth required. */
-  @Get("/debug/headers")
-  @ApiOperation({ summary: "Return raw request headers (diagnostic, no auth)" })
-  debugHeaders(@Req() req: Request): Record<string, unknown> {
-    return {
-      headers: req.headers,
-      cookies: (req as any).cookies ?? "(no cookie parser)",
-      rawCookie: req.headers["cookie"],
-    };
-  }
+
 }
