@@ -43,9 +43,8 @@ export class DocController {
 
   /** Portal index — lists all registered specs with links to Redoc and Swagger UI. */
   @Get("/")
-  @Header("Content-Type", "text/html")
   @ApiOperation({ summary: "Portal home — lists all specs" })
-  portalIndex(): string {
+  portalIndex(@Res() res: Response): void {
     const specs = this.registry.getAll();
     const rows = specs.length
       ? specs
@@ -62,7 +61,8 @@ export class DocController {
           .join("")
       : `<tr><td colspan="5"><em>No specs registered yet. Use POST /admin/specs to add one.</em></td></tr>`;
 
-    return `<!DOCTYPE html>
+    res.setHeader("Content-Type", "text/html");
+    res.send(`<!DOCTYPE html>
 <html>
 <head>
   <title>OpenAPI Portal</title>
@@ -83,7 +83,7 @@ export class DocController {
     <tbody>${rows}</tbody>
   </table>
 </body>
-</html>`;
+</html>`);
   }
 
   /** JSON list of all registered specs (id + label). */
@@ -130,28 +130,34 @@ export class DocController {
 
   /** Plain-text LLM summary — one block per registered spec. */
   @Get("/llms.txt")
-  @Header("Content-Type", "text/plain; charset=utf-8")
   @ApiOperation({ summary: "LLM-friendly plain-text summary of all specs" })
-  llmsTxt(): string {
+  llmsTxt(@Res() res: Response): void {
     const specs = this.registry.getAll();
-    if (!specs.length) return "No specs registered.\n";
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
 
-    return specs
-      .map((s) => {
-        const entry = this.registry.getById(s.id)!;
-        const info = (entry.content as { info?: { title?: string; description?: string; version?: string } }).info ?? {};
-        return [
-          `# ${info.title ?? s.label}`,
-          info.version ? `> Version: ${info.version}` : "",
-          info.description ? `\n${info.description}` : "",
-          `\nOpenAPI JSON: /specs/${s.id}/openapi.json`,
-          `Interactive docs (Redoc): /specs/${s.id}/redoc`,
-          `Interactive docs (Swagger UI): /specs/${s.id}/swagger`,
-        ]
-          .filter(Boolean)
-          .join("\n");
-      })
-      .join("\n\n---\n\n");
+    if (!specs.length) {
+      res.send("No specs registered.\n");
+      return;
+    }
+
+    res.send(
+      specs
+        .map((s) => {
+          const entry = this.registry.getById(s.id)!;
+          const info = (entry.content as { info?: { title?: string; description?: string; version?: string } }).info ?? {};
+          return [
+            `# ${info.title ?? s.label}`,
+            info.version ? `> Version: ${info.version}` : "",
+            info.description ? `\n${info.description}` : "",
+            `\nOpenAPI JSON: /specs/${s.id}/openapi.json`,
+            `Interactive docs (Redoc): /specs/${s.id}/redoc`,
+            `Interactive docs (Swagger UI): /specs/${s.id}/swagger`,
+          ]
+            .filter(Boolean)
+            .join("\n");
+        })
+        .join("\n\n---\n\n"),
+    );
   }
 
   /** Health check. */
