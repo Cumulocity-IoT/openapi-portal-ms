@@ -1,0 +1,43 @@
+{
+  "apiVersion": "2",
+  "name": "swagger-sample-ms",
+  "description": "NestJS proof-of-concept demonstrating how to derive an OpenAPI specification from a microservice and publish it as a hosted HTML page on Cumulocity.",
+  "version": "0.1.18",
+  "provider": {
+    "name": "Cumulocity"
+  },
+  "type": "MICROSERVICE",
+  "isolation": "PER_TENANT",
+  "roles": [
+    "ROLE_GAINSIGHT_READ"
+  ],
+  "requiredRoles": [
+    "ROLE_OPTION_MANAGEMENT_READ",
+    "ROLE_OPTION_MANAGEMENT_ADMIN",
+    "ROLE_APPLICATION_MANAGEMENT_READ",
+    "ROLE_APPLICATION_MANAGEMENT_ADMIN",
+    "ROLE_BINARY_ADMIN"
+  ],
+  "livenessProbe": {
+    "httpGet": {
+      "path": "/health",
+      "port": 80
+    },
+    "initialDelaySeconds": 30,
+    "periodSeconds": 60
+  },
+  "readinessProbe": {
+    "httpGet": {
+      "path": "/health",
+      "port": 80
+    },
+    "initialDelaySeconds": 10,
+    "periodSeconds": 10
+  },
+  "requestedResources": {
+    "memory": "2048M"
+  },
+  "resources": {
+    "memory": "4096M"
+  }
+}

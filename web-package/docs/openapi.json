@@ -1,0 +1,405 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/items": {
+      "get": {
+        "description": "Returns all items. Use `category` to filter by category and `search` to perform a name-based text search.",
+        "operationId": "ItemsController_getItems",
+        "parameters": [
+          {
+            "name": "category",
+            "required": false,
+            "in": "query",
+            "description": "Filter by category: electronics, clothing, food, or tools.",
+            "schema": {
+              "enum": [
+                "electronics",
+                "clothing",
+                "food",
+                "tools"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Case-insensitive substring search on item name.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of items matching the given filters.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ItemDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basic": []
+          }
+        ],
+        "summary": "List items",
+        "tags": [
+          "items"
+        ]
+      },
+      "post": {
+        "description": "Creates a new item. A unique ID and `createdAt` timestamp are assigned automatically.",
+        "operationId": "ItemsController_createItem",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateItemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Item created successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basic": []
+          }
+        ],
+        "summary": "Create item",
+        "tags": [
+          "items"
+        ]
+      }
+    },
+    "/items/{id}": {
+      "get": {
+        "description": "Returns a single item by its unique identifier. Responds with 404 when the item does not exist.",
+        "operationId": "ItemsController_getItemById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Unique identifier of the item.",
+            "schema": {
+              "example": "item-001",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The requested item.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Item not found."
+          }
+        },
+        "security": [
+          {
+            "basic": []
+          }
+        ],
+        "summary": "Get item by ID",
+        "tags": [
+          "items"
+        ]
+      },
+      "put": {
+        "description": "Partially updates an existing item. Only the fields present in the request body are applied (patch semantics).",
+        "operationId": "ItemsController_updateItem",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Unique identifier of the item to update.",
+            "schema": {
+              "example": "item-001",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateItemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Item updated successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Item not found."
+          }
+        },
+        "security": [
+          {
+            "basic": []
+          }
+        ],
+        "summary": "Update item",
+        "tags": [
+          "items"
+        ]
+      },
+      "delete": {
+        "description": "Permanently removes an item by its unique identifier. Returns 204 No Content on success.",
+        "operationId": "ItemsController_deleteItem",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Unique identifier of the item to delete.",
+            "schema": {
+              "example": "item-001",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Item deleted successfully."
+          },
+          "404": {
+            "description": "Item not found."
+          }
+        },
+        "security": [
+          {
+            "basic": []
+          }
+        ],
+        "summary": "Delete item",
+        "tags": [
+          "items"
+        ]
+      }
+    },
+    "/items/counts/by-category": {
+      "get": {
+        "description": "Aggregates all items and returns a count per category, sorted by count descending.",
+        "operationId": "ItemsController_getCountsByCategory",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Array of category/count pairs sorted by count descending.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ItemCountDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basic": []
+          }
+        ],
+        "summary": "Count items by category",
+        "tags": [
+          "items"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "swagger-sample-ms API",
+    "description": "A NestJS proof-of-concept demonstrating how to derive OpenAPI documentation from a microservice using Swagger decorators (`@ApiTags`, `@ApiOperation`, `@ApiQuery`, `@ApiParam`, `@ApiBody`, `@ApiResponse`, `@ApiProperty`).\n\nAll endpoints require `Authorization: Basic <base64(user:password)>`.",
+    "version": "0.0.1",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "basic": {
+        "type": "http",
+        "scheme": "basic"
+      }
+    },
+    "schemas": {
+      "ItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the item",
+            "example": "item-001"
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name of the item",
+            "example": "Widget Pro"
+          },
+          "category": {
+            "type": "string",
+            "description": "Item category",
+            "example": "electronics",
+            "enum": [
+              "electronics",
+              "clothing",
+              "food",
+              "tools"
+            ]
+          },
+          "price": {
+            "type": "number",
+            "description": "Price in USD",
+            "example": 29.99
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional longer description of the item",
+            "example": "A high-quality widget for professional use."
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "ISO 8601 timestamp when the item was created",
+            "example": "2024-01-15T10:30:00.000Z"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "category",
+          "price",
+          "createdAt"
+        ]
+      },
+      "CreateItemDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Display name of the item",
+            "example": "Widget Pro"
+          },
+          "category": {
+            "type": "string",
+            "description": "Item category",
+            "example": "electronics",
+            "enum": [
+              "electronics",
+              "clothing",
+              "food",
+              "tools"
+            ]
+          },
+          "price": {
+            "type": "number",
+            "description": "Price in USD",
+            "example": 29.99
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional longer description of the item",
+            "example": "A high-quality widget for professional use."
+          }
+        },
+        "required": [
+          "name",
+          "category",
+          "price"
+        ]
+      },
+      "UpdateItemDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Updated display name",
+            "example": "Widget Pro Max"
+          },
+          "category": {
+            "type": "string",
+            "description": "Updated category",
+            "example": "tools",
+            "enum": [
+              "electronics",
+              "clothing",
+              "food",
+              "tools"
+            ]
+          },
+          "price": {
+            "type": "number",
+            "description": "Updated price in USD",
+            "example": 39.99
+          },
+          "description": {
+            "type": "string",
+            "description": "Updated description",
+            "example": "An upgraded high-quality widget."
+          }
+        }
+      },
+      "ItemCountDto": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string",
+            "description": "Category name",
+            "example": "electronics"
+          },
+          "count": {
+            "type": "number",
+            "description": "Number of items in this category",
+            "example": 12
+          }
+        },
+        "required": [
+          "category",
+          "count"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "apiVersion": "2",
+  "name": "openapi-portal-ms",
+  "description": "Generic Cumulocity microservice that hosts and renders multiple OpenAPI specs (Redoc + Swagger UI).",
+  "version": "1.0.0-SNAPSHOT",
+  "provider": {
+    "name": "Cumulocity"
+  },
+  "type": "MICROSERVICE",
+  "isolation": "PER_TENANT",
+  "roles": [],
+  "requiredRoles": [],
+  "livenessProbe": {
+    "httpGet": {
+      "path": "/health",
+      "port": 80
+    },
+    "initialDelaySeconds": 30,
+    "periodSeconds": 60
+  },
+  "readinessProbe": {
+    "httpGet": {
+      "path": "/health",
+      "port": 80
+    },
+    "initialDelaySeconds": 10,
+    "periodSeconds": 10
+  },
+  "requestedResources": {
+    "memory": "256M"
+  },
+  "resources": {
+    "memory": "512M"
+  }
+}
