@@ -86,15 +86,22 @@ The generated HTML can be deployed as a Cumulocity web application. Because it i
 
 ### The `docs/cumulocity.json` manifest
 
-`docs/cumulocity.json` is the manifest for the **static docs web application** (not the microservice). It defines the application name, context path, and content-security-policy that allows the Redoc page to load fonts and scripts correctly:
+`docs/cumulocity.json` is the manifest for the **static docs web application** (not the microservice). It defines the application name, context path, content-security-policy, and access settings:
 
 ```json
 {
   "name": "swagger-sample-ms-openapi",
   "contextPath": "swagger-sample-ms-openapi",
+  "noLogin": true,
   "contentSecurityPolicy": "..."
 }
 ```
+
+| Property | Value | Purpose |
+|----------|-------|---------|
+| `contextPath` | `"swagger-sample-ms-openapi"` | Determines the URL path on the tenant |
+| `noLogin` | `true` | Serves the application without requiring the user to log in |
+| `contentSecurityPolicy` | (see file) | Allows Redoc to load fonts and scripts correctly |
 
 The `contextPath` determines the URL on the tenant:
 ```
